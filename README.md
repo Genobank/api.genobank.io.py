@@ -48,6 +48,9 @@ Install all the dependencies using the following command:
 pip install -r requirements.txt
 ```
 
+## Configuring the env for the file
+
+
 ## Running the API
 
 ```sh
