@@ -47,3 +47,9 @@ Install all the dependencies using the following command:
 ```sh
 pip install -r requirements.txt
 ```
+
+Now you can run the API using the following command:
+on the folder where you have downloaded the repository run the following command:
+```sh
+python3 start.py
+```
