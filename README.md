@@ -28,7 +28,7 @@ Firs create a folder, enter on it and run the following command:
 virtualenv <name_of_enviroment>
 ```
 
-the '<name_of_enviroment>' can be any name you want.
+The '<name_of_enviroment>' can be any name you want.
 
 Now create a folder and download the repository using the following command:
 
@@ -36,9 +36,14 @@ Now create a folder and download the repository using the following command:
 git clone https://github.com/FranciscoTun2/api.genobank.io.git
 ```
 
-```sh
 
 Then you need to activate the virtual env using the following command:
+
+```sh
+. ../bin/activate
 ```
 
-
+Install all the dependencies using the following command:
+```sh
+pip install -r requirements.txt
+```
