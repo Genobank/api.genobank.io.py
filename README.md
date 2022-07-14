@@ -53,8 +53,6 @@ pip install -r requirements.txt
 
 ## Running the API
 
-```sh
-
 Now you can run the API using the following command:
 on the folder where you have downloaded the repository run the following command:
 ```sh
