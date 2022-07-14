@@ -8,7 +8,7 @@ This API is ONLY to create new Permittees on the Test Environment.
 ## Installing the dependencies
 Before to download this repository, you need to install the following dependencies:
 
-```bash
+```sh
 npm install
 ```
 
