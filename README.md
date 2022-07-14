@@ -5,7 +5,7 @@ This is the API documentation for the [Genobank](https://genobank.io) API.
 This API is ONLY for use by the Genobank team.
 This API is ONLY to create new Permittees on the Test Environment.
 
-
+## Installing the dependencies
 Before to download this repository, you need to install the following dependencies:
 
 ```bash
@@ -47,6 +47,10 @@ Install all the dependencies using the following command:
 ```sh
 pip install -r requirements.txt
 ```
+
+## Running the API
+
+```sh
 
 Now you can run the API using the following command:
 on the folder where you have downloaded the repository run the following command:
