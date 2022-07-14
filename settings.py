@@ -1,7 +1,6 @@
 class settings:
 	DOMAIN = "http://localhost:8080"
 	PORT = 8080
-	
 
 	# Database Settings
 	DBNAME = "genobank_db"
@@ -34,8 +33,7 @@ class settings:
 
 	# TEST WALLET (for testing purposes)
 	# **NEVER** write the configuration of your real wallet
-	TWELVE_WORDS = "visual assume setup shrimp deposit copy damage spirit skin crush this fragile"
-	MY_PRIVATE_KEY = "75d38c3079b68b8c9ad030b2688faf7d7951bee72e0fff047c565ad9c5bf3fea"
+
 	
 
 # Avocado Blockchain at Merida, Yucatan

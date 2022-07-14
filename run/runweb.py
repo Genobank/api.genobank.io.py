@@ -27,10 +27,13 @@
 from logging import raiseExceptions
 import cherrypy
 from cherrypy.lib import static
+import os
 
 import json
 import uuid
 import os
+from dotenv import load_dotenv
+
 
 
 # from web3 import Web3, HTTPProvider, IPCProvider, WebsocketProvider
@@ -40,10 +43,11 @@ import os
 from settings import settings
 
 class AppUnoServer(object):
-
 	def __init__(self):
 
 		return None
+
+	load_dotenv()
 
 	def jsonify_error(status, message, traceback, version):
 		return json.dumps({'status': 'Failure', 'status_details': {
@@ -68,21 +72,23 @@ class AppUnoServer(object):
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
 	def index(self):
-		return "Genobank.io (TM) Permittee Creator API"
+		return """
+		<title>genobank.api</title>
+		<h3>Genobank.io (TM)</h3>
+		Permittee Creator API 
+		"""+ os.getenv('MESSAGE')
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['POST'])
 	@cherrypy.tools.json_out()
-	def create_permitee(self, data, file=None):
+	def create_permitee(self, data, file = None):
 		try:
 			data = json.loads(data)
 			# file_name = self.geno_service.save_file_test(data, file)
 			return {"data" : data, "file_name" : file}
 		except Exception:
 			raiseExceptions
-
-
 
 class AppUno(object):
 	def __init__(self):
@@ -98,12 +104,13 @@ class AppUno(object):
 			'/': {
 				'tools.sessions.on': True,
 				'server.socket_port': os.path.abspath(os.getcwd()),
-				'response.timeout' : False
+				'response.timeout': False
 			}
+
 		}
 
 		cherrypy.server.socket_host = '0.0.0.0'
-		cherrypy.server.socket_port= port
+		cherrypy.server.socket_port = port
 		cherrypy.quickstart(AppUnoServer(), '/', conf)
 
 
