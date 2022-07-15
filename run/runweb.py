@@ -24,15 +24,15 @@
 # TODO_dd_mmm_yyyy - TODO_describe_appropriate_changes - TODO_name
 #--------------------------------------------------------------------------
 
-from logging import raiseExceptions
 import cherrypy
-from cherrypy.lib import static
 import os
 
 import json
-import uuid
 import os
+from libs import database
 from dotenv import load_dotenv
+from libs.dao import permitte_dao
+from libs.service import permittee_service
 
 
 
@@ -44,7 +44,9 @@ from settings import settings
 
 class AppUnoServer(object):
 	def __init__(self):
-
+		self.db = database.database()
+		permitte = permitte_dao.permittee_dao(self.db)
+		self.permittee_service = permittee_service.permittee_service(permitte)
 		return None
 
 	load_dotenv()
@@ -82,13 +84,17 @@ class AppUnoServer(object):
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['POST'])
 	@cherrypy.tools.json_out()
-	def create_permitee(self, data, file = None):
+	def create_permitee(self, id, address, secret):
 		try:
-			data = json.loads(data)
+			# create a web3 address object
+			data = self.permittee_service.create_permittee(id, address, secret)
+
+			# data = json.loads(data)
+			# print(data)
 			# file_name = self.geno_service.save_file_test(data, file)
-			return {"data" : data, "file_name" : file}
-		except Exception:
-			raiseExceptions
+			return data
+		except Exception as e:
+			print(e)
 
 class AppUno(object):
 	def __init__(self):

@@ -1,2 +1,7 @@
 CherryPy==18.7.0
 python-dotenv==0.20.0
+cryptography==37.0.4
+arrow==1.2.2
+psycopg2-binary==2.9.3
+requests==2.28.1
+web3==5.30.0
