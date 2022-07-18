@@ -115,6 +115,16 @@ class AppUnoServer(object):
 		except Exception as e:
 			print(e)
 
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.json_out()
+	def testing_db(self):
+		try:
+			return self.permittee_service.testing_mongo_db()
+		except Exception as e:
+			print(e)
+
 			
 
 class AppUno(object):

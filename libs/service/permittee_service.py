@@ -28,8 +28,12 @@ class permittee_service:
       return False, "Permittee ID #" + id + " was already registered."
     elif resp.status_code == 400:
       created = self.permittee.create_permittee(id, address, secret)
-      return created, "Created new permittee with ID #" + id
-    
+      if created:
+        return True, "Created new permittee with ID #" + id
+      else:
+        return False, "Failed to create new permittee, please try again later"
+  def testing_mongo_db(self):
+    return self.permittee.testing_mogo_db()
 
     
 
