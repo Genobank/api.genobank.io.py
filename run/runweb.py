@@ -106,11 +106,9 @@ class AppUnoServer(object):
 	@cherrypy.tools.json_out()
 	def create_experimental_permitee(self, id, address, secret):
 		try:
-
 			message=id+address
 			hash1 = hmac.new(secret.encode('utf-8'),msg=message.encode(), digestmod="sha256")
 			self.create_permitee(id, address, hash1.hexdigest())
-
 			return hash1.hexdigest()
 		except Exception as e:
 			print(e)

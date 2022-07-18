@@ -86,9 +86,14 @@ class permittee_dao:
       createTokenId = '0x000000000000' + left_id + wallet[2:]
 
       # parse createTokenId from string to uint256
+
+
       createTokenId = int(createTokenId, 16)
 
-      print("createTokenId", createTokenId)
+      # parse createTokenId to hex string
+      # createTokenId = web3.Web3.toHex(createTokenId)
+
+      print("createTokenId", format(createTokenId,'#64x'))
 
       tx = token.functions.mint(createTokenId, wallet, 'ACTIVE').buildTransaction({
           'nonce': self.w3.eth.getTransactionCount(self.account.address)

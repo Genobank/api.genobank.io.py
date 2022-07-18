@@ -32,6 +32,8 @@ class permittee_service:
         return True, "Created new permittee with ID #" + id
       else:
         return False, "Failed to create new permittee, please try again later"
+  
+  
   def testing_mongo_db(self):
     return self.permittee.testing_mogo_db()
 
