@@ -44,8 +44,8 @@ from settings import settings
 
 class AppUnoServer(object):
 	def __init__(self):
-		self.db = database.database()
-		permitte = permitte_dao.permittee_dao(self.db)
+		# self.db = database.database()
+		permitte = permitte_dao.permittee_dao()
 		self.permittee_service = permittee_service.permittee_service(permitte)
 		return None
 
@@ -95,6 +95,9 @@ class AppUnoServer(object):
 			return data
 		except Exception as e:
 			print(e)
+
+
+			
 
 class AppUno(object):
 	def __init__(self):
