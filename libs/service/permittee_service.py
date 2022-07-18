@@ -25,10 +25,10 @@ class permittee_service:
     if resp.status_code != 200 and resp.status_code != 400:
       raise Exception("Failed to create new permittee, please try again later")
     elif resp.status_code == 200:
-      return "Permittee ID #" + id + " was already registered."
+      return False, "Permittee ID #" + id + " was already registered."
     elif resp.status_code == 400:
       created = self.permittee.create_permittee(id, address, secret)
-      return created
+      return created, "Created new permittee with ID #" + id
     
 
     

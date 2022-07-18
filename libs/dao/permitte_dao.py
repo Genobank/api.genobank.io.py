@@ -14,9 +14,10 @@ import json
 
 class permittee_dao:
   def __init__(self):
-    self.w3 = Web3(HTTPProvider(settings.PROVIDER))
+    # self.w3 = Web3(HTTPProvider(settings.PROVIDER))
+    self.w3 = Web3(HTTPProvider(os.getenv('PROVIDER')))
     self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
-    self.account = self.w3.eth.account.privateKeyToAccount(os.getenv('ROOT_KEY'))
+    self.account = self.w3.eth.account.privateKeyToAccount(os.getenv('ROOT_KEY_EXECUTOR'))
 
     self.SM_JSONINTERFACE = self.load_smart_contract(os.getenv('ABI_SM_PATH'))
 
@@ -27,18 +28,14 @@ class permittee_dao:
   
 
   def create_permittee(self, id, address, secret):
-
-    # create a web3 address object
     my_address = web3.Web3.toChecksumAddress(address)
-    
-    # print(type()my_address)
-
-
-    # # we need to insert in a mongo db
-    # receiver_address = "0x" + address
-    # permitte_id = id
     if not self.checkPermitteeSecret(id, my_address, secret):
       raise Exception("Invalid secret")
+    self.mint_permittee(id, my_address)
+
+
+
+
 
 
     # try:
@@ -54,38 +51,48 @@ class permittee_dao:
 
 
   def load_smart_contract(self,path):
-        solcOutput = {}
+        solc_output = {}
         try:
             with open(path) as inFile:
-                solcOutput = json.load(inFile)
+                solc_output = json.load(inFile)
         except Exception as e:
             print(f"ERROR: Could not load file {path}: {e}")
-        return solcOutput
+        return solc_output
 
 
   def checkPermitteeSecret(self, id, address, secret):
     try:
       # hmac1 = hmac.new(secret.encode('utf-8'), digestmod=hashlib.sha256)
+      secret = str(secret)
       message=id+address
       hmac1 = hmac.new(os.getenv('APP_SECRET').encode('utf-8'),msg=message.encode(), digestmod="sha256")
-      return hmac1.hexdigest()
+      hmac1 = str(hmac1.hexdigest())
+
+      return hmac1 == secret
     except Exception as e:
       raise e
 
 
-  def mint_permittee(self, metadata):
-    wallet = metadata["wallet"]
-    contract = self.w3.eth.contract(address=os.getenv('SMART_CONTRACT'), abi=self.SM_JSONINTERFACE['abi'])
-    id_address = int(wallet, 16)
-    # tx = contract.functions.mint(id_address, wallet, 'ACTIVE').buildTransaction({
+  def mint_permittee(self, id, address):
+    wallet = self.w3.eth.account.privateKeyToAccount(os.getenv('ROOT_KEY_EXECUTOR')).address
+    print("Executor wallet", wallet)
+    int_id = int(id)
+    contract_address = os.getenv('SMART_CONTRACT')
+
+    token = self.w3.eth.contract(address=os.getenv('SMART_CONTRACT'), abi=self.SM_JSONINTERFACE['abi'])
+    print("token", token)
+    # createTokenId = int(wallet, 16)
+    # add twelve zeros to the left of the id
+    left_id = str(int_id).zfill(12)
+    createTokenId = '0x000000000000' + left_id + wallet[2:]
+
+
+    # tx = token.functions.mint(createTokenId, wallet, 'ACTIVE').buildTransaction({
     #     'nonce': self.w3.eth.getTransactionCount(self.account.address)
     # })
-
-    tx = contract.functions.paid_mint(id_address, wallet, 'ACTIVE').buildTransaction({
-        'nonce': self.w3.eth.getTransactionCount(self.account.address)
-    })
-    signed_tx = self.w3.eth.account.signTransaction(tx, private_key=settings.ROOT_KEY)
-    tx_hash = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
-    self.w3.eth.waitForTransactionReceipt(tx_hash)    
-    print("tx hash\n",tx_hash.hex())
-    return tx_hash.hex()
+    
+    # signed_tx = self.w3.eth.account.signTransaction(tx, private_key=os.getenv('ROOT_KEY_EXECUTOR'))
+    # tx_hash = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+    # self.w3.eth.waitForTransactionReceipt(tx_hash)    
+    # print("tx hash\n",tx_hash.hex())
+    # return tx_hash.hex()

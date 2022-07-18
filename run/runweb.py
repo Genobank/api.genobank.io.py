@@ -33,6 +33,8 @@ from libs import database
 from dotenv import load_dotenv
 from libs.dao import permitte_dao
 from libs.service import permittee_service
+import hmac
+
 
 
 
@@ -96,6 +98,22 @@ class AppUnoServer(object):
 		except Exception as e:
 			print(e)
 
+
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.json_out()
+	def create_experimental_permitee(self, id, address, secret):
+		try:
+
+			message=id+address
+			hash1 = hmac.new(secret.encode('utf-8'),msg=message.encode(), digestmod="sha256")
+			self.create_permitee(id, address, hash1.hexdigest())
+
+			return hash1.hexdigest()
+		except Exception as e:
+			print(e)
 
 			
 
