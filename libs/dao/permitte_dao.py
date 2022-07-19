@@ -141,6 +141,15 @@ class permittee_dao:
     except Exception as e:
       print(e)
       return False
+
+
+  def delete_permittee(self, id):
+    try:
+      id = int(id)
+      self.db.permittees.delete_one({"serial": id})
+      return True
+    except Exception as e:
+      raise e
     
   def testing_mogo_db(self):
     # tables [

@@ -95,6 +95,17 @@ class AppUnoServer(object):
 		except Exception as e:
 			print(e)
 
+	
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.json_out()
+	def delete_permittee(self, id):
+		try:
+			deleted = self.permittee_service.delete_permittee(id)
+			return deleted
+		except Exception as e:
+			print(e)
 
 
 	@cherrypy.expose
@@ -109,6 +120,8 @@ class AppUnoServer(object):
 			return msg
 		except Exception as e:
 			print(e)
+
+
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})

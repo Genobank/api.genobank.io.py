@@ -38,6 +38,10 @@ class permittee_service:
         return False, "Failed to create new permittee, please try again later"
   
   
+  def delete_permittee(self, id):
+    return self.permittee.delete_permittee(id)
+
+
   def testing_mongo_db(self):
     return self.permittee.testing_mogo_db()
 
