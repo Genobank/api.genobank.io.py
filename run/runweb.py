@@ -86,14 +86,12 @@ class AppUnoServer(object):
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['POST'])
 	@cherrypy.tools.json_out()
-	def create_permitee(self, id, address, secret):
+	async def create_permitee(self, id, address, secret):
 		try:
-			# create a web3 address object
-			created, msg = self.permittee_service.create_permittee(id, address, secret)
+			created, msg = await self.permittee_service.create_permittee(id, address, secret)
 			return msg
-			# return data
-		except Exception as e:
-			print(e)
+		except :
+			raise
 
 	
 	@cherrypy.expose
@@ -103,7 +101,7 @@ class AppUnoServer(object):
 	def delete_permittee(self, id):
 		try:
 			deleted = self.permittee_service.delete_permittee(id)
-			return deleted
+			return True
 		except Exception as e:
 			print(e)
 
@@ -116,10 +114,11 @@ class AppUnoServer(object):
 		try:
 			message=id+address
 			hash1 = hmac.new(secret.encode('utf-8'),msg=message.encode(), digestmod="sha256")
-			msg = self.create_permitee(id, address, hash1.hexdigest())
-			return msg
-		except Exception as e:
-			print(e)
+			# msg = await self.create_permitee(id, address, hash1.hexdigest())
+			created, msg = self.permittee_service.create_permittee(id, address, hash1.hexdigest())
+			return "msg"
+		except:
+			raise
 
 
 

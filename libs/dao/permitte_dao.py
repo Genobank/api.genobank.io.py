@@ -35,59 +35,40 @@ class permittee_dao:
   
 
   def create_permittee(self, id, address, secret):
-    my_address = web3.Web3.toChecksumAddress(address)
-
-    if not self.checkPermitteeSecret(id, my_address, secret):
-      raise Exception("Invalid secret")
-    
-    minted, tokenId = self.mint_permittee(id, my_address)
-    if not minted:
-      raise Exception("Could not mint permittee")
-
     try:
-      # pass
-      self.db.permittees.insert_one({
-        'serial': id,
-        'actor': self.account.address,
-        'owner': address,
-        'status': 'ACTIVE',
-        'tokenId': tokenId
-      })
+      my_address = web3.Web3.toChecksumAddress(address)
+      if not self.checkPermitteeSecret(id, my_address, secret):
+        raise Exception("Invalid secret")
+      minted, tokenId = self.mint_permittee(id, my_address)
+      if not minted:
+        raise Exception("Could not mint permittee")
 
-      return True
+      return self.insert_in_database(int(id), my_address, tokenId, minted)
     except Exception as e:
       raise e
 
-  def insert_in_database(self, id, address):
+  def insert_in_database(self, id, address, token_id, tx_hash):
     try:
-      int_id = int(id)
-      left_id = str(int_id).zfill(12)
-      tokenId = '0x000000000000' + left_id + self.account.address[2:]
+      # int_id = int(id)
+      # left_id = str(int_id).zfill(12)
+      # token_id = '0x000000000000' + left_id + self.account.address[2:]
 
-      # get date like "2022-07-14T01:59:14.252Z"
-      date = datetime.datetime.now().isoformat()
-
-      print("\n\n\n\n",str(date))
-      
-      myFields = {
-			'serial': int_id,
+      _fields = {
+			'serial': id,
 			'actor': self.account.address,
 			'owner': address,
 			'status': 'ACTIVE',
-			'tokenId': tokenId,
+			'tokenId': token_id,
       'createdAt': datetime.datetime.now(),
       'updatedAt': datetime.datetime.now(),
-			'txHash': '0x1a26f08b1361abe190596f3dcdc99877510de38b837a87c9a71e3ad8c70cea3c',
+			'txHash': '0x' + tx_hash,
 			'sequenceIndicator': 2
 			}
 
 
-      x = self.db.permittees.insert_one(myFields)
-      print(x.inserted_id)
+      x = self.db.permittees.insert_one(_fields)
+      return x.inserted_id
 
-      # self.db.permittees.delete_one({"serial": 52})
-
-      return True
     except:
       raise
 
@@ -113,10 +94,9 @@ class permittee_dao:
       raise e
 
 
-  def mint_permittee(self, id, address):
+  async def mint_permittee(self, id, address):
     try:
       wallet = self.w3.eth.account.privateKeyToAccount(os.getenv('ROOT_KEY_EXECUTOR')).address
-      print("Executor wallet", wallet)
       int_id = int(id)
       contract_address = os.getenv('SMART_CONTRACT')
       token = self.w3.eth.contract(address=contract_address, abi=self.SM_JSONINTERFACE['abi'])
@@ -125,9 +105,6 @@ class permittee_dao:
 
       id_token = int(createTokenId, 16)
       #  createTokenId = int(self.account.address, 16)
-
-      print(id_token)
-      print(wallet)
 
       tx = token.functions.mint(id_token, address, 'ACTIVE').buildTransaction({
             'from': self.account.address,
@@ -138,9 +115,8 @@ class permittee_dao:
       tx_hash = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
       print("tx hash\n",tx_hash.hex())
       return tx_hash.hex(), createTokenId
-    except Exception as e:
-      print(e)
-      return False
+    except:
+      raise
 
 
   def delete_permittee(self, id):
@@ -152,22 +128,7 @@ class permittee_dao:
       raise e
     
   def testing_mogo_db(self):
-    # tables [
-      # 'logs',
-      # 'transaction-queue',
-      # 'documents',
-      # 'migrations',
-      # 'profiles',
-      # 'biosamples',
-      # 'certificates',
-      # 'permittees',
-      # 'publicKeys',
-      # 'syncs',
-      # 'counters', 'consents', 'permissions', 'token-metadata', 'biosample-activations', 'metadata']
-
     try:
-      print(self.client.list_database_names())
-      print(self.db.list_collection_names())
       collection = self.db.permittees
       cur = collection.find()
       row = []
