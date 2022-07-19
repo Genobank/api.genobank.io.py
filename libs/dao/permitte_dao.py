@@ -34,6 +34,7 @@ class permittee_dao:
 
   def create_permittee(self, id, address, secret):
     my_address = web3.Web3.toChecksumAddress(address)
+
     if not self.checkPermitteeSecret(id, my_address, secret):
       raise Exception("Invalid secret")
     
@@ -49,6 +50,7 @@ class permittee_dao:
         'status': 'ACTIVE',
         'tokenId': tokenId
       })
+
       return True
     except Exception as e:
       raise e
@@ -83,19 +85,17 @@ class permittee_dao:
       contract_address = os.getenv('SMART_CONTRACT')
       token = self.w3.eth.contract(address=contract_address, abi=self.SM_JSONINTERFACE['abi'])
       left_id = str(int_id).zfill(12)
-      createTokenId = '0x000000000000' + left_id + wallet[2:]
-
-      # parse createTokenId from string to uint256
+      # createTokenId = '0x000000000000' + left_id + wallet[2:]
 
 
-      createTokenId = int(createTokenId, 16)
 
-      # parse createTokenId to hex string
-      # createTokenId = web3.Web3.toHex(createTokenId)
+      createTokenId = int(self.account.address, 16)
+      print(createTokenId)
+      print(wallet)
 
-      print("createTokenId", format(createTokenId,'#64x'))
 
-      tx = token.functions.mint(createTokenId, wallet, 'ACTIVE').buildTransaction({
+
+      tx = token.functions.mint(createTokenId, address, 'ACTIVE').buildTransaction({
           'nonce': self.w3.eth.getTransactionCount(self.account.address)
       })
       
@@ -104,8 +104,9 @@ class permittee_dao:
       self.w3.eth.waitForTransactionReceipt(tx_hash)    
       print("tx hash\n",tx_hash.hex())
       return tx_hash.hex(), createTokenId
-    except Exception as e:
-      print(e)
+    except:
+      # print(e)
+      raise
       return False
     
   def testing_mogo_db(self):
