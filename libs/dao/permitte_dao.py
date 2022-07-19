@@ -3,12 +3,14 @@ from hmac import digest
 from dotenv import load_dotenv
 from web3 import Web3, HTTPProvider
 from web3.middleware import geth_poa_middleware
+from pymongo import MongoClient
+
 
 import os
 import web3
 import hmac
 import json
-from pymongo import MongoClient
+import datetime
 
 
 
@@ -43,6 +45,7 @@ class permittee_dao:
       raise Exception("Could not mint permittee")
 
     try:
+      # pass
       self.db.permittees.insert_one({
         'serial': id,
         'actor': self.account.address,
@@ -54,6 +57,39 @@ class permittee_dao:
       return True
     except Exception as e:
       raise e
+
+  def insert_in_database(self, id, address):
+    try:
+      int_id = int(id)
+      left_id = str(int_id).zfill(12)
+      tokenId = '0x000000000000' + left_id + self.account.address[2:]
+
+      # get date like "2022-07-14T01:59:14.252Z"
+      date = datetime.datetime.now().isoformat()
+
+      print("\n\n\n\n",str(date))
+      
+      myFields = {
+			'serial': int_id,
+			'actor': self.account.address,
+			'owner': address,
+			'status': 'ACTIVE',
+			'tokenId': tokenId,
+      'createdAt': datetime.datetime.now(),
+      'updatedAt': datetime.datetime.now(),
+			'txHash': '0x1a26f08b1361abe190596f3dcdc99877510de38b837a87c9a71e3ad8c70cea3c',
+			'sequenceIndicator': 2
+			}
+
+
+      x = self.db.permittees.insert_one(myFields)
+      print(x.inserted_id)
+
+      # self.db.permittees.delete_one({"serial": 52})
+
+      return True
+    except:
+      raise
 
   def load_smart_contract(self,path):
         solc_output = {}
@@ -85,31 +121,41 @@ class permittee_dao:
       contract_address = os.getenv('SMART_CONTRACT')
       token = self.w3.eth.contract(address=contract_address, abi=self.SM_JSONINTERFACE['abi'])
       left_id = str(int_id).zfill(12)
-      # createTokenId = '0x000000000000' + left_id + wallet[2:]
+      createTokenId = '0x000000000000' + left_id + self.account.address[2:]
 
+      id_token = int(createTokenId, 16)
+      #  createTokenId = int(self.account.address, 16)
 
-
-      createTokenId = int(self.account.address, 16)
-      print(createTokenId)
+      print(id_token)
       print(wallet)
 
-
-
-      tx = token.functions.mint(createTokenId, address, 'ACTIVE').buildTransaction({
-          'nonce': self.w3.eth.getTransactionCount(self.account.address)
+      tx = token.functions.mint(id_token, address, 'ACTIVE').buildTransaction({
+            'from': self.account.address,
+            'nonce': self.w3.eth.getTransactionCount(self.account.address),
       })
-      
+
       signed_tx = self.w3.eth.account.signTransaction(tx, private_key=os.getenv('ROOT_KEY_EXECUTOR'))
       tx_hash = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
-      self.w3.eth.waitForTransactionReceipt(tx_hash)    
       print("tx hash\n",tx_hash.hex())
       return tx_hash.hex(), createTokenId
-    except:
-      # print(e)
-      raise
+    except Exception as e:
+      print(e)
       return False
     
   def testing_mogo_db(self):
+    # tables [
+      # 'logs',
+      # 'transaction-queue',
+      # 'documents',
+      # 'migrations',
+      # 'profiles',
+      # 'biosamples',
+      # 'certificates',
+      # 'permittees',
+      # 'publicKeys',
+      # 'syncs',
+      # 'counters', 'consents', 'permissions', 'token-metadata', 'biosample-activations', 'metadata']
+
     try:
       print(self.client.list_database_names())
       print(self.db.list_collection_names())

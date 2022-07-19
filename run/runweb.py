@@ -89,12 +89,9 @@ class AppUnoServer(object):
 	def create_permitee(self, id, address, secret):
 		try:
 			# create a web3 address object
-			data = self.permittee_service.create_permittee(id, address, secret)
-
-			# data = json.loads(data)
-			# print(data)
-			# file_name = self.geno_service.save_file_test(data, file)
-			return data
+			created, msg = self.permittee_service.create_permittee(id, address, secret)
+			return msg
+			# return data
 		except Exception as e:
 			print(e)
 
@@ -108,8 +105,8 @@ class AppUnoServer(object):
 		try:
 			message=id+address
 			hash1 = hmac.new(secret.encode('utf-8'),msg=message.encode(), digestmod="sha256")
-			self.create_permitee(id, address, hash1.hexdigest())
-			return hash1.hexdigest()
+			msg = self.create_permitee(id, address, hash1.hexdigest())
+			return msg
 		except Exception as e:
 			print(e)
 
