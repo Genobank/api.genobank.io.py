@@ -24,6 +24,7 @@ class permittee_service:
       resp = requests.get(
         os.getenv('API_PERMITTEES')+"{0}".format(id)
         )
+      print(resp.status_code)
       if resp.status_code != 200 and resp.status_code != 400:
         raise Exception("Failed to create new permittee, please try again later")
       elif resp.status_code == 200:

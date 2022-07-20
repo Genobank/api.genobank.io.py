@@ -11,7 +11,7 @@ import web3
 import hmac
 import json
 import datetime
-
+import time
 
 
 
@@ -37,21 +37,33 @@ class permittee_dao:
   def create_permittee(self, id, address, secret):
     try:
       my_address = web3.Web3.toChecksumAddress(address)
+      print("my_address",my_address)
       if not self.checkPermitteeSecret(id, my_address, secret):
         raise Exception("Invalid secret")
-      minted, tokenId = self.mint_permittee(id, my_address)
-      if not minted:
+      print("SI se valida el checkPermitteeSecret")
+      token_hash = self.mint_permittee(id, my_address)
+      print("token_hash",token_hash)
+      if not token_hash:
         raise Exception("Could not mint permittee")
 
-      return self.insert_in_database(int(id), my_address, tokenId, minted)
+
+      print("\n\n",token_hash)
+
+      created = self.insert_in_database(int(id), my_address, token_hash)
+      
+      if created:
+        return created
+      else:
+        return False
     except Exception as e:
       raise e
 
-  def insert_in_database(self, id, address, token_id, tx_hash):
+  def insert_in_database(self, id, address, tx_hash):
     try:
-      # int_id = int(id)
-      # left_id = str(int_id).zfill(12)
-      # token_id = '0x000000000000' + left_id + self.account.address[2:]
+      print("\n\ntoken_hash\n",tx_hash,"\n\n")
+      int_id = int(id)
+      left_id = str(int_id).zfill(12)
+      token_id = '0x000000000000' + left_id + self.account.address[2:]
 
       _fields = {
 			'serial': id,
@@ -94,7 +106,7 @@ class permittee_dao:
       raise e
 
 
-  async def mint_permittee(self, id, address):
+  def mint_permittee(self, id, address):
     try:
       wallet = self.w3.eth.account.privateKeyToAccount(os.getenv('ROOT_KEY_EXECUTOR')).address
       int_id = int(id)
@@ -103,20 +115,40 @@ class permittee_dao:
       left_id = str(int_id).zfill(12)
       createTokenId = '0x000000000000' + left_id + self.account.address[2:]
 
+      print(createTokenId)
+
       id_token = int(createTokenId, 16)
       #  createTokenId = int(self.account.address, 16)
 
+      print("\n\ntoken_id: " + str(id_token))
+      print("reciver",address)
+      print('ACTIVE\n\n')
+
       tx = token.functions.mint(id_token, address, 'ACTIVE').buildTransaction({
             'from': self.account.address,
-            'nonce': self.w3.eth.getTransactionCount(self.account.address),
+            'nonce': self.w3.eth.getTransactionCount(self.account.address)
       })
+
+      print("tx",tx)
 
       signed_tx = self.w3.eth.account.signTransaction(tx, private_key=os.getenv('ROOT_KEY_EXECUTOR'))
       tx_hash = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
-      print("tx hash\n",tx_hash.hex())
-      return tx_hash.hex(), createTokenId
-    except:
+      tx_receipt = self.w3.eth.waitForTransactionReceipt(tx_hash)    
+      print("tx hash\n",tx_hash.hex(),"\n\n\n")
+      return tx_hash.hex()
+    except:#Exception as e:
       raise
+      # if e.args[0]['code'] < 0:
+      #   time.sleep(5)
+      #   return self.mint_permittee(id, address)
+      # else:
+      #   msg = ""
+      #   if 'message' in e.args[0]:
+      #     msg = str(e.args[0]['message'])
+      #   else:
+      #     msg = str(e)
+      #   raise Exception(msg)
+
 
 
   def delete_permittee(self, id):
