@@ -40,17 +40,10 @@ class permittee_dao:
       print("my_address",my_address)
       if not self.checkPermitteeSecret(id, my_address, secret):
         raise Exception("Invalid secret")
-      print("SI se valida el checkPermitteeSecret")
       token_hash = self.mint_permittee(id, my_address)
-      print("token_hash",token_hash)
       if not token_hash:
         raise Exception("Could not mint permittee")
-
-
-      print("\n\n",token_hash)
-
       created = self.insert_in_database(int(id), my_address, token_hash)
-      
       if created:
         return created
       else:
@@ -60,7 +53,6 @@ class permittee_dao:
 
   def insert_in_database(self, id, address, tx_hash):
     try:
-      print("\n\ntoken_hash\n",tx_hash,"\n\n")
       int_id = int(id)
       left_id = str(int_id).zfill(12)
       token_id = '0x000000000000' + left_id + self.account.address[2:]
@@ -77,10 +69,8 @@ class permittee_dao:
 			'sequenceIndicator': 2
 			}
 
-
       x = self.db.permittees.insert_one(_fields)
       return x.inserted_id
-
     except:
       raise
 
@@ -95,7 +85,6 @@ class permittee_dao:
 
   def checkPermitteeSecret(self, id, address, secret):
     try:
-      # hmac1 = hmac.new(secret.encode('utf-8'), digestmod=hashlib.sha256)
       secret = str(secret)
       message=id+address
       hmac1 = hmac.new(os.getenv('APP_SECRET').encode('utf-8'),msg=message.encode(), digestmod="sha256")
@@ -115,26 +104,16 @@ class permittee_dao:
       left_id = str(int_id).zfill(12)
       createTokenId = '0x000000000000' + left_id + self.account.address[2:]
 
-      print(createTokenId)
-
       id_token = int(createTokenId, 16)
-      #  createTokenId = int(self.account.address, 16)
-
-      print("\n\ntoken_id: " + str(id_token))
-      print("reciver",address)
-      print('ACTIVE\n\n')
 
       tx = token.functions.mint(id_token, address, 'ACTIVE').buildTransaction({
             'from': self.account.address,
             'nonce': self.w3.eth.getTransactionCount(self.account.address)
       })
 
-      print("tx",tx)
-
       signed_tx = self.w3.eth.account.signTransaction(tx, private_key=os.getenv('ROOT_KEY_EXECUTOR'))
       tx_hash = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
       tx_receipt = self.w3.eth.waitForTransactionReceipt(tx_hash)    
-      print("tx hash\n",tx_hash.hex(),"\n\n\n")
       return tx_hash.hex()
     except:#Exception as e:
       raise

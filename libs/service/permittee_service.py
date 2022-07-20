@@ -32,10 +32,9 @@ class permittee_service:
       elif resp.status_code == 400:
         created = self.permittee.create_permittee(id, address, secret)
         # created = self.permittee.insert_in_database(id, address)
-        if created:
-          return True, "Created new permittee with ID #" + created
-        else:
-          return False, "Failed to create new permittee, please try again later"
+        if not created:
+          raise Exception("Failed to create new permittee, please try again later")
+        return created
     except:
       raise
   
