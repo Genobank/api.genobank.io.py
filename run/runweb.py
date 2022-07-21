@@ -139,6 +139,17 @@ class AppUnoServer(object):
 		except Exception as e:
 			print(e)
 
+
+	
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.json_out()
+	def search_all_by_table(self, table=None):
+		try:
+			return self.permittee_service.find_all_by_table(table)
+		except Exception as e:
+			print(e)
 			
 
 class AppUno(object):

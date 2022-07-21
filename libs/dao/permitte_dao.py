@@ -37,17 +37,17 @@ class permittee_dao:
   def create_permittee(self, id, address, secret):
     try:
       my_address = web3.Web3.toChecksumAddress(address)
-      print("my_address",my_address)
       if not self.checkPermitteeSecret(id, my_address, secret):
         raise Exception("Invalid secret")
       token_hash = self.mint_permittee(id, my_address)
       if not token_hash:
         raise Exception("Could not mint permittee")
-      created = self.insert_in_database(int(id), my_address, token_hash)
-      if created:
-        return created
-      else:
-        return False
+      return True
+      # created = self.insert_in_database(int(id), my_address, token_hash)
+      # if created:
+      #   return created
+      # else:
+      #   return False
     except Exception as e:
       raise e
 
@@ -112,10 +112,12 @@ class permittee_dao:
             'from': self.account.address,
             'nonce': self.w3.eth.getTransactionCount(self.account.address)
       })
-
+      print("tx: ", tx)
       signed_tx = self.w3.eth.account.signTransaction(tx, private_key=os.getenv('ROOT_KEY_EXECUTOR'))
       tx_hash = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
-      tx_receipt = self.w3.eth.waitForTransactionReceipt(tx_hash)    
+      tx_receipt = self.w3.eth.waitForTransactionReceipt(tx_hash)
+      print("tx_receipt: ", tx_receipt)
+      print("tx_hash: ", tx_hash)
       return tx_hash.hex()
     except:#Exception as e:
       raise
@@ -142,6 +144,35 @@ class permittee_dao:
         row.append(doc)
         print(doc)
       # return row
+    except Exception as e:
+      print(e)
+      return False
+
+  def find_all_by_table(self, table):
+    try:
+      collection = self.db[table]
+      cur = collection.find()
+      _json = {}
+      row = []
+      for doc in cur:
+        for key in doc:
+          if (not isinstance(doc[key], str)) or (not isinstance(doc[key], int)) or (not isinstance(doc[key], float)):
+            doc[key] = str(doc[key])
+
+        # doc['_id'] = str(doc['_id'])
+        # doc['createdAt'] = str(doc['createdAt'])
+        # doc['updatedAt'] = str(doc['updatedAt'])
+
+        row.append(doc)
+        # print(doc)
+      return row
+    except Exception as e:
+      print(e)
+      return False
+
+  def get_list_collection_names(self):
+    try:
+      return self.db.list_collection_names()
     except Exception as e:
       print(e)
       return False

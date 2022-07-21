@@ -31,7 +31,6 @@ class permittee_service:
         return False, "Permittee ID #" + id + " was already registered."
       elif resp.status_code == 400:
         created = self.permittee.create_permittee(id, address, secret)
-        # created = self.permittee.insert_in_database(id, address)
         if not created:
           raise Exception("Failed to create new permittee, please try again later")
         return created
@@ -45,6 +44,16 @@ class permittee_service:
 
   def testing_mongo_db(self):
     return self.permittee.testing_mogo_db()
+
+  def find_all_by_table(self, table):
+    if table == None or table == "":
+      tables = self.permittee.get_list_collection_names()
+      return {"Requires table name":tables}
+    else:
+      search = self.permittee.find_all_by_table(table)
+      if not search:
+        return []
+    return search
 
     
 
