@@ -115,17 +115,16 @@ class AppUnoServer(object):
 		try:
 			message=id+address
 			hash1 = hmac.new(secret.encode('utf-8'),msg=message.encode(), digestmod="sha256")
-			# msg = await self.create_permitee(id, address, hash1.hexdigest())
 			permittee = self.permittee_service.create_permittee(id, address, hash1.hexdigest())
 			return {"created_id":str(permittee)}
 		except: #Exception as e:
-			# raise
-			msg = ""
-			if 'message' in e.args[0]:
-				msg = str(e.args[0]['message'])
-			else:
-				msg = str(e)
-			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+			raise
+			# msg = ""
+			# if 'message' in e.args[0]:
+			# 	msg = str(e.args[0]['message'])
+			# else:
+			# 	msg = str(e)
+			# raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 
 

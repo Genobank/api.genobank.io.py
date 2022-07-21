@@ -54,7 +54,8 @@ class permittee_dao:
   def insert_in_database(self, id, address, tx_hash):
     try:
       int_id = int(id)
-      left_id = str(int_id).zfill(12)
+      hex_id = hex(int_id)[2:]
+      left_id = str(hex_id).zfill(12)
       token_id = '0x000000000000' + left_id + self.account.address[2:]
 
       _fields = {
@@ -65,8 +66,8 @@ class permittee_dao:
 			'tokenId': token_id,
       'createdAt': datetime.datetime.now(),
       'updatedAt': datetime.datetime.now(),
-			'txHash': '0x' + tx_hash,
-			'sequenceIndicator': 2
+			'txHash': tx_hash,
+			'sequenceIndicator': 1
 			}
 
       x = self.db.permittees.insert_one(_fields)
@@ -101,7 +102,8 @@ class permittee_dao:
       int_id = int(id)
       contract_address = os.getenv('SMART_CONTRACT')
       token = self.w3.eth.contract(address=contract_address, abi=self.SM_JSONINTERFACE['abi'])
-      left_id = str(int_id).zfill(12)
+      hex_id = hex(int_id)[2:]
+      left_id = str(hex_id).zfill(12)
       createTokenId = '0x000000000000' + left_id + self.account.address[2:]
 
       id_token = int(createTokenId, 16)
@@ -117,16 +119,6 @@ class permittee_dao:
       return tx_hash.hex()
     except:#Exception as e:
       raise
-      # if e.args[0]['code'] < 0:
-      #   time.sleep(5)
-      #   return self.mint_permittee(id, address)
-      # else:
-      #   msg = ""
-      #   if 'message' in e.args[0]:
-      #     msg = str(e.args[0]['message'])
-      #   else:
-      #     msg = str(e)
-      #   raise Exception(msg)
 
 
 
@@ -140,12 +132,16 @@ class permittee_dao:
     
   def testing_mogo_db(self):
     try:
-      collection = self.db.permittees
+      print(self.client.list_database_names())
+      print(self.db.list_collection_names())
+      collection = self.db.certificates
       cur = collection.find()
+      _json = {}
       row = []
       for doc in cur:
         row.append(doc)
         print(doc)
+      # return row
     except Exception as e:
       print(e)
       return False
