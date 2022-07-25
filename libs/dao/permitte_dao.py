@@ -39,13 +39,14 @@ class permittee_dao:
       my_address = web3.Web3.toChecksumAddress(address)
       if not self.checkPermitteeSecret(id, my_address, secret):
         raise Exception("Invalid secret")
-      # token_hash = self.mint_permittee(id, my_address)
-      # if not token_hash:
-      #   raise Exception("Could not mint permittee")
-      # return True
+      token_hash = self.mint_permittee(id, my_address)
+      if not token_hash:
+        raise Exception("Could not mint permittee")
 
-      token_hash = "0xa6a86805a3456229a67f4c2acde8cfffb64e6a2f26b060365ec03e6561fb0b1d"
-      created = self.insert_in_database(int(id), my_address, token_hash)
+      # return True
+      # token_hash = "0xa6a86805a3456229a67f4c2acde8cfffb64e6a2f26b060365ec03e6561fb0b1d"
+
+      created = self.save_and_insert_in_DB(int(id), my_address, token_hash)
       if created:
         return created
       else:
@@ -53,17 +54,23 @@ class permittee_dao:
     except Exception as e:
       raise e
 
-  def save_json_file(self, filename):
-    with open(filename, 'w') as f:
-      json.dump(self.jsonInterface, f)
-
-  # add text to the endo of the json file
-  def edit_json_file(self, filename):
-    with open(filename, 'r') as f:
-      self.jsonInterface = json.load(f)
+  
+  # open file, add new line, write to file
+  def add_new_line(self, new_line):
+    try:
+      for key in new_line:
+        print(key, new_line[key])
+        if (not isinstance(new_line[key], str)) or (not isinstance(new_line[key], int)) or (not isinstance(new_line[key], float)):
+          new_line[key] = str(new_line[key])
+      with open(os.getenv('PERMITEE_INSERTS'), 'a') as f:
+        f.write(json.dumps(new_line)+',\n')
+      return True
+    except Exception as e:
+      print(e)
+      return False
       
 
-  def insert_in_database(self, id, address, tx_hash):
+  def save_and_insert_in_DB(self, id, address, tx_hash):
     try:
       int_id = int(id)
       hex_id = hex(int_id)[2:]
@@ -82,8 +89,14 @@ class permittee_dao:
 			'sequenceIndicator': 1
 			}
 
-      x = self.db.permittees.insert_one(_fields)
-      return x.inserted_id
+      # Save file locally
+      return self.add_new_line(_fields)
+      
+
+
+      # # Insert in DB
+      # x = self.db.permittees.insert_one(_fields)
+      # return x.inserted_id
     except:
       raise
 
