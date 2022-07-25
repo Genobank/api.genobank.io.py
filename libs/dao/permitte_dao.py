@@ -39,17 +39,29 @@ class permittee_dao:
       my_address = web3.Web3.toChecksumAddress(address)
       if not self.checkPermitteeSecret(id, my_address, secret):
         raise Exception("Invalid secret")
-      token_hash = self.mint_permittee(id, my_address)
-      if not token_hash:
-        raise Exception("Could not mint permittee")
-      return True
-      # created = self.insert_in_database(int(id), my_address, token_hash)
-      # if created:
-      #   return created
-      # else:
-      #   return False
+      # token_hash = self.mint_permittee(id, my_address)
+      # if not token_hash:
+      #   raise Exception("Could not mint permittee")
+      # return True
+
+      token_hash = "0xa6a86805a3456229a67f4c2acde8cfffb64e6a2f26b060365ec03e6561fb0b1d"
+      created = self.insert_in_database(int(id), my_address, token_hash)
+      if created:
+        return created
+      else:
+        return False
     except Exception as e:
       raise e
+
+  def save_json_file(self, filename):
+    with open(filename, 'w') as f:
+      json.dump(self.jsonInterface, f)
+
+  # add text to the endo of the json file
+  def edit_json_file(self, filename):
+    with open(filename, 'r') as f:
+      self.jsonInterface = json.load(f)
+      
 
   def insert_in_database(self, id, address, tx_hash):
     try:
