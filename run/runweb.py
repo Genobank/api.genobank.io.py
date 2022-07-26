@@ -24,12 +24,15 @@
 # TODO_dd_mmm_yyyy - TODO_describe_appropriate_changes - TODO_name
 #--------------------------------------------------------------------------
 
+from email import message
 from dotenv import load_dotenv
 from libs import database
 from libs.dao import permitte_dao
 from libs.service import permittee_service
+from mako.template import Template
 from math import perm
 from os.path import abspath
+
 
 import cherrypy
 import hmac
@@ -78,7 +81,13 @@ class AppUnoServer(object):
 	@cherrypy.config(**{'tools.CORS.on': True})
 	def index(self):
 		with open("public/pages/index.html", "r") as f:
-			return f.read() + os.getenv('MESSAGE')
+			return f.read() + os.getenv('ENVIROMENT')
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	def mako_test(self):
+		t = Template(filename="public/pages/index.mako")
+		return t.render(message=os.getenv('ENVIROMENT'))
 
 
 	@cherrypy.expose
