@@ -24,17 +24,17 @@
 # TODO_dd_mmm_yyyy - TODO_describe_appropriate_changes - TODO_name
 #--------------------------------------------------------------------------
 
-from math import perm
-import cherrypy
-import os
-
-import json
-import os
-from libs import database
 from dotenv import load_dotenv
+from libs import database
 from libs.dao import permitte_dao
 from libs.service import permittee_service
+from math import perm
+from os.path import abspath
+
+import cherrypy
 import hmac
+import json
+import os
 
 
 
@@ -77,11 +77,9 @@ class AppUnoServer(object):
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
 	def index(self):
-		return """
-		<title>genobank.api</title>
-		<h3>Genobank.io (TM)</h3>
-		Permittee Creator API 
-		"""+ os.getenv('MESSAGE')
+		with open("public/pages/index.html", "r") as f:
+			return f.read() + os.getenv('MESSAGE')
+
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -117,17 +115,13 @@ class AppUnoServer(object):
 			hash1 = hmac.new(secret.encode('utf-8'),msg=message.encode(), digestmod="sha256")
 			permittee = self.permittee_service.create_permittee(id, address, hash1.hexdigest())
 			return {"created_id":str(permittee)}
-		except: #Exception as e:
-			raise
-			# msg = ""
-			# if 'message' in e.args[0]:
-			# 	msg = str(e.args[0]['message'])
-			# else:
-			# 	msg = str(e)
-			# raise cherrypy.HTTPError("500 Internal Server Error", msg)
-
-
-
+		except Exception as e:
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -139,8 +133,6 @@ class AppUnoServer(object):
 		except Exception as e:
 			print(e)
 
-
-	
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['POST'])
@@ -150,30 +142,30 @@ class AppUnoServer(object):
 			return self.permittee_service.find_all_by_table(table)
 		except Exception as e:
 			print(e)
-			
 
 class AppUno(object):
 	def __init__(self):
 		return None
 
 	def start(self, port = 8080):
-		conf = {
+		CONF = {
 			'/static': {
 				'tools.staticdir.on': True,
 				'cors.expose.on': True,
-				'tools.staticdir.dir': './public',
+				'tools.staticdir.dir': abspath('./public'),
 			},
 			'/': {
 				'tools.sessions.on': True,
 				'server.socket_port': os.path.abspath(os.getcwd()),
 				'response.timeout': False
-			}
+			},
+			
 
 		}
 
 		cherrypy.server.socket_host = '0.0.0.0'
 		cherrypy.server.socket_port = port
-		cherrypy.quickstart(AppUnoServer(), '/', conf)
+		cherrypy.quickstart(AppUnoServer(), '/', CONF)
 
 
 # Avocado Blockchain Services at Merida, Yucatan
