@@ -8,7 +8,7 @@
   </head>
   <body>
     <div class = "container">
-      <h1>api.Genobank.io (TM)</h1>
+      <h3>api.Genobank.io (TM)</h3>
       <p>
       You are running a Genobank.io (TM) API server. On the 
       <b>${message}</b> environment.
