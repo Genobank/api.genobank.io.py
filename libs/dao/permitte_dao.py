@@ -161,7 +161,7 @@ class permittee_dao:
     try:
       print(self.client.list_database_names())
       print(self.db.list_collection_names())
-      collection = self.db.certificates
+      collection = self.db.permittees
       cur = collection.find()
       _json = {}
       row = []
