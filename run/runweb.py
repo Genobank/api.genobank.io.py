@@ -30,17 +30,18 @@ from libs import database
 from libs.dao import permitte_dao
 from libs.service import permittee_service
 from mako.template import Template
+from mako.lookup import TemplateLookup
 from math import perm
 from os.path import abspath
+
+# import ServerAdapter
+from cherrypy import wsgi
 
 
 import cherrypy
 import hmac
 import json
 import os
-
-
-
 
 # from web3 import Web3, HTTPProvider, IPCProvider, WebsocketProvider
 # from web3.contract import ConciseContract
@@ -53,6 +54,7 @@ class AppUnoServer(object):
 		# self.db = database.database()
 		permitte = permitte_dao.permittee_dao()
 		self.permittee_service = permittee_service.permittee_service(permitte)
+		self.mylookup = TemplateLookup(directories=['public/pages'])
 		return None
 
 	load_dotenv()
@@ -82,6 +84,30 @@ class AppUnoServer(object):
 	def index(self):
 		t = Template(filename="public/pages/index.mako")
 		return t.render(message=os.getenv('ENVIROMENT'))
+
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['GET'])
+	def adminpage(self, place=None):
+		# print("\n\nplace: " + place+"\n\n")
+		if place == None:
+			t = self.mylookup.get_template("adminpage.mako")
+			return t.render(plc = "AdminPage", env=os.getenv('ENVIROMENT'))
+		elif place == "permittee":
+			t = self.mylookup.get_template("adminpage.mako")
+			return t.render(plc = place, env=os.getenv('ENVIROMENT'))
+		elif place == "profiles":
+			t = self.mylookup.get_template("profiles.mako")
+			return t.render(plc = place, env=os.getenv('ENVIROMENT'))
+
+
+	# @cherrypy.expose
+	# @cherrypy.config(**{'tools.CORS.on': True})
+	# @cherrypy.tools.allow(methods=['GET'])
+	# def profiles(self):
+	# 	t = self.mylookup.get_template("profiles.mako")
+	# 	return t.render(place = "Profiles", env=os.getenv('ENVIROMENT'))
 
 
 	@cherrypy.expose
@@ -146,6 +172,7 @@ class AppUnoServer(object):
 		except Exception as e:
 			print(e)
 
+
 class AppUno(object):
 	def __init__(self):
 		return None
@@ -162,8 +189,6 @@ class AppUno(object):
 				'server.socket_port': os.path.abspath(os.getcwd()),
 				'response.timeout': False
 			},
-			
-
 		}
 
 		cherrypy.server.socket_host = '0.0.0.0'
