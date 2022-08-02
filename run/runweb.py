@@ -172,6 +172,10 @@ class AppUnoServer(object):
 		except Exception as e:
 			print(e)
 
+<<<<<<< HEAD
+=======
+			# addition
+>>>>>>> a125a870bd6cfc3b9795fd8b19dcd9b5b9e9818b
 
 class AppUno(object):
 	def __init__(self):
