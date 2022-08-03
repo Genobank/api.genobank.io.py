@@ -1,7 +1,6 @@
 
 
 function init(){
-  console.log("Detail enaced")
   if (test){
     $("#navbar").css("background-color", "#FFCECE");
     $("#profiles-href").attr("href","/adminpage/test-profile")

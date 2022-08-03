@@ -1,8 +1,9 @@
+let isIdValid = false;
+let isAddressValid = false;
 async function check_id(){
   const permitteeId = $('#registerPermitteePermitteeId').val()
   const uri = `${window.API_BASE}/permittees/${permitteeId}`
 
-  console.log(window.API_BASE)
   let headersList = {
     "Accept": "*/*",
     "User-Agent": "Thunder Client (https://www.thunderclient.com)"
@@ -13,19 +14,20 @@ async function check_id(){
   });
 
   let data = await response.status;
-  console.log(data);
 
   if (response.status == 200){
     $("#registerPermitteePermitteeId").removeClass("is-invalid");
     $("#registerPermitteePermitteeId").removeClass("is-valid");
 
     $("#registerPermitteePermitteeId").addClass("is-invalid");
+    isIdValid = false;
   }
   if (response.status == 400){
     $("#registerPermitteePermitteeId").removeClass("is-invalid");
     $("#registerPermitteePermitteeId").removeClass("is-valid");
 
     $("#registerPermitteePermitteeId").addClass("is-valid");
+    isIdValid = true;
   }
 }
 
@@ -40,9 +42,11 @@ async function checkAddress(){
     if (success) {
       $('#registerPermitteePermitteeAddress').addClass('is-valid');
       $('#registerPermitteePermitteeAddress').removeClass('is-invalid');
+      isAddressValid = true;
     } else {
       $('#registerPermitteePermitteeAddress').addClass('is-invalid');
       $('#registerPermitteePermitteeAddress').removeClass('is-valid');
+      isAddressValid = false;
     }
     $('#registerPermitteePermitteeAddressValidation').html(`
       <small class="form-text ${cssClass}">
@@ -52,32 +56,12 @@ async function checkAddress(){
   });
 }
 
-// async function checkAddress(){
-//   const address = $("#registerPermitteePermitteeAddress").val()
-//   const prefix = address.substring(0, 2);
 
-//   if (prefix == "0x" && address.length == 42){
-//     try{
-//       parseInt(address,16)
-//       $("#registerPermitteePermitteeAddress").removeClass("is-invalid");
-//       $("#registerPermitteePermitteeAddress").removeClass("is-valid");
+async function createPermittee(){
+  console.log("isvalidID", isIdValid);
+  console.log("isAddressValid", isAddressValid);
 
-//       $("#registerPermitteePermitteeAddress").addClass("is-valid");
-//     }catch{
-//       $("#registerPermitteePermitteeAddress").removeClass("is-invalid");
-//       $("#registerPermitteePermitteeAddress").removeClass("is-valid")
-
-//       $("#registerPermitteePermitteeAddress").addClass("is-invalid");
-
-
-//     }
-    
-
-//   }else{
-//     $("#registerPermitteePermitteeAddress").removeClass("is-invalid");
-//     $("#registerPermitteePermitteeAddress").removeClass("is-valid")
-
-//     $("#registerPermitteePermitteeAddress").addClass("is-invalid");
-
-//   }
-// }
+  if (isIdValid && isAddressValid) {
+    console.log("Ambos son validos")
+  }
+}

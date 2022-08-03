@@ -51,7 +51,7 @@
                   <input type="password" class="form-control" id="registerPermitteeApplicationSecret">
                   <small class="form-text text-muted">This same secret is installed on the API server. If you enter the wrong secret here then the operation will fail.</small>
                 </div>
-                <button type="button" class="btn btn-primary" onclick="login()">Login</button>
+                <button type="button" class="btn btn-primary" onclick="createPermittee()">Login</button>
               </form>
             </div>
           </div>
