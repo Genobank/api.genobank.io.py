@@ -91,15 +91,15 @@ class AppUnoServer(object):
 	@cherrypy.tools.allow(methods=['GET'])
 	def adminpage(self, place=None):
 		# print("\n\nplace: " + place+"\n\n")
-		if place == None:
+		if place == None or place == "test":
 			t = self.mylookup.get_template("adminpage.mako")
 			return t.render(plc = "AdminPage", env=os.getenv('ENVIROMENT'))
-		elif place == "permittee":
+		elif place == "permittee" or place == "test-permittee":
 			t = self.mylookup.get_template("adminpage.mako")
-			return t.render(plc = place, env=os.getenv('ENVIROMENT'))
-		elif place == "profiles":
+			return t.render(plc = "Permittee", env=os.getenv('ENVIROMENT'))
+		elif place == "profile" or place == "test-profile":
 			t = self.mylookup.get_template("profiles.mako")
-			return t.render(plc = place, env=os.getenv('ENVIROMENT'))
+			return t.render(plc = "Profiles", env=os.getenv('ENVIROMENT'))
 
 
 	# @cherrypy.expose
@@ -184,6 +184,11 @@ class AppUno(object):
 				'tools.staticdir.on': True,
 				'cors.expose.on': True,
 				'tools.staticdir.dir': abspath('./public'),
+			},
+			'/js': {
+				'tools.staticdir.on': True,
+				'cors.expose.on': True,
+				'tools.staticdir.dir': abspath('./public/pages/js'),
 			},
 			'/': {
 				'tools.sessions.on': True,
