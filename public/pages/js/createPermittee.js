@@ -60,6 +60,26 @@ async function registerPermittee(){
 
     console.log("res\n",res)
     console.log("Ambos son validos")
+    if (!res.status=="Failure"){
+      $("#registerPermitteeResult").removeClass('bg-success');
+      $("#registerPermitteeResult").addClass('bg-danger');
+      // let inner = `<p>Error during permittee creation: ${res.status_details.description} </p>`
+      // $("#registerPermitteeResult").html(inner)
+
+
+    }else{
+      $("#registerPermitteeResult").removeClass('bg-danger');
+      $("#registerPermitteeResult").addClass('bg-success');
+      
+    }
+
+    let inner = `<b>Permittee ID:</b> ${permitteeId}<br/>
+                  <b>Permittee address:</b> ${permitteeAddress}<br/>
+                  <b>Permittee secret:</b> ${secret}<br/>
+                  <b>Response:</b> ${JSON.stringify(res)}`
+    $("#registerPermitteeResult").html(inner)
+
+
     // $("#registerPermitteeResult").removeClass('bg-danger');
     // $("#registerPermitteeResult").addClass('bg-success');
     // $("#registerPermitteeResult").html("Correct Data")

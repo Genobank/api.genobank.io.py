@@ -124,12 +124,10 @@ class AppUnoServer(object):
 	def create_permitee(self, id, address, secret, env):
 		try:
 			if env == "test":
-				print("TEST ENVIROMENT")
 				created = self.test_permittee_service.create_permittee(id, address, secret)
 				return created
 				# return self.permittee_service.create_permitee(id, address, secret)
 			if env == "main":
-				print("PRODUCTION ENVIROMENT")
 				created = self.permittee_service.create_permittee(id, address, secret)
 				return created
 		except Exception as e:

@@ -1,8 +1,6 @@
-
-
 function init(){
   if (test){
-    $("#navbar").css("background-color", "#FFCECE");
+    $("#navbar").css("background-color", "#FF766B");
     $("#profiles-href").attr("href","/adminpage/test-profile")
     $("#permette-href").attr("href","/adminpage/test-permittee")
   }
