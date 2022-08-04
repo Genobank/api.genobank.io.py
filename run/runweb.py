@@ -26,9 +26,12 @@
 
 from email import message
 from dotenv import load_dotenv
+from pathlib import Path
 from libs import database
 from libs.dao import permitte_dao
+from libs.dao import test_permitte_dao
 from libs.service import permittee_service
+from libs.service import test_permittee_service
 from mako.template import Template
 from mako.lookup import TemplateLookup
 from math import perm
@@ -53,10 +56,14 @@ class AppUnoServer(object):
 	def __init__(self):
 		# self.db = database.database()
 		permitte = permitte_dao.permittee_dao()
-		self.permittee_service = permittee_service.permittee_service(permitte)
-		self.mylookup = TemplateLookup(directories=['public/pages'])
-		return None
+		test_permitte = test_permitte_dao.test_permittee_dao()
 
+		self.permittee_service = permittee_service.permittee_service(permitte)
+		self.test_permittee_service = test_permittee_service.test_permittee_service(test_permitte)
+		self.mylookup = TemplateLookup(directories=['public/pages'])
+		
+		return None
+	
 	load_dotenv()
 
 	def jsonify_error(status, message, traceback, version):
@@ -114,12 +121,24 @@ class AppUnoServer(object):
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['POST'])
 	@cherrypy.tools.json_out()
-	def create_permitee(self, id, address, secret):
+	def create_permitee(self, id, address, secret, env):
 		try:
-			created, msg = self.permittee_service.create_permittee(id, address, secret)
-			return msg
-		except :
-			raise
+			if env == "test":
+				print("TEST ENVIROMENT")
+				created = self.test_permittee_service.create_permittee(id, address, secret)
+				return created
+				# return self.permittee_service.create_permitee(id, address, secret)
+			if env == "main":
+				print("PRODUCTION ENVIROMENT")
+				created = self.permittee_service.create_permittee(id, address, secret)
+				return created
+		except Exception as e:
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 	
 	@cherrypy.expose

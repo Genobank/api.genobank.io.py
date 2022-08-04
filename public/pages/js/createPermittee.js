@@ -3,29 +3,21 @@ let isAddressValid = false;
 async function check_id(){
   const permitteeId = $('#registerPermitteePermitteeId').val()
   const uri = `${window.API_BASE}/permittees/${permitteeId}`
-
-  let headersList = {
-    "Accept": "*/*",
-    "User-Agent": "Thunder Client (https://www.thunderclient.com)"
-   }
-  let response = await fetch(uri, { 
-    method: "GET",
-    headers: headersList
-  });
-
-  let data = await response.status;
-
+  let response = await fetch(uri, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+  })
   if (response.status == 200){
     $("#registerPermitteePermitteeId").removeClass("is-invalid");
     $("#registerPermitteePermitteeId").removeClass("is-valid");
-
     $("#registerPermitteePermitteeId").addClass("is-invalid");
     isIdValid = false;
   }
   if (response.status == 400){
     $("#registerPermitteePermitteeId").removeClass("is-invalid");
     $("#registerPermitteePermitteeId").removeClass("is-valid");
-
     $("#registerPermitteePermitteeId").addClass("is-valid");
     isIdValid = true;
   }
@@ -56,12 +48,78 @@ async function checkAddress(){
   });
 }
 
-
-async function createPermittee(){
-  console.log("isvalidID", isIdValid);
-  console.log("isAddressValid", isAddressValid);
-
+async function registerPermittee(){
   if (isIdValid && isAddressValid) {
+    const permitteeId = $('#registerPermitteePermitteeId').val();
+    const permitteeAddress = $('#registerPermitteePermitteeAddress').val();
+    const appSecret = $('#registerPermitteeApplicationSecret').val();
+
+    const secret = await createPermitteeHMAC(permitteeId, permitteeAddress, appSecret);
+
+    const res = await createPermittee(permitteeId, permitteeAddress, appSecret);
+
+    console.log("res\n",res)
     console.log("Ambos son validos")
+    // $("#registerPermitteeResult").removeClass('bg-danger');
+    // $("#registerPermitteeResult").addClass('bg-success');
+    // $("#registerPermitteeResult").html("Correct Data")
+    // $("#registerPermitteeResult").show();
+
+  }else{
+    $("#registerPermitteeResult").removeClass('bg-success');
+    $("#registerPermitteeResult").addClass('bg-danger');
+    $("#registerPermitteeResult").html("Invalid data")
+    $("#registerPermitteeResult").show();
   }
+  // $("#registerPermitteeResult").hide();
+}
+
+
+async function createPermittee(permitteeId, permitteeAddress, appSecret) {
+  const permitteeSecret = await createPermitteeHMAC(permitteeId, permitteeAddress, appSecret);
+  let bodyContent = new FormData();
+  bodyContent.append("id", permitteeId);
+  bodyContent.append("address", permitteeAddress);
+  bodyContent.append("secret", permitteeSecret);
+  bodyContent.append("env", window.ENV)
+  const url = `${window.NEWAPIBASE}/create_permitee`;
+  return fetch(url, {
+    method: 'POST',
+    header: {
+      'Content-Type': 'application/json'
+    },
+    body: bodyContent
+  }).then((res) => {
+    return res.json();
+  }).catch((error) => {
+    console.error(error);
+    return { error: error.message };
+  });
+
+  // let data = await response.text()
+
+  // console.log("response \n",data);
+}
+
+
+async function createPermitteeHMAC(permitteeId, permitteeAddress, appSecret) {
+  const hmacClaim = `${permitteeId}${permitteeAddress}`;
+  const enc = new TextEncoder();
+  const key = await window.crypto.subtle.importKey(
+      "raw", // raw format of the key - should be Uint8Array
+      enc.encode(appSecret),
+      { // algorithm details
+          name: "HMAC",
+          hash: {name: "SHA-256"}
+      },
+      false, // export = false
+      ["sign", "verify"] // what this key can do
+  );
+  const hmac = await window.crypto.subtle.sign(
+    "HMAC",
+    key,
+    enc.encode(hmacClaim)
+  );
+  var b = new Uint8Array(hmac);
+  return Array.prototype.map.call(b, x => ('00'+x.toString(16)).slice(-2)).join("");
 }

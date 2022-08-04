@@ -51,7 +51,17 @@
                   <input type="password" class="form-control" id="registerPermitteeApplicationSecret">
                   <small class="form-text text-muted">This same secret is installed on the API server. If you enter the wrong secret here then the operation will fail.</small>
                 </div>
-                <button type="button" class="btn btn-primary" onclick="createPermittee()">Login</button>
+                <div class="form-group row">
+                  <div class="col-md-3">
+                    <button type="button" class="btn btn-danger" onclick="registerPermittee()">Register Permittee</button>
+                  </div>
+                  <div class="col-sm-9 text-danger">
+                    <i class = "fa fa-warning">
+                      This operation will be sent to the API server and recorded permanently & publicly on the blockchain. Check twice, cut once.
+                    </i>
+                  </div>
+                  <div id="registerPermitteeResult" class="rounded p-3 text-wrap text-break" style="display: block;"></div>
+                </div>
               </form>
             </div>
           </div>

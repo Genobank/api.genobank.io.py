@@ -15,15 +15,15 @@ import time
 
 
 
-class permittee_dao:
+class test_permittee_dao:
   def __init__(self):
     # self.w3 = Web3(HTTPProvider(settings.PROVIDER))
 
-    self.client = MongoClient(os.getenv('MONGO_DB_HOST'))
-    self.db = self.client[os.getenv('DB_NAME')]
+    self.client = MongoClient(os.getenv('TEST_MONGO_DB_HOST'))
+    self.db = self.client[os.getenv('TEST_DB_NAME')]
     self.w3 = Web3(HTTPProvider(os.getenv('PROVIDER')))
     self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
-    self.account = self.w3.eth.account.privateKeyToAccount(os.getenv('ROOT_KEY_EXECUTOR'))
+    self.account = self.w3.eth.account.privateKeyToAccount(os.getenv('TEST_ROOT_KEY_EXECUTOR'))
 
     self.SM_JSONINTERFACE = self.load_smart_contract(os.getenv('ABI_SM_PATH'))
     
@@ -61,7 +61,7 @@ class permittee_dao:
         print(key, new_line[key])
         if (not isinstance(new_line[key], str)) or (not isinstance(new_line[key], int)) or (not isinstance(new_line[key], float)):
           new_line[key] = str(new_line[key])
-      with open(os.getenv('PERMITEE_INSERTS'), 'a') as f:
+      with open(os.getenv('TEST_PERMITEE_INSERTS'), 'a') as f:
         f.write(json.dumps(new_line)+',\n')
       return True
     except Exception as e:
@@ -122,9 +122,9 @@ class permittee_dao:
 
   def mint_permittee(self, id, address):
     try:
-      wallet = self.w3.eth.account.privateKeyToAccount(os.getenv('ROOT_KEY_EXECUTOR')).address
+      wallet = self.w3.eth.account.privateKeyToAccount(os.getenv('TEST_ROOT_KEY_EXECUTOR')).address
       int_id = int(id)
-      contract_address = os.getenv('SMART_CONTRACT')
+      contract_address = os.getenv('TEST_SMART_CONTRACT')
       token = self.w3.eth.contract(address=contract_address, abi=self.SM_JSONINTERFACE['abi'])
       hex_id = hex(int_id)[2:]
       left_id = str(hex_id).zfill(12)
@@ -137,7 +137,7 @@ class permittee_dao:
             'nonce': self.w3.eth.getTransactionCount(self.account.address)
       })
       print("tx: ", tx)
-      signed_tx = self.w3.eth.account.signTransaction(tx, private_key=os.getenv('ROOT_KEY_EXECUTOR'))
+      signed_tx = self.w3.eth.account.signTransaction(tx, private_key=os.getenv('TEST_ROOT_KEY_EXECUTOR'))
       tx_hash = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
       tx_receipt = self.w3.eth.waitForTransactionReceipt(tx_hash)
       print("tx_receipt: ", tx_receipt)

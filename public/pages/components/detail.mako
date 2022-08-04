@@ -51,17 +51,17 @@
 		<div class="collapse navbar-collapse" id="navbarNavAltMarkup">
 			<div class="navbar-nav">
 				<a class="nav-link active" id= "permette-href">Permittees</a>
-				<a class="nav-link" id ="profiles-href">Profiles</a>
-				## <a class="nav-link" href="#">Permission tokens</a>
-				## <a class="nav-link disabled">Files</a>
-				## <a class="nav-link disabled">Fulfillment</a>
+				<a class="nav-link disabled" id ="profiles-href">Profiles</a>
+				## <a class="nav-link disabled" href="#">Permission tokens (Disabled)</a>
+				## <a class="nav-link disabled">Files (Disabled)</a>
+				## <a class="nav-link disabled">Fulfillment (Disabled)</a>
 			</div>
 		</div>
 	</div>
 </nav>
 
 <br>
-<div class="container" style="width: 80%;">
+<div class="container" style="width: 100%;">
   ## ${section}
   
 	## <%
