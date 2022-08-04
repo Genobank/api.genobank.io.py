@@ -41,15 +41,15 @@ class permittee_dao:
       token_hash = self.mint_permittee(id, my_address)
       if not token_hash:
         raise Exception("Could not mint permittee")
-
-      # return True
-      # token_hash = "0xa6a86805a3456229a67f4c2acde8cfffb64e6a2f26b060365ec03e6561fb0b1d"
-
       created = self.save_and_insert_in_DB(int(id), my_address, token_hash)
+
+      # token_hash = "0xsoikgfjsodjfosdfjosñdjfsidjfsidjfMIO"
+      # created = True
+
       if created:
-        return created
+        return {"data":[{"transactionHash": token_hash}]}
       else:
-        return False
+        return {"data":[{"transactionHash": token_hash}], "warning": "lo saved"}
     except Exception as e:
       raise e
 

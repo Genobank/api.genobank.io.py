@@ -28,7 +28,6 @@ class test_permittee_service:
       elif resp.status_code == 200:
         return False, "Permittee ID #" + id + " was already registered."
       elif resp.status_code == 400:
-        print("\n\n\nTEST ENVIROMENT\n\n\n")
         created = self.test_permittee.create_permittee(id, address, secret)
         if not created:
           raise Exception("Failed to create new permittee, please try again later")

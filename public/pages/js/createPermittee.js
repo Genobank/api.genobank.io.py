@@ -60,7 +60,7 @@ async function registerPermittee(){
 
     console.log("res\n",res)
     console.log("Ambos son validos")
-    if (!res.status=="Failure"){
+    if (res.status=="Failure"){
       $("#registerPermitteeResult").removeClass('bg-success');
       $("#registerPermitteeResult").addClass('bg-danger');
       // let inner = `<p>Error during permittee creation: ${res.status_details.description} </p>`
