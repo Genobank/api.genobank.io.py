@@ -3,7 +3,7 @@
 This is the API documentation for the [Genobank](https://genobank.io) API.
 
 This API is ONLY for use by the Genobank team.
-This API is ONLY to create new Permittees on the Test Environment.
+This API is ONLY to create new Permittees on the Test and Production Environment.
 
 ## Installing the dependencies
 Before to download this repository, you need to install the following dependencies:
