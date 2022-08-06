@@ -92,7 +92,11 @@ on the folder where you have downloaded the repository run the following command
 ```sh
 python3 start.py
 ```
-to check if the repository is running, open yor favourite web browser and go to http://localhost:8081/
+to check if the API is running, open yor favourite web browser and go to http://localhost:8081/
+
+Now you can go to 
+* http://localhost:8081/adminpage  To create a permittee on PRODUCTION enviroment
+* http://localhost:8082/adminpage/test  To create a permittee on TEST enviroment
 
 ## Pushing the repository
 If you want to push the repository, does you will need configure the `.gitignore` file as the follow:
