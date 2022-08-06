@@ -96,7 +96,7 @@ to check if the API is running, open yor favourite web browser and go to http://
 
 Now you can go to 
 * http://localhost:8081/adminpage  To create a permittee on PRODUCTION enviroment
-* http://localhost:8082/adminpage/test  To create a permittee on TEST enviroment
+* http://localhost:8081/adminpage/test  To create a permittee on TEST enviroment
 
 ## Pushing the repository
 If you want to push the repository, does you will need configure the `.gitignore` file as the follow:
