@@ -32,8 +32,11 @@ This will create a folder, enter it and create a folder with the name you want a
 Now download the repository using the following command:
 
 ```sh
-git clone https://github.com/FranciscoTun2/api.genobank.io.git
+git init
+git remote add origin https://github.com/FranciscoTun2/api.genobank.io.git
+git pull origin master
 ```
+
 
 Then you need to activate the virtual env using the following command:
 
