@@ -28,7 +28,8 @@ virtualenv <name_of_enviroment>
 ```
 
 The '<name_of_enviroment>' can be any name you want.
-Now create a folder and download the repository using the following command:
+This will create a folder, enter it and create a folder with the name you want and enter it.
+Now download the repository using the following command:
 
 ```sh
 git clone https://github.com/FranciscoTun2/api.genobank.io.git
