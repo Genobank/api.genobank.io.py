@@ -92,3 +92,12 @@ on the folder where you have downloaded the repository run the following command
 ```sh
 python3 start.py
 ```
+to check if the repository is running, open yor favourite web browser and go to 'localhost:8081'
+
+## Pushing the repository
+If you want to push the repository, does you will need configure the `.gitignore` file as the follow:
+
+```sh
+.env
+.gitignore
+```
