@@ -10,7 +10,10 @@ Before to download this repository, you need to install the following dependenci
 ```sh
 npm install
 ```
-
+If this not works you can try with
+```sh
+sudo apt install npm
+```
 To start this API you need install virtual env using the following command:
 ```sh
 python3 -m pip install --upgrade pip
