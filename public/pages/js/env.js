@@ -9,6 +9,6 @@ window.NAMESPACE = test ? 'io.genobank.test' : 'io.genobank';
 // window.NEWAPIBASE = 'http://localhost:8081'
 
 // ceate a validation to check if iam in local or external
-window.NEWAPIBASE = 'https://genobank.app/'
+window.NEWAPIBASE = 'https://genobank.app'
 
 window.PERMITTEE = test ? 'test_create_permitee':'create_permitee'
