@@ -35,15 +35,15 @@
     <script src="/js/env.js"></script>
     <script src="/js/detail.js"></script>
 		
-		<link rel = "icon" href = "/static/images/favicon-32x32.png" type = "image/x-icon">
+		<link rel = "icon" href = "./static/images/favicon-32x32.png" type = "image/x-icon">
 </head>
 <body onload="init()">
  <nav class="navbar navbar-expand-lg" id="navbar" >
 	<div class="container">
 		<a class="navbar-brand" href="#">
 			## <object data="./static/images/GenoBank.io_logo.svg" width="160" height="30"> </object><br>
-			<object data="/static/images/GenoBank.io_logo.svg" width="160" height="30"> </object><br>
-			<h6>Platform Admiistration</h6>
+			<object data="./static/images/GenoBank.io_logo.svg" width="160" height="30"> </object><br>
+			<h6>Platform Administration</h6>
 		</a>
 		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>
