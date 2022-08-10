@@ -30,8 +30,10 @@ from pathlib import Path
 from libs import database
 from libs.dao import permitte_dao
 from libs.dao import test_permitte_dao
+from libs.dao import genotype_dao
 from libs.service import permittee_service
 from libs.service import test_permittee_service
+from libs.service import genotype_service
 from mako.template import Template
 from mako.lookup import TemplateLookup
 from math import perm
@@ -57,9 +59,10 @@ class AppUnoServer(object):
 		# self.db = database.database()
 		permitte = permitte_dao.permittee_dao()
 		test_permitte = test_permitte_dao.test_permittee_dao()
-
+		genotype = genotype_dao.genotype_dao()
 		self.permittee_service = permittee_service.permittee_service(permitte)
 		self.test_permittee_service = test_permittee_service.test_permittee_service(test_permitte)
+		self.genotype_service = genotype_service.genotype_service(genotype)
 		self.mylookup = TemplateLookup(directories=['public/pages'])
 		
 		return None
@@ -107,6 +110,31 @@ class AppUnoServer(object):
 		elif place == "profile" or place == "test-profile":
 			t = self.mylookup.get_template("profiles.mako")
 			return t.render(plc = "Profiles", env=os.getenv('ENVIROMENT'))
+
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.json_out()
+	def save_file(self, data, file):
+		try:
+			try:
+				print(" \n\n\n", type(data), "\n\n\n")
+
+				data = json.loads(data)
+				return self.genotype_service.create(file)
+
+				print(" \n\n\n", type(data), "\n\n\n")
+			except:
+				raise Exception("'data' is not a json object")
+			return data
+		except Exception as e:
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 
 	# @cherrypy.expose
