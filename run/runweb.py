@@ -124,7 +124,7 @@ class AppUnoServer(object):
 				data = json.loads(data)
 				return self.genotype_service.create(file)
 
-				print(" \n\n\n", type(data), "\n\n\n")
+				# print(" \n\n\n", type(data), "\n\n\n")
 			except:
 				raise Exception("'data' is not a json object")
 			return data
@@ -227,12 +227,12 @@ class AppUno(object):
 		CONF = {
 			'/static': {
 				'tools.staticdir.on': True,
-				'cors.expose.on': True,
+				# 'cors.expose.on': True,
 				'tools.staticdir.dir': abspath('./public'),
 			},
 			'/js': {
 				'tools.staticdir.on': True,
-				'cors.expose.on': True,
+				# 'cors.expose.on': True,
 				'tools.staticdir.dir': abspath('./public/pages/js'),
 			},
 			'/': {
