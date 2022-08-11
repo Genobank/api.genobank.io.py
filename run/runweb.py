@@ -119,7 +119,7 @@ class AppUnoServer(object):
 	def save_file(self, data, file):
 		try:
 			try:
-				print(" \n\n\n", type(data), "\n\n\n")
+				print(" \n\n\n", data, "\n\n\n")
 
 				data = json.loads(data)
 				return self.genotype_service.create(file)
