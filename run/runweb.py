@@ -122,7 +122,7 @@ class AppUnoServer(object):
 				print(" \n\n\n", data, "\n\n\n")
 
 				data = json.loads(data)
-				return self.genotype_service.create(file)
+				return self.genotype_service.create(data, file)
 
 				# print(" \n\n\n", type(data), "\n\n\n")
 			except:

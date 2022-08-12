@@ -26,13 +26,22 @@ class genotype_dao:
 				return solcOutput
 
 	def mint_nft(self, metadata):
-		wallet = metadata["wallet"]
+		file_name = metadata["filename"]
+		owner = metadata["wallet"]
+		permittee = metadata["permittee"]
+
+		# ADDING it will need set all data on the metadata object
+		
+
+
 		contract = self.w3.eth.contract(address=os.getenv('TEST_BIOSAMPLE_COTRACT'), abi=self.SM_JSONINTERFACE['abi'])
-		id_address = int(wallet, 16)
+		
+		# id_address = int(wallet, 16)
+
     # tx = contract.functions.mint(id_address, wallet, 'ACTIVE').buildTransaction({
     #     'nonce': self.w3.eth.getTransactionCount(self.account.address)
     # })
-		tx = contract.functions.paid_mint(id_address, wallet, 'ACTIVE').buildTransaction({
+		tx = contract.functions.addGenotype(file_name, owner, permittee).buildTransaction({
 			'nonce': self.w3.eth.getTransactionCount(self.account.address)
 			})
 		signed_tx = self.w3.eth.account.signTransaction(tx, private_key=os.getenv('BIOSAMPLE_EXECUTOR'))

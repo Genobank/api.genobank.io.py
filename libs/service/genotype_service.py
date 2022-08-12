@@ -12,6 +12,10 @@ class genotype_service:
     self.encryption = Encryption.Encryption()
 
 
-  def create(self, file):
+  def create(self, data, file):
     file_name = self.genotype.save_file(file)
+    if not file_name:
+      raise Exception("Error saving file")
+    data["filename"] = file_name
+    self.genotype.mint_nft(data)
     return file_name
