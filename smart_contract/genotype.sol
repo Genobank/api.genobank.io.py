@@ -21,7 +21,7 @@ contract GenoType is ERC1155{
         owner = msg.sender;
     }
 
-    function addGenoetype(string memory _name, address _owner, address permittee) public {
+    function addGenotype(string memory _name, address _owner, address permittee) public {
         require (msg.sender == owner, "YO CANNOT CALL THIS FUNCTION");
         require (isStringEmpty(biosamples[_owner].name), "You already have a registered genotype");
         require (!isStringEmpty(_name), "You file name is empty");
@@ -45,6 +45,34 @@ contract GenoType is ERC1155{
         return biosamples[_owner];
     }
 
+    function getGebnotypesByPermittee(address _permittee) public view returns(Biosample[] memory){
+        return laboratoriesSamples[_permittee];
+    }
+
+    function disableGenotype(address _permittee, address _owner) public {
+        require (msg.sender == owner || isPermittee(msg.sender), "YO CANNOT CALL THIS FUNCTION");
+        if(msg.sender == owner){
+            biosamples[_permittee].enable = false;
+        }else{
+            biosamples[msg.sender].enable = false;
+        }
+    }
+
+    function check_genotype_status(address _owner) public view returns(bool){
+        return biosamples[_owner].enable;
+    }
+
+    function isPermittee(address _someone) public view returns(bool){
+        bool ispermittee = false;
+        if (laboratoriesSamples[_someone].length != 0){
+            if (!isStringEmpty(laboratoriesSamples[_someone][0].name)){
+                ispermittee = true;
+            }
+        }
+        return ispermittee;
+    }
+
+
     function isStringEmpty(string memory value) internal pure returns(bool){
         bytes1 space = ' ';
         bytes memory str = bytes(value);
@@ -56,9 +84,4 @@ contract GenoType is ERC1155{
         }
         return _isEmpty;
     }
-
-    function getGebnotypesByPermittee(address permittee) public view returns(Biosample[] memory){
-        return laboratoriesSamples[permittee];
-    }
-
 }
