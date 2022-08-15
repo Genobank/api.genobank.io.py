@@ -116,11 +116,9 @@ class AppUnoServer(object):
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['POST'])
 	@cherrypy.tools.json_out()
-	def save_file(self, data, file):
+	def save_genotype(self, data, file):
 		try:
 			try:
-				print(" \n\n\n", data, "\n\n\n")
-
 				data = json.loads(data)
 				return self.genotype_service.create(data, file)
 

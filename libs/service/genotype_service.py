@@ -2,6 +2,8 @@ from libs.dao import genotype_dao
 from libs.exceptions import DomainInjectionError
 from libs.domain import Encryption
 
+import requests
+import os
 
 
 class genotype_service:
@@ -19,3 +21,8 @@ class genotype_service:
     data["filename"] = file_name
     self.genotype.mint_nft(data)
     return file_name
+
+  def validate_permitte(self, id):
+    resp = requests.get(
+      os.getenv('API_PERMITTEES')+"{0}".format(id)
+    )
