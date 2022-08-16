@@ -15,12 +15,15 @@ class genotype_service:
 
 
   def create(self, data, file):
-    file_name = self.genotype.save_file(file)
+    file_name = self.genotype.save_file(file, data['extension'])
     if not file_name:
       raise Exception("Error saving file")
     data["filename"] = file_name
-    self.genotype.mint_nft(data)
-    return file_name
+    token_hash = self.genotype.mint_nft(data)
+    if not token_hash:
+      raise Exception("Error minting token")
+
+    return {"token": token_hash}
 
   def validate_permitte(self, id):
     resp = requests.get(

@@ -27,8 +27,8 @@ class genotype_dao:
 
 	def mint_nft(self, metadata):
 		file_name = metadata["filename"]
-		owner = metadata["wallet"]
-		permittee = metadata["permittee"]
+		owner = metadata["userAddress"]
+		permittee = metadata["labAddress"]
 
 		# ADDING it will need set all data on the metadata object
 		
@@ -56,9 +56,9 @@ class genotype_dao:
 		except Exception as e:
 			raise Exception(str(e))
 
-	def save_file(self, file):
+	def save_file(self, file, ext):
 		content_file = file.file.read()
 		file_name = str(uuid.uuid4())
-		with open(f"storage/genotypes/{file_name}.zip", "wb") as f:
+		with open(f"storage/genotypes/{file_name}."+ext, "wb") as f:
 			f.write(content_file)
 		return file_name

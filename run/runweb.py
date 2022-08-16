@@ -120,12 +120,13 @@ class AppUnoServer(object):
 		try:
 			try:
 				data = json.loads(data)
-				return self.genotype_service.create(data, file)
-
-				# print(" \n\n\n", type(data), "\n\n\n")
 			except:
 				raise Exception("'data' is not a json object")
-			return data
+			# print("\n\n\n\n",data,"\n\n\n\n")
+			if "extension" not in data:
+				raise Exception("This extension is not supported")
+			return self.genotype_service.create(data, file)
+
 		except Exception as e:
 			msg = ""
 			if 'message' in e.args[0]:
