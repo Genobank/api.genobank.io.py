@@ -4,13 +4,12 @@ from web3.middleware import geth_poa_middleware
 
 import os
 import json
-import uuid
 
 
 
 class genotype_dao:
 	def __init__(self):
-		self.w3 = Web3(HTTPProvider(os.getenv('PROVIDER')))
+		self.w3 = Web3(HTTPProvider(os.getenv('BIOSAMPLE_PROVIDER')))
 		self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 		self.account = self.w3.eth.account.privateKeyToAccount(os.getenv('BIOSAMPLE_EXECUTOR'))
 		self.w3.eth.default_account = self.account.address
@@ -56,9 +55,11 @@ class genotype_dao:
 		except Exception as e:
 			raise Exception(str(e))
 
-	def save_file(self, file, ext):
+	def save_file(self, file, data):
+		ext = data["extension"]
+		file_name = data["filename"]
 		content_file = file.file.read()
-		file_name = str(uuid.uuid4())
+		# file_name = str(uuid.uuid4())
 		with open(f"storage/genotypes/{file_name}."+ext, "wb") as f:
 			f.write(content_file)
 		return file_name

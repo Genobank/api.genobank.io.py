@@ -38,20 +38,11 @@ from mako.template import Template
 from mako.lookup import TemplateLookup
 from math import perm
 from os.path import abspath
-
-# import ServerAdapter
 from cherrypy import wsgi
-
-
 import cherrypy
 import hmac
 import json
 import os
-
-# from web3 import Web3, HTTPProvider, IPCProvider, WebsocketProvider
-# from web3.contract import ConciseContract
-# import math
-
 from settings import settings
 
 class AppUnoServer(object):
@@ -64,7 +55,6 @@ class AppUnoServer(object):
 		self.test_permittee_service = test_permittee_service.test_permittee_service(test_permitte)
 		self.genotype_service = genotype_service.genotype_service(genotype)
 		self.mylookup = TemplateLookup(directories=['public/pages'])
-		
 		return None
 	
 	load_dotenv()
@@ -76,6 +66,7 @@ class AppUnoServer(object):
 		}})
 
 	_cp_config = {"error_page.default": jsonify_error}
+
 
 	def CORS():
 		if cherrypy.request.method == 'OPTIONS':
@@ -122,11 +113,9 @@ class AppUnoServer(object):
 				data = json.loads(data)
 			except:
 				raise Exception("'data' is not a json object")
-			# print("\n\n\n\n",data,"\n\n\n\n")
 			if "extension" not in data:
 				raise Exception("This extension is not supported")
 			return self.genotype_service.create(data, file)
-
 		except Exception as e:
 			msg = ""
 			if 'message' in e.args[0]:
@@ -134,14 +123,6 @@ class AppUnoServer(object):
 			else:
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
-
-
-	# @cherrypy.expose
-	# @cherrypy.config(**{'tools.CORS.on': True})
-	# @cherrypy.tools.allow(methods=['GET'])
-	# def profiles(self):
-	# 	t = self.mylookup.get_template("profiles.mako")
-	# 	return t.render(place = "Profiles", env=os.getenv('ENVIROMENT'))
 
 
 	@cherrypy.expose
@@ -153,7 +134,6 @@ class AppUnoServer(object):
 			if env == "test":
 				created = self.test_permittee_service.create_permittee(id, address, secret)
 				return created
-				# return self.permittee_service.create_permitee(id, address, secret)
 			if env == "main":
 				created = self.permittee_service.create_permittee(id, address, secret)
 				return created
@@ -196,6 +176,7 @@ class AppUnoServer(object):
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
+
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['POST'])
@@ -205,6 +186,7 @@ class AppUnoServer(object):
 			return self.permittee_service.testing_mongo_db()
 		except Exception as e:
 			print(e)
+
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
