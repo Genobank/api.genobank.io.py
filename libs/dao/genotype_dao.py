@@ -43,11 +43,6 @@ class genotype_dao:
 		print("tx hash\n",tx_hash.hex())
 		return tx_hash.hex()
 
-	# def generate_token_id (self, token):
-	# 	try:
-	# 		return int(token, 16)
-	# 	except Exception as e:
-	# 		raise Exception(str(e))
 
 	def save_file(self, file, data):
 		ext = data["extension"]
