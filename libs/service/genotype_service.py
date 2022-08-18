@@ -32,7 +32,7 @@ class genotype_service:
   def find_by_owner(self, owner):
     genotype = self.genotype.find_genotype_by_owner(owner)
     if not genotype:
-      return []
+      return {}
     return genotype
 
   def validate_permitte(self, id):

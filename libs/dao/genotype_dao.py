@@ -86,7 +86,7 @@ class genotype_dao:
 
 				row.append(doc)
 				# print(doc)
-			return row
+			return row[0]
 		except Exception as e:
 			print(e)
 			return False

@@ -70,7 +70,7 @@ class AppUnoServer(object):
 
 	def CORS():
 		if cherrypy.request.method == 'OPTIONS':
-			cherrypy.response.headers['Access-Control-Allow-Methods'] = 'POST'
+			cherrypy.response.headers['Access-Control-Allow-Methods'] = 'POST, GET'
 			cherrypy.response.headers['Access-Control-Allow-Headers'] = 'content-type'
 			cherrypy.response.headers['Access-Control-Allow-Origin']  = '*'
 			return True
@@ -124,9 +124,10 @@ class AppUnoServer(object):
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
+
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
-	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.allow(methods=['GET'])
 	@cherrypy.tools.json_out()
 	def find_genotypes(self, owner):
 		try:
