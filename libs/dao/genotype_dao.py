@@ -5,7 +5,7 @@ from pymongo import MongoClient
 
 import os
 import json
-
+import datetime
 
 
 class genotype_dao:
@@ -17,6 +17,7 @@ class genotype_dao:
 		self.SM_JSONINTERFACE = self.load_smart_contract(os.getenv('ABI_BIOSAMPLE_PATH'))
 		self.client = MongoClient(os.getenv('TEST_MONGO_DB_HOST'))
 		self.db = self.client[os.getenv('TEST_DB_NAME')]
+		self.table = self.db.genotypes
 
 	def load_smart_contract(self,path):
 				solcOutput = {}
@@ -43,6 +44,22 @@ class genotype_dao:
 		print("tx hash\n",tx_hash.hex())
 		return tx_hash.hex()
 
+	def save_db_file(self, data):
+		try:
+			_fields = {
+				"labaddr": data["labAddress"],
+				"owneraddr": data["userAddress"],
+				"filename": data["filename"],
+				"extension": data["extension"],
+				"hash": data["token_hash"],
+				"signature": data["signature"],
+				"created": datetime.datetime.now(),
+				"updated": datetime.datetime.now()
+			}
+			self.table.insert_one(_fields)
+			return True
+		except:
+			raise
 
 	def save_file(self, file, data):
 		ext = data["extension"]
@@ -51,6 +68,30 @@ class genotype_dao:
 		with open(f"storage/genotypes/{file_name}."+ext, "wb") as f:
 			f.write(content_file)
 		return file_name
+
+	def find_genotype_by_owner(self, owner):
+		try:
+			collection = self.db.genotypes
+			cur = collection.find({"owneraddr": owner})
+			_json = {}
+			row = []
+			for doc in cur:
+				for key in doc:
+					if (not isinstance(doc[key], str)) or (not isinstance(doc[key], int)) or (not isinstance(doc[key], float)):
+						doc[key] = str(doc[key])
+
+				# doc['_id'] = str(doc['_id'])
+				# doc['createdAt'] = str(doc['createdAt'])
+				# doc['updatedAt'] = str(doc['updatedAt'])
+
+				row.append(doc)
+				# print(doc)
+			return row
+		except Exception as e:
+			print(e)
+			return False
+
+	
 
 	def create_table(self, name, fields):
 		try:
@@ -76,3 +117,35 @@ class genotype_dao:
 			# return True
 		except:
 			raise 
+
+
+
+
+	def find_all_by_table(self, table):
+		try:
+			collection = self.db[table]
+			cur = collection.find()
+			_json = {}
+			row = []
+			for doc in cur:
+				for key in doc:
+					if (not isinstance(doc[key], str)) or (not isinstance(doc[key], int)) or (not isinstance(doc[key], float)):
+						doc[key] = str(doc[key])
+
+				# doc['_id'] = str(doc['_id'])
+				# doc['createdAt'] = str(doc['createdAt'])
+				# doc['updatedAt'] = str(doc['updatedAt'])
+
+				row.append(doc)
+				# print(doc)
+			return row
+		except Exception as e:
+			print(e)
+			return False
+
+	def get_list_collection_names(self):
+		try:
+			return self.db.list_collection_names()
+		except Exception as e:
+			print(e)
+			return False

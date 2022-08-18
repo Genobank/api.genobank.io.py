@@ -124,6 +124,21 @@ class AppUnoServer(object):
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.json_out()
+	def find_genotypes(self, owner):
+		try:
+			return self.genotype_service.find_by_owner(owner)
+		except Exception as e:
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -195,6 +210,16 @@ class AppUnoServer(object):
 	def search_all_by_table(self, table=None):
 		try:
 			return self.permittee_service.find_all_by_table(table)
+		except Exception as e:
+			print(e)
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.json_out()
+	def search_all_by_table_test(self, table=None):
+		try:
+			return self.genotype_service.find_all_by_table(table)
 		except Exception as e:
 			print(e)
 
