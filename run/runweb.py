@@ -200,6 +200,21 @@ class AppUnoServer(object):
 
 			# addition
 
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.json_out()
+	def create_table(self, table_name, fields):
+		try:
+			return self.genotype_service.create_table(table_name, fields)
+		except Exception as e:
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+
 class AppUno(object):
 	def __init__(self):
 		return None

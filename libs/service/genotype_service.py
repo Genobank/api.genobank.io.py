@@ -14,7 +14,6 @@ class genotype_service:
     self.genotype = _genotype
     self.encryption = Encryption.Encryption()
 
-
   def create(self, data, file):
     data["filename"] = str(uuid.uuid4())
     token_hash = self.genotype.mint_nft(data)
@@ -29,3 +28,9 @@ class genotype_service:
     resp = requests.get(
       os.getenv('API_PERMITTEES')+"{0}".format(id)
     )
+
+  def create_table(self, name, fields):
+    created = self.genotype.create_table(name, fields)
+    if not created:
+      raise Exception("Failed to create new table, please try again later")
+    return created
