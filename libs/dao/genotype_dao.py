@@ -91,6 +91,40 @@ class genotype_dao:
 			print(e)
 			return False
 
+	def find_genotype_by_signature(self, signature):
+		try:
+			collection = self.db.genotypes
+			cur = collection.find({"signature": signature})
+			_json = {}
+			row = []
+			for doc in cur:
+				for key in doc:
+					if (not isinstance(doc[key], str)) or (not isinstance(doc[key], int)) or (not isinstance(doc[key], float)):
+						doc[key] = str(doc[key])
+				row.append(doc)
+				# print(doc)
+			return row[0]
+		except Exception as e:
+			print(e)
+			return False
+
+	
+		
+	def verify_signature(self, wallet, signature):
+		try:
+			# genotype_db = self.find_genotype_by_signature(signature)
+			genotype_db = self.find_genotype_by_owner(wallet)
+			if not genotype_db:
+				raise Exception("Genotype not found")
+			wallet_db = genotype_db["owneraddr"]
+			signature_db = genotype_db["signature"]
+			return ((wallet == wallet_db) and (signature == signature_db)), genotype_db["filename"], genotype_db["extension"]
+		except Exception as e:
+			print(e)
+			return False
+
+
+
 	
 
 	def create_table(self, name, fields):

@@ -25,6 +25,7 @@
 #--------------------------------------------------------------------------
 
 from email import message
+from unicodedata import name
 from dotenv import load_dotenv
 from pathlib import Path
 from libs import database
@@ -143,6 +144,26 @@ class AppUnoServer(object):
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['GET'])
+	@cherrypy.tools.json_out()
+	def download_file(self, data):
+		try:
+			data = json.loads(data)
+			name, ext = self.genotype_service.authorize_download(data)
+			return name+"."+ext
+
+			# return self.genotype_service.download_file(authorized)
+		except Exception as e:
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['POST'])
 	@cherrypy.tools.json_out()
 	def create_permitee(self, id, address, secret, env):
@@ -161,6 +182,7 @@ class AppUnoServer(object):
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
+# addition
 	
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -214,6 +236,7 @@ class AppUnoServer(object):
 		except Exception as e:
 			print(e)
 
+
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['POST'])
@@ -224,7 +247,6 @@ class AppUnoServer(object):
 		except Exception as e:
 			print(e)
 
-			# addition
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})

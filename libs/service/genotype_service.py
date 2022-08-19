@@ -6,6 +6,8 @@ from libs.domain import Encryption
 import requests
 import os
 import uuid
+import hmac
+
 
 
 class genotype_service:
@@ -34,6 +36,32 @@ class genotype_service:
     if not genotype:
       return {}
     return genotype
+
+  def authorize_download(self, data):
+    signature = data["signature"]
+    wallet = data["wallet"]
+    # message = signature+wallet
+    # mark_key = hmac.new(signature.encode('utf-8'),msg=message.encode(), digestmod="sha256")
+    validation, name, ext= self.genotype.verify_signature(wallet, signature)
+    if not validation:
+      raise Exception("Invalid signature")
+    return name, ext
+
+  def download_file():
+    pass
+
+  def checkPermitteeSecret(self, id, address, secret):
+    try:
+      secret = str(secret)
+      message=id+address
+      hmac1 = hmac.new(os.getenv('TEST_APP_SECRET').encode('utf-8'),msg=message.encode(), digestmod="sha256")
+      hmac1 = str(hmac1.hexdigest())
+
+      return hmac1 == secret
+    except Exception as e:
+      raise e
+
+
 
   def validate_permitte(self, id):
     resp = requests.get(
