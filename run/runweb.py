@@ -25,6 +25,7 @@
 #--------------------------------------------------------------------------
 
 from email import message
+from unicodedata import name
 from dotenv import load_dotenv
 from pathlib import Path
 from libs import database
@@ -38,20 +39,11 @@ from mako.template import Template
 from mako.lookup import TemplateLookup
 from math import perm
 from os.path import abspath
-
-# import ServerAdapter
 from cherrypy import wsgi
-
-
 import cherrypy
 import hmac
 import json
 import os
-
-# from web3 import Web3, HTTPProvider, IPCProvider, WebsocketProvider
-# from web3.contract import ConciseContract
-# import math
-
 from settings import settings
 
 class AppUnoServer(object):
@@ -64,7 +56,6 @@ class AppUnoServer(object):
 		self.test_permittee_service = test_permittee_service.test_permittee_service(test_permitte)
 		self.genotype_service = genotype_service.genotype_service(genotype)
 		self.mylookup = TemplateLookup(directories=['public/pages'])
-		
 		return None
 	
 	load_dotenv()
@@ -77,9 +68,10 @@ class AppUnoServer(object):
 
 	_cp_config = {"error_page.default": jsonify_error}
 
+
 	def CORS():
 		if cherrypy.request.method == 'OPTIONS':
-			cherrypy.response.headers['Access-Control-Allow-Methods'] = 'POST'
+			cherrypy.response.headers['Access-Control-Allow-Methods'] = 'POST, GET'
 			cherrypy.response.headers['Access-Control-Allow-Headers'] = 'content-type'
 			cherrypy.response.headers['Access-Control-Allow-Origin']  = '*'
 			return True
@@ -116,18 +108,15 @@ class AppUnoServer(object):
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['POST'])
 	@cherrypy.tools.json_out()
-	def save_file(self, data, file):
+	def save_genotype(self, data, file):
 		try:
 			try:
-				print(" \n\n\n", data, "\n\n\n")
-
 				data = json.loads(data)
-				return self.genotype_service.create(data, file)
-
-				# print(" \n\n\n", type(data), "\n\n\n")
 			except:
 				raise Exception("'data' is not a json object")
-			return data
+			if "extension" not in data:
+				raise Exception("This extension is not supported")
+			return self.genotype_service.create(data, file)
 		except Exception as e:
 			msg = ""
 			if 'message' in e.args[0]:
@@ -137,12 +126,40 @@ class AppUnoServer(object):
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 
-	# @cherrypy.expose
-	# @cherrypy.config(**{'tools.CORS.on': True})
-	# @cherrypy.tools.allow(methods=['GET'])
-	# def profiles(self):
-	# 	t = self.mylookup.get_template("profiles.mako")
-	# 	return t.render(place = "Profiles", env=os.getenv('ENVIROMENT'))
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['GET'])
+	@cherrypy.tools.json_out()
+	def find_genotypes(self, owner):
+		try:
+			return self.genotype_service.find_by_owner(owner)
+		except Exception as e:
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['GET'])
+	@cherrypy.tools.json_out()
+	def download_file(self, data):
+		try:
+			data = json.loads(data)
+			name, ext = self.genotype_service.authorize_download(data)
+			return name+"."+ext
+
+			# return self.genotype_service.download_file(authorized)
+		except Exception as e:
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 
 	@cherrypy.expose
@@ -154,7 +171,6 @@ class AppUnoServer(object):
 			if env == "test":
 				created = self.test_permittee_service.create_permittee(id, address, secret)
 				return created
-				# return self.permittee_service.create_permitee(id, address, secret)
 			if env == "main":
 				created = self.permittee_service.create_permittee(id, address, secret)
 				return created
@@ -166,6 +182,7 @@ class AppUnoServer(object):
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
+# addition
 	
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -197,6 +214,7 @@ class AppUnoServer(object):
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
+
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['POST'])
@@ -206,6 +224,7 @@ class AppUnoServer(object):
 			return self.permittee_service.testing_mongo_db()
 		except Exception as e:
 			print(e)
+
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -217,7 +236,32 @@ class AppUnoServer(object):
 		except Exception as e:
 			print(e)
 
-			# addition
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.json_out()
+	def search_all_by_table_test(self, table=None):
+		try:
+			return self.genotype_service.find_all_by_table(table)
+		except Exception as e:
+			print(e)
+
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.json_out()
+	def create_table(self, table_name, fields):
+		try:
+			return self.genotype_service.create_table(table_name, fields)
+		except Exception as e:
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 class AppUno(object):
 	def __init__(self):
