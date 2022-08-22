@@ -23,6 +23,7 @@ class genotype_service:
     if not token_hash:
       raise Exception("Error minting token")
     data["token_hash"] = token_hash
+    print("\n\n\n\n\n\n",data,"\n\n\n\n\n\n")
     save_db_file = self.genotype.save_db_file(data)
     if not save_db_file:
       raise Exception("Error saving file in database")
@@ -37,18 +38,31 @@ class genotype_service:
       return {}
     return genotype
 
-  def authorize_download(self, data):
-    signature = data["signature"]
-    wallet = data["wallet"]
-    # message = signature+wallet
-    # mark_key = hmac.new(signature.encode('utf-8'),msg=message.encode(), digestmod="sha256")
+  def basic_reference(self, _genotype):
+    if not _genotype:
+      return []
+      raise Exception("Couldn't find genotype with the given name")
+    _json = {}
+    _json["name"] = _genotype["filename"]
+    _json["ext"] = _genotype["extension"]
+
+    return _json
+
+  def authorize_download(self, wallet, signature):
+    # signature = data["signature"]
+    # wallet = data["wallet"]
+    # # message = signature+wallet
+    # # mark_key = hmac.new(signature.encode('utf-8'),msg=message.encode(), digestmod="sha256")
     validation, name, ext= self.genotype.verify_signature(wallet, signature)
     if not validation:
       raise Exception("Invalid signature")
     return name, ext
 
-  def download_file():
-    pass
+  def download_file(self, file_name, file_ext):
+    file = self.genotype.download_file(file_name, file_ext)
+    if not file:
+      raise Exception("Couldn't find file")
+    return file
 
   def checkPermitteeSecret(self, id, address, secret):
     try:

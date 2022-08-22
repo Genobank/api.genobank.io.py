@@ -3,9 +3,11 @@ from web3 import Web3, HTTPProvider
 from web3.middleware import geth_poa_middleware
 from pymongo import MongoClient
 
-import os
+import os, os.path
 import json
 import datetime
+from cherrypy.lib import static
+
 
 
 class genotype_dao:
@@ -53,6 +55,7 @@ class genotype_dao:
 				"extension": data["extension"],
 				"hash": data["token_hash"],
 				"signature": data["signature"],
+				"filesigned":data["filesigned"],
 				"created": datetime.datetime.now(),
 				"updated": datetime.datetime.now()
 			}
@@ -94,7 +97,7 @@ class genotype_dao:
 	def find_genotype_by_signature(self, signature):
 		try:
 			collection = self.db.genotypes
-			cur = collection.find({"signature": signature})
+			cur = collection.find({"filesigned": signature})
 			_json = {}
 			row = []
 			for doc in cur:
@@ -117,11 +120,20 @@ class genotype_dao:
 			if not genotype_db:
 				raise Exception("Genotype not found")
 			wallet_db = genotype_db["owneraddr"]
-			signature_db = genotype_db["signature"]
+			signature_db = genotype_db["filesigned"]
 			return ((wallet == wallet_db) and (signature == signature_db)), genotype_db["filename"], genotype_db["extension"]
 		except Exception as e:
 			print(e)
 			return False
+
+	def download_file (self, name, ext):
+		file_path = os.path.abspath("storage/genotypes/"+name+"."+ext)
+		# file_path = file_path+"/"+name+"."+ext
+		print("\n\n\n\n\n\n", file_path, "\n\n\n\n\n\n")
+		return static.serve_file(file_path, 'application/x-download','attachment', os.path.basename(file_path))  #<---extension file
+
+		# return "storage/genotypes/"
+
 
 
 

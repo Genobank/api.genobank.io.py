@@ -125,6 +125,23 @@ class AppUnoServer(object):
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['GET'])
+	@cherrypy.tools.json_out()
+	def find_file(self, owner):
+		try:
+			file_data = self.genotype_service.find_by_owner(owner)
+			# print(file_data)
+			return self.genotype_service.basic_reference(file_data)
+		except Exception as e:
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -141,25 +158,41 @@ class AppUnoServer(object):
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
+	
+
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
-	@cherrypy.tools.allow(methods=['GET'])
-	@cherrypy.tools.json_out()
-	def download_file(self, data):
+	# @cherrypy.tools.allow(methods=['GET'])
+	# @cherrypy.tools.json_out()
+	def download_file(self):
 		try:
+			cherrypy.request.body.read()
+			# print(value)
+			print("file", file)
+			print("\n\n\n\n\n\n",data,"\n\n")
 			data = json.loads(data)
-			name, ext = self.genotype_service.authorize_download(data)
-			return name+"."+ext
+			print("\n\n\n\n\n\n",data,"\n\n")
+
+			wallet = data['wallet']
+			signature = data['signature']
+			
+			# name, ext = self.genotype_service.authorize_download(data)
+			name, ext = self.genotype_service.authorize_download(wallet, signature)
+			file = self.genotype_service.download_file(name, ext)
+			return file
 
 			# return self.genotype_service.download_file(authorized)
-		except Exception as e:
-			msg = ""
-			if 'message' in e.args[0]:
-				msg = str(e.args[0]['message'])
-			else:
-				msg = str(e)
-			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+		except:
+			raise
+
+		# except Exception as e:
+		# 	msg = ""
+		# 	if 'message' in e.args[0]:
+		# 		msg = str(e.args[0]['message'])
+		# 	else:
+		# 		msg = str(e)
+		# 	raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 
 	@cherrypy.expose
