@@ -158,6 +158,22 @@ class AppUnoServer(object):
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['GET'])
+	@cherrypy.tools.json_out()
+	def find_genotypes_by_permittee(self, permittee):
+		try:
+			return self.genotype_service.find_by_permittee(permittee)
+		except Exception as e:
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+
 	
 
 
@@ -165,17 +181,11 @@ class AppUnoServer(object):
 	@cherrypy.config(**{'tools.CORS.on': True})
 	# @cherrypy.tools.allow(methods=['GET'])
 	# @cherrypy.tools.json_out()
-	def download_file(self):
+	def download_file(self, wallet, signature):
 		try:
-			cherrypy.request.body.read()
-			# print(value)
-			print("file", file)
-			print("\n\n\n\n\n\n",data,"\n\n")
-			data = json.loads(data)
-			print("\n\n\n\n\n\n",data,"\n\n")
-
-			wallet = data['wallet']
-			signature = data['signature']
+			# data = json.loads(data)
+			# wallet = data['wallet']
+			# signature = data['signature']
 			
 			# name, ext = self.genotype_service.authorize_download(data)
 			name, ext = self.genotype_service.authorize_download(wallet, signature)
@@ -183,16 +193,16 @@ class AppUnoServer(object):
 			return file
 
 			# return self.genotype_service.download_file(authorized)
-		except:
-			raise
+		# except:
+		# 	raise
 
-		# except Exception as e:
-		# 	msg = ""
-		# 	if 'message' in e.args[0]:
-		# 		msg = str(e.args[0]['message'])
-		# 	else:
-		# 		msg = str(e)
-		# 	raise cherrypy.HTTPError("500 Internal Server Error", msg)
+		except Exception as e:
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 
 	@cherrypy.expose

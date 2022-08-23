@@ -7,6 +7,7 @@ import os, os.path
 import json
 import datetime
 from cherrypy.lib import static
+import base64
 
 
 
@@ -82,14 +83,26 @@ class genotype_dao:
 				for key in doc:
 					if (not isinstance(doc[key], str)) or (not isinstance(doc[key], int)) or (not isinstance(doc[key], float)):
 						doc[key] = str(doc[key])
-
-				# doc['_id'] = str(doc['_id'])
-				# doc['createdAt'] = str(doc['createdAt'])
-				# doc['updatedAt'] = str(doc['updatedAt'])
-
 				row.append(doc)
 				# print(doc)
 			return row[0]
+		except Exception as e:
+			print(e)
+			return False
+
+	def find_genotype_by_permittee(self, permittee):
+		try:
+			collection = self.db.genotypes
+			cur = collection.find({"labaddr": permittee})
+			_json = {}
+			row = []
+			for doc in cur:
+				for key in doc:
+					if (not isinstance(doc[key], str)) or (not isinstance(doc[key], int)) or (not isinstance(doc[key], float)):
+						doc[key] = str(doc[key])
+				row.append(doc)
+				# print(doc)
+			return row
 		except Exception as e:
 			print(e)
 			return False
@@ -128,11 +141,8 @@ class genotype_dao:
 
 	def download_file (self, name, ext):
 		file_path = os.path.abspath("storage/genotypes/"+name+"."+ext)
-		# file_path = file_path+"/"+name+"."+ext
-		print("\n\n\n\n\n\n", file_path, "\n\n\n\n\n\n")
 		return static.serve_file(file_path, 'application/x-download','attachment', os.path.basename(file_path))  #<---extension file
 
-		# return "storage/genotypes/"
 
 
 

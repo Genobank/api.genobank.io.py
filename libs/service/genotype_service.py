@@ -38,6 +38,19 @@ class genotype_service:
       return {}
     return genotype
 
+  def find_by_permittee(self, owner):
+    genotype = self.genotype.find_genotype_by_permittee(owner)
+    if not genotype:
+      return {}
+    return genotype
+
+  def list_to_json(self, gen_list):
+    _json = {}
+    for gen in gen_list:
+      for key in gen:
+        _json[key] = gen[key]
+
+
   def basic_reference(self, _genotype):
     if not _genotype:
       return []
@@ -55,6 +68,7 @@ class genotype_service:
     # # mark_key = hmac.new(signature.encode('utf-8'),msg=message.encode(), digestmod="sha256")
     validation, name, ext= self.genotype.verify_signature(wallet, signature)
     if not validation:
+      print("\n\n\n\n\n\n THIS FILE HAS NO VALIDATION SIGNATURE\n\n\n\n\n\n\n\n")
       raise Exception("Invalid signature")
     return name, ext
 
