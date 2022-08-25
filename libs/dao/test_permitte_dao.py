@@ -146,8 +146,20 @@ class test_permittee_dao:
     except:#Exception as e:
       raise
 
+  def validate_permittee(self, permittee):
+    try:
+      collection = self.db.permittees
+      cur = collection.find_one({"owner": permittee})
+      # rows = []
+      # for row in cur:
+      #   rows.append(row)
+      return cur
+    except Exception as e:
+      print(e)
+      return e
 
 
+# WARING ZONE
   def delete_permittee(self, id):
     try:
       id = int(id)

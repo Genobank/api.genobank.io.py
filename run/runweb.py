@@ -165,7 +165,7 @@ class AppUnoServer(object):
 	@cherrypy.tools.json_out()
 	def find_genotypes_by_permittee(self, permittee):
 		try:
-			return self.genotype_service.find_by_permittee(permittee)
+			return self.genotype_service.find_by_permittee_only_basic_data(permittee)
 		except Exception as e:
 			msg = ""
 			if 'message' in e.args[0]:
@@ -173,9 +173,6 @@ class AppUnoServer(object):
 			else:
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
-
-	
-
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -217,6 +214,22 @@ class AppUnoServer(object):
 			if env == "main":
 				created = self.permittee_service.create_permittee(id, address, secret)
 				return created
+		except Exception as e:
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['GET'])
+	@cherrypy.tools.json_out()
+	def test_validate_permittee(self, permittee):
+		try:
+			created = self.test_permittee_service.validate_permittee(permittee)
+			return created
 		except Exception as e:
 			msg = ""
 			if 'message' in e.args[0]:
