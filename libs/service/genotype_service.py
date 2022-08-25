@@ -89,8 +89,6 @@ class genotype_service:
     except Exception as e:
       raise e
 
-
-
   def validate_permitte(self, id):
     resp = requests.get(
       os.getenv('API_PERMITTEES')+"{0}".format(id)
@@ -102,7 +100,6 @@ class genotype_service:
       raise Exception("Failed to create new table, please try again later")
     return created
 
-
   def find_all_by_table(self, table):
     if table == None or table == "":
       tables = self.genotype.get_list_collection_names()
@@ -112,3 +109,11 @@ class genotype_service:
       if not search:
         return []
     return search
+
+  
+  # WARNIGN ZONE, FRO TEST ONLY
+  def delete_table(self):
+    deleted = self.genotype.delete_table()
+    if not deleted:
+      raise Exception("Failed to delete table, please try again later")
+    return deleted

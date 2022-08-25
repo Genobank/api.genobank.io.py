@@ -1,3 +1,4 @@
+import re
 from dotenv import load_dotenv
 from web3 import Web3, HTTPProvider
 from web3.middleware import geth_poa_middleware
@@ -56,6 +57,7 @@ class genotype_dao:
 				"extension": data["extension"],
 				"hash": data["token_hash"],
 				"signature": data["signature"],
+				"status": True,
 				"filesigned":data["filesigned"],
 				"created": datetime.datetime.now(),
 				"updated": datetime.datetime.now()
@@ -140,8 +142,12 @@ class genotype_dao:
 			return False
 
 	def download_file (self, name, ext):
-		file_path = os.path.abspath("storage/genotypes/"+name+"."+ext)
-		return static.serve_file(file_path, 'application/x-download','attachment', os.path.basename(file_path))  #<---extension file
+		try:
+			file_path = os.path.abspath("storage/genotypes/"+name+"."+ext)
+			return static.serve_file(file_path, 'application/x-download','attachment', os.path.basename(file_path))  #<---extension file
+		except Exception as e:
+			print(e)
+			return False
 
 
 
@@ -202,6 +208,16 @@ class genotype_dao:
 	def get_list_collection_names(self):
 		try:
 			return self.db.list_collection_names()
+		except Exception as e:
+			print(e)
+			return False
+
+	# WARNING ZONE, FOR TEST ONLY
+
+	def delete_table(self):
+		try:
+			deleted = self.table.delete_many({})
+			return deleted.deleted_count+" documents deleted successfully"
 		except Exception as e:
 			print(e)
 			return False
