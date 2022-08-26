@@ -97,9 +97,10 @@ class genotype_dao:
 			_json = {}
 			row = []
 			for doc in cur:
-				for key in doc:
-					if (not isinstance(doc[key], str)) or (not isinstance(doc[key], int)) or (not isinstance(doc[key], float)):
-						doc[key] = str(doc[key])
+				doc[""]
+				# for key in doc:
+				# 	if (not isinstance(doc[key], str)) or (not isinstance(doc[key], int)) or (not isinstance(doc[key], float)):
+				# 		doc[key] = str(doc[key])
 				row.append(doc)
 				# print(doc)
 			return row
