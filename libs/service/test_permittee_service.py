@@ -34,6 +34,15 @@ class test_permittee_service:
         return created
     except:
       raise
+
+
+  def validate_permittee(self, permittee):
+    validated = self.test_permittee.validate_permittee(permittee)
+    print ("\n\n\n\n",validated,"\n\n\n")
+    # return validated
+    return validated != None
+
+# WARNING ZONE
   
   
   def delete_permittee(self, id):

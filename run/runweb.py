@@ -165,7 +165,7 @@ class AppUnoServer(object):
 	@cherrypy.tools.json_out()
 	def find_genotypes_by_permittee(self, permittee):
 		try:
-			return self.genotype_service.find_by_permittee(permittee)
+			return self.genotype_service.find_by_permittee_only_basic_data(permittee)
 		except Exception as e:
 			msg = ""
 			if 'message' in e.args[0]:
@@ -173,9 +173,6 @@ class AppUnoServer(object):
 			else:
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
-
-	
-
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -225,18 +222,23 @@ class AppUnoServer(object):
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
-# addition
-	
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
-	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.allow(methods=['GET'])
 	@cherrypy.tools.json_out()
-	def delete_permittee(self, id):
+	def test_validate_permittee(self, permittee):
 		try:
-			deleted = self.permittee_service.delete_permittee(id)
-			return True
+			created = self.test_permittee_service.validate_permittee(permittee)
+			return created
 		except Exception as e:
-			print(e)
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+
+# addition
 
 
 	@cherrypy.expose
@@ -305,6 +307,31 @@ class AppUnoServer(object):
 			else:
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+
+
+	# WARNING ZONE FOR TEST ONLY
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.json_out()
+	def delete_permittee(self, id):
+		try:
+			deleted = self.permittee_service.delete_permittee(id)
+			return True
+		except Exception as e:
+			print(e)
+
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['DELETE'])
+	@cherrypy.tools.json_out()
+	def reset_genotype_table(self):
+		try:
+			self.genotype_service.delete_table()
+			return "You will need to deploy a new Smartcontract and change on the enviroment file"
+		except Exception as e:
+			print(e)
 
 class AppUno(object):
 	def __init__(self):

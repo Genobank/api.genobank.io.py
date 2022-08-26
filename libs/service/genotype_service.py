@@ -18,19 +18,24 @@ class genotype_service:
     self.encryption = Encryption.Encryption()
 
   def create(self, data, file):
-    data["filename"] = str(uuid.uuid4())
-    token_hash = self.genotype.mint_nft(data)
-    if not token_hash:
-      raise Exception("Error minting token")
-    data["token_hash"] = token_hash
-    print("\n\n\n\n\n\n",data,"\n\n\n\n\n\n")
-    save_db_file = self.genotype.save_db_file(data)
-    if not save_db_file:
-      raise Exception("Error saving file in database")
-    file_name = self.genotype.save_file(file, data)
-    if not file_name:
-      raise Exception("Error saving file")
-    return {"token": token_hash}
+    # data["filename"] = str(uuid.uuid4())
+    # token_hash = self.genotype.mint_nft(data)
+    # if not token_hash:
+    #   raise Exception("Error minting token")
+    # data["token_hash"] = token_hash
+    # save_db_file = self.genotype.save_db_file(data)
+    # if not save_db_file:
+    #   raise Exception("Error saving file in database")
+    # file_name = self.genotype.save_file(file, data)
+    # if not file_name:
+    #   raise Exception("Error saving file")
+    # add boto to upload to the bucket
+    bucket_send = self.genotype.upload_file_to_bucket("2be7b0b8-071e-442d-9118-bafa7a79a616.zip", "somos-genobank")
+    if not bucket_send:
+      raise Exception("Error uploading file to bucket")
+    
+
+    return {"token": bucket_send}
 
   def find_by_owner(self, owner):
     genotype = self.genotype.find_genotype_by_owner(owner)
@@ -42,6 +47,17 @@ class genotype_service:
     genotype = self.genotype.find_genotype_by_permittee(owner)
     if not genotype:
       return {}
+    return genotype
+
+  def find_by_permittee_only_basic_data(self, _permittee):
+    genotype = self.genotype.find_genotype_by_permittee(_permittee)
+    if not genotype:
+      return {}
+    for index in genotype:
+      if "_id" in index: del index["_id"]
+      if "filesigned" in index: del index["filesigned"]
+      if "hash" in index: del index["hash"]
+      if "signature" in index: del index["signature"]
     return genotype
 
   def list_to_json(self, gen_list):
@@ -68,7 +84,6 @@ class genotype_service:
     # # mark_key = hmac.new(signature.encode('utf-8'),msg=message.encode(), digestmod="sha256")
     validation, name, ext= self.genotype.verify_signature(wallet, signature)
     if not validation:
-      print("\n\n\n\n\n\n THIS FILE HAS NO VALIDATION SIGNATURE\n\n\n\n\n\n\n\n")
       raise Exception("Invalid signature")
     return name, ext
 
@@ -89,8 +104,6 @@ class genotype_service:
     except Exception as e:
       raise e
 
-
-
   def validate_permitte(self, id):
     resp = requests.get(
       os.getenv('API_PERMITTEES')+"{0}".format(id)
@@ -102,7 +115,6 @@ class genotype_service:
       raise Exception("Failed to create new table, please try again later")
     return created
 
-
   def find_all_by_table(self, table):
     if table == None or table == "":
       tables = self.genotype.get_list_collection_names()
@@ -112,3 +124,11 @@ class genotype_service:
       if not search:
         return []
     return search
+
+  
+  # WARNIGN ZONE, FRO TEST ONLY
+  def delete_table(self):
+    deleted = self.genotype.delete_table()
+    if not deleted:
+      raise Exception("Failed to delete table, please try again later")
+    return deleted

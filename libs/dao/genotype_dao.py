@@ -1,13 +1,18 @@
+import boto3
+import re
+import logging
+
+from botocore.exceptions import ClientError
+from cherrypy.lib import static
 from dotenv import load_dotenv
+from pymongo import MongoClient
 from web3 import Web3, HTTPProvider
 from web3.middleware import geth_poa_middleware
-from pymongo import MongoClient
 
-import os, os.path
-import json
-import datetime
-from cherrypy.lib import static
 import base64
+import datetime
+import json
+import os, os.path
 
 
 
@@ -56,6 +61,7 @@ class genotype_dao:
 				"extension": data["extension"],
 				"hash": data["token_hash"],
 				"signature": data["signature"],
+				"status": True,
 				"filesigned":data["filesigned"],
 				"created": datetime.datetime.now(),
 				"updated": datetime.datetime.now()
@@ -72,6 +78,43 @@ class genotype_dao:
 		with open(f"storage/genotypes/{file_name}."+ext, "wb") as f:
 			f.write(content_file)
 		return file_name
+
+	def download_file (self, name, ext):
+		try:
+			file_path = os.path.abspath("storage/genotypes/"+name+"."+ext)
+			return static.serve_file(file_path, 'application/x-download','attachment', os.path.basename(file_path))  #<---extension file
+		except Exception as e:
+			print(e)
+			return False
+
+	def upload_file_to_bucket(self, file_name, bucket, object_name = None):
+		if object_name is None:
+			object_name = os.path.basename("storage/genotypes/"+file_name)
+			print("\n\nobject Name: " + object_name+"\n\n")
+			
+		# Upload the file
+		# s3_client = boto3.client('s3')
+		# s3 = boto3.resource('s3')
+		try:
+			# response = s3_client.upload_file("storage/genotypes/"+file_name, bucket, object_name)
+
+			# # Method 1: Object.put()
+			# s3 = boto3.resource('s3')
+			# object = s3.Object(bucket, "storage/genotypes/"+file_name)
+			# object.put(Body=file_name)
+
+			# # Method 2: Client.put_object()
+			client = boto3.client('s3')
+			client.put_object(Body=file_name, Bucket=bucket, Key="storage/genotypes/"+file_name)
+			# print(response)
+		except ClientError as e:
+			print(e)
+			logging.error(e)
+			return False
+		return True
+
+
+
 
 	def find_genotype_by_owner(self, owner):
 		try:
@@ -94,13 +137,12 @@ class genotype_dao:
 		try:
 			collection = self.db.genotypes
 			cur = collection.find({"labaddr": permittee})
-			_json = {}
 			row = []
 			for doc in cur:
-				doc[""]
-				# for key in doc:
-				# 	if (not isinstance(doc[key], str)) or (not isinstance(doc[key], int)) or (not isinstance(doc[key], float)):
-				# 		doc[key] = str(doc[key])
+				# doc[""]
+				for key in doc:
+					if (not isinstance(doc[key], str)) or (not isinstance(doc[key], int)) or (not isinstance(doc[key], float)):
+						doc[key] = str(doc[key])
 				row.append(doc)
 				# print(doc)
 			return row
@@ -140,15 +182,7 @@ class genotype_dao:
 			print(e)
 			return False
 
-	def download_file (self, name, ext):
-		file_path = os.path.abspath("storage/genotypes/"+name+"."+ext)
-		return static.serve_file(file_path, 'application/x-download','attachment', os.path.basename(file_path))  #<---extension file
 
-
-
-
-
-	
 
 	def create_table(self, name, fields):
 		try:
@@ -175,9 +209,6 @@ class genotype_dao:
 		except:
 			raise 
 
-
-
-
 	def find_all_by_table(self, table):
 		try:
 			collection = self.db[table]
@@ -203,6 +234,19 @@ class genotype_dao:
 	def get_list_collection_names(self):
 		try:
 			return self.db.list_collection_names()
+		except Exception as e:
+			print(e)
+			return False
+
+
+
+
+	# WARNING ZONE, FOR TEST ONLY
+
+	def delete_table(self):
+		try:
+			deleted = self.table.delete_many({})
+			return deleted.deleted_count+" documents deleted successfully"
 		except Exception as e:
 			print(e)
 			return False

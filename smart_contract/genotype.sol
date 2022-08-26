@@ -8,6 +8,7 @@ contract GenoType is ERC1155{
     struct Biosample {
         string name;
         address owner;
+        uint tokenId;
         address laboratory;
         bool enable;
     }
@@ -21,20 +22,24 @@ contract GenoType is ERC1155{
         owner = msg.sender;
     }
 
-    function addGenotype(string memory _name, address _owner, address permittee) public {
+    function addGenotype(string memory _name, address _owner, address _permittee) public {
         require (msg.sender == owner, "YO CANNOT CALL THIS FUNCTION");
         require (isStringEmpty(biosamples[_owner].name), "You already have a registered genotype");
         require (!isStringEmpty(_name), "You file name is empty");
         counter++;
         Biosample memory newSample = Biosample(
             _name,
-            msg.sender,
-            permittee,
+            _owner,
+            counter,
+            _permittee,
             true
             );
         biosamples[_owner] = newSample;
-        laboratoriesSamples[permittee].push(newSample);
-        _mint(_owner, counter, 1, "");
+        laboratoriesSamples[_permittee].push(newSample);
+        bytes memory bPermittee = toBytes(_permittee);
+        bytes memory bOwner = toBytes(_owner);
+        _mint(_owner, counter, 1, bPermittee);
+        _mint(_permittee, counter, 1, bOwner);
     }
     
     function getMyGenotype() public view returns (Biosample memory){
@@ -57,6 +62,18 @@ contract GenoType is ERC1155{
             biosamples[msg.sender].enable = false;
         }
     }
+
+    function burnToken (address _owner, address _permittee) public {
+        require (msg.sender == owner || isPermittee(msg.sender), "YO CANNOT CALL THIS FUNCTION");
+        require (biosamples[_owner].enable, "You no longer have this object");
+        uint _idtoken = biosamples[_owner].tokenId;
+        
+        
+        _burn(_owner, _idtoken, 1);
+        _burn(_permittee, _idtoken, 1);
+        biosamples[_owner].enable = false;
+    }
+
 
     function check_genotype_status(address _owner) public view returns(bool){
         return biosamples[_owner].enable;
@@ -83,5 +100,16 @@ contract GenoType is ERC1155{
             }
         }
         return _isEmpty;
+    }
+
+    
+    function toBytes(address a) public pure returns (bytes memory b){
+        assembly {
+            let m := mload(0x40)
+            a := and(a, 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
+            mstore(add(m, 20), xor(0x140000000000000000000000000000000000000000, a))
+            mstore(0x40, add(m, 52))
+            b := m
+        }
     }
 }

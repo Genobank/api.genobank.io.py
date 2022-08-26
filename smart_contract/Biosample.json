@@ -143,7 +143,7 @@
         },
         {
           "internalType": "address",
-          "name": "permittee",
+          "name": "_permittee",
           "type": "address"
         }
       ],
@@ -221,6 +221,11 @@
           "type": "address"
         },
         {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
           "internalType": "address",
           "name": "laboratory",
           "type": "address"
@@ -232,6 +237,24 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_owner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_permittee",
+          "type": "address"
+        }
+      ],
+      "name": "burnToken",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -294,6 +317,11 @@
               "type": "address"
             },
             {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
               "internalType": "address",
               "name": "laboratory",
               "type": "address"
@@ -335,6 +363,11 @@
               "type": "address"
             },
             {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
               "internalType": "address",
               "name": "laboratory",
               "type": "address"
@@ -368,6 +401,11 @@
               "internalType": "address",
               "name": "owner",
               "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
             },
             {
               "internalType": "address",
@@ -455,6 +493,11 @@
           "internalType": "address",
           "name": "owner",
           "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
         },
         {
           "internalType": "address",
@@ -571,6 +614,25 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "a",
+          "type": "address"
+        }
+      ],
+      "name": "toBytes",
+      "outputs": [
+        {
+          "internalType": "bytes",
+          "name": "b",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "pure",
       "type": "function"
     },
     {
