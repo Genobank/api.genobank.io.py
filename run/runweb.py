@@ -117,13 +117,15 @@ class AppUnoServer(object):
 			if "extension" not in data:
 				raise Exception("This extension is not supported")
 			return self.genotype_service.create(data, file)
-		except Exception as e:
-			msg = ""
-			if 'message' in e.args[0]:
-				msg = str(e.args[0]['message'])
-			else:
-				msg = str(e)
-			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+		except:
+			raise
+		# except Exception as e:
+		# 	msg = ""
+		# 	if 'message' in e.args[0]:
+		# 		msg = str(e.args[0]['message'])
+		# 	else:
+		# 		msg = str(e)
+		# 	raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -201,6 +203,23 @@ class AppUnoServer(object):
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['DELETE'])
+	@cherrypy.tools.json_out()
+	def revoke_consents(self, owner, signature):
+		try:
+			revoked = self.genotype_service.revoke_consents(owner, signature)
+			return revoked
+		except Exception as e:
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+
+
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -228,15 +247,17 @@ class AppUnoServer(object):
 	@cherrypy.tools.json_out()
 	def test_validate_permittee(self, permittee):
 		try:
-			created = self.test_permittee_service.validate_permittee(permittee)
-			return created
-		except Exception as e:
-			msg = ""
-			if 'message' in e.args[0]:
-				msg = str(e.args[0]['message'])
-			else:
-				msg = str(e)
-			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+			permittee = self.test_permittee_service.validate_permittee(permittee)
+			return permittee
+		except:
+			raise
+		# except Exception as e:
+		# 	msg = ""
+		# 	if 'message' in e.args[0]:
+		# 		msg = str(e.args[0]['message'])
+		# 	else:
+		# 		msg = str(e)
+		# 	raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 # addition
 

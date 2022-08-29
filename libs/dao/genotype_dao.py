@@ -90,23 +90,12 @@ class genotype_dao:
 	def upload_file_to_bucket(self, file_name, bucket, object_name = None):
 		if object_name is None:
 			object_name = os.path.basename("storage/genotypes/"+file_name)
-			print("\n\nobject Name: " + object_name+"\n\n")
-			
-		# Upload the file
-		# s3_client = boto3.client('s3')
-		# s3 = boto3.resource('s3')
+		s3_client = boto3.client(service_name='s3',
+																		aws_access_key_id='AKIAUFOG4Q6XPT3LMZHB',
+																		aws_secret_access_key='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')
 		try:
-			# response = s3_client.upload_file("storage/genotypes/"+file_name, bucket, object_name)
-
-			# # Method 1: Object.put()
-			# s3 = boto3.resource('s3')
-			# object = s3.Object(bucket, "storage/genotypes/"+file_name)
-			# object.put(Body=file_name)
-
-			# # Method 2: Client.put_object()
-			client = boto3.client('s3')
-			client.put_object(Body=file_name, Bucket=bucket, Key="storage/genotypes/"+file_name)
-			# print(response)
+			response = s3_client.upload_file("storage/genotypes/"+file_name, bucket, object_name)
+			print
 		except ClientError as e:
 			print(e)
 			logging.error(e)
@@ -181,6 +170,19 @@ class genotype_dao:
 		except Exception as e:
 			print(e)
 			return False
+
+	def revoke_consents(self, owner):
+		try:
+			collection = self.db.genotypes
+			collection.update_one({"owneraddr":owner}, {"$set": {"status": False}})
+			return True
+		except Exception as e:
+			print(e)
+			return False
+
+	# def burn_bio_token(self,):
+
+
 
 
 

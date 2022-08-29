@@ -18,24 +18,23 @@ class genotype_service:
     self.encryption = Encryption.Encryption()
 
   def create(self, data, file):
-    # data["filename"] = str(uuid.uuid4())
-    # token_hash = self.genotype.mint_nft(data)
-    # if not token_hash:
-    #   raise Exception("Error minting token")
-    # data["token_hash"] = token_hash
-    # save_db_file = self.genotype.save_db_file(data)
-    # if not save_db_file:
-    #   raise Exception("Error saving file in database")
-    # file_name = self.genotype.save_file(file, data)
-    # if not file_name:
-    #   raise Exception("Error saving file")
+    data["filename"] = str(uuid.uuid4())
+    token_hash = self.genotype.mint_nft(data)
+    if not token_hash:
+      raise Exception("Error minting token")
+    data["token_hash"] = token_hash
+    save_db_file = self.genotype.save_db_file(data)
+    if not save_db_file:
+      raise Exception("Error saving file in database")
+    file_name = self.genotype.save_file(file, data)
+    if not file_name:
+      raise Exception("Error saving file")
     # add boto to upload to the bucket
-    bucket_send = self.genotype.upload_file_to_bucket("2be7b0b8-071e-442d-9118-bafa7a79a616.zip", "somos-genobank")
+    bucket_send = self.genotype.upload_file_to_bucket(data["filename"]+"."+data["extension"], "somos-genobank")
     if not bucket_send:
       raise Exception("Error uploading file to bucket")
     
-
-    return {"token": bucket_send}
+    return {"token": token_hash}
 
   def find_by_owner(self, owner):
     genotype = self.genotype.find_genotype_by_owner(owner)
@@ -92,6 +91,16 @@ class genotype_service:
     if not file:
       raise Exception("Couldn't find file")
     return file
+
+  def revoke_consents(self, owner, signature):
+    authorized, name, ext= self.genotype.verify_signature(owner, signature)
+    if not authorized:
+      raise Exception("Invalid signature")
+    revoked = self.genotype.revoke_consents(owner)
+    if not revoked:
+      raise Exception("Couldn't revoke consent")
+    return revoked
+
 
   def checkPermitteeSecret(self, id, address, secret):
     try:
