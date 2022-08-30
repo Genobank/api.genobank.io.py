@@ -71,7 +71,7 @@ class AppUnoServer(object):
 
 	def CORS():
 		if cherrypy.request.method == 'OPTIONS':
-			cherrypy.response.headers['Access-Control-Allow-Methods'] = 'POST, GET'
+			cherrypy.response.headers['Access-Control-Allow-Methods'] = 'POST, GET, DELETE'
 			cherrypy.response.headers['Access-Control-Allow-Headers'] = 'content-type'
 			cherrypy.response.headers['Access-Control-Allow-Origin']  = '*'
 			return True
@@ -205,11 +205,11 @@ class AppUnoServer(object):
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
-	@cherrypy.tools.allow(methods=['DELETE'])
+	@cherrypy.tools.allow(methods=['POST'])
 	@cherrypy.tools.json_out()
-	def revoke_consents(self, owner, signature):
+	def revoke_consents(self, owner, signature, permittee):
 		try:
-			revoked = self.genotype_service.revoke_consents(owner, signature)
+			revoked = self.genotype_service.revoke_consents(owner, signature, permittee)
 			return revoked
 		except Exception as e:
 			msg = ""
@@ -372,6 +372,8 @@ class AppUno(object):
 			},
 			'/': {
 				'tools.sessions.on': True,
+				'tools.response_headers.on': True,
+        'tools.response_headers.headers': [('Content-Type', 'application/json'), ('Access-Control-Allow-Origin', 'http://127.0.0.1:5502/')],
 				'server.socket_port': os.path.abspath(os.getcwd()),
 				'response.timeout': False
 			},

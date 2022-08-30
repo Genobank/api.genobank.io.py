@@ -73,6 +73,8 @@ class genotype_service:
     _json = {}
     _json["name"] = _genotype["filename"]
     _json["ext"] = _genotype["extension"]
+    _json["lab"] = _genotype["labaddr"]
+    _json["status"] = _genotype["status"]
 
     return _json
 
@@ -92,13 +94,13 @@ class genotype_service:
       raise Exception("Couldn't find file")
     return file
 
-  def revoke_consents(self, owner, signature):
+  def revoke_consents(self, owner, signature, permittee):
     authorized, name, ext= self.genotype.verify_signature(owner, signature)
     if not authorized:
       raise Exception("Invalid signature")
-    revoked = self.genotype.revoke_consents(owner)
-    if not revoked:
-      raise Exception("Couldn't revoke consent")
+    revoked = self.genotype.revoke_consents(owner, permittee)
+    # if not revoked:
+    #   raise Exception("Couldn't revoke consent")
     return revoked
 
 

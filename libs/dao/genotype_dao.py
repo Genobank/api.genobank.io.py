@@ -171,16 +171,28 @@ class genotype_dao:
 			print(e)
 			return False
 
-	def revoke_consents(self, owner):
+	def revoke_consents(self, owner, permittee):
 		try:
+			tx = self.burn_bio_token(owner, permittee)
+			if not tx:
+				raise Exception("Smartcontract: Error during revoke_consents")
 			collection = self.db.genotypes
 			collection.update_one({"owneraddr":owner}, {"$set": {"status": False}})
-			return True
-		except Exception as e:
-			print(e)
-			return False
+			return {"transactionHash":tx}
+		except:
+			# print(e)
+			raise
 
-	# def burn_bio_token(self,):
+	def burn_bio_token(self, owner, permittee):
+		contract = self.w3.eth.contract(address=os.getenv('TEST_BIOSAMPLE_COTRACT'), abi=self.SM_JSONINTERFACE['abi'])
+		tx = contract.functions.burnToken(owner, permittee).buildTransaction({
+			'nonce': self.w3.eth.getTransactionCount(self.account.address)
+			})
+		signed_tx = self.w3.eth.account.signTransaction(tx, private_key=os.getenv('BIOSAMPLE_EXECUTOR'))
+		tx_hash = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+		self.w3.eth.waitForTransactionReceipt(tx_hash)    
+		print("tx hash\n",tx_hash.hex())
+		return tx_hash.hex()
 
 
 
