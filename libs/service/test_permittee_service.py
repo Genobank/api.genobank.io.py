@@ -1,3 +1,4 @@
+from math import perm
 from re import S
 from urllib import response
 from libs.domain import Encryption
@@ -41,6 +42,11 @@ class test_permittee_service:
     print ("\n\n\n\n",validated,"\n\n\n")
     # return validated
     return validated != None
+  def is_permittee(self, permittee):
+    permittee = self.test_permittee.validate_permittee(permittee)
+    if not permittee:
+      return False
+    return True
 
 # WARNING ZONE
   

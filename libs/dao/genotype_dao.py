@@ -5,9 +5,11 @@ import logging
 from botocore.exceptions import ClientError
 from cherrypy.lib import static
 from dotenv import load_dotenv
+from eth_account.messages import encode_defunct
 from pymongo import MongoClient
 from web3 import Web3, HTTPProvider
 from web3.middleware import geth_poa_middleware
+from web3.auto import w3
 
 import base64
 import datetime
@@ -59,6 +61,7 @@ class genotype_dao:
 				"owneraddr": data["userAddress"],
 				"filename": data["filename"],
 				"extension": data["extension"],
+				"consents": data['agreements'],
 				"hash": data["token_hash"],
 				"signature": data["signature"],
 				"status": True,
@@ -170,6 +173,29 @@ class genotype_dao:
 		except Exception as e:
 			print(e)
 			return False
+
+	def real_validation(self, signed_message, msg):
+		msg = encode_defunct(text=msg)
+		wallet = w3.eth.account.recover_message(msg, signature=signed_message)
+		print("\n\n\n\n\nWallet:", wallet,"\n\n\n")
+		# delete this part only to download boto3
+
+
+
+		s3_client = boto3.client(service_name='s3',
+															aws_access_key_id='AKIAUFOG4Q6XPT3LMZHB',
+															aws_secret_access_key='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',
+															region_name='us-east-1'
+														)
+
+		s3_client.download_file(Bucket='somos-genobank', Key='GHAnDU0029.txt', Filename='GHAnDU0029.txt')
+
+
+
+		# with open('GHAnDU0029.txt', 'wb') as f:
+			# s3_client.download_fileobj('somos-genobank', 'GHAnDU0029.txt', f)
+
+		return wallet
 
 	def revoke_consents(self, owner, permittee):
 		try:

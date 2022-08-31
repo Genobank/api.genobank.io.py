@@ -83,10 +83,15 @@ class genotype_service:
     # wallet = data["wallet"]
     # # message = signature+wallet
     # # mark_key = hmac.new(signature.encode('utf-8'),msg=message.encode(), digestmod="sha256")
+
     validation, name, ext= self.genotype.verify_signature(wallet, signature)
     if not validation:
       raise Exception("Invalid signature")
     return name, ext
+
+  def real_validation(self, signature, msg):
+    valid = self.genotype.real_validation(signature, msg)
+    return valid
 
   def download_file(self, file_name, file_ext):
     file = self.genotype.download_file(file_name, file_ext)

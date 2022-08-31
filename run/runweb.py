@@ -203,6 +203,29 @@ class AppUnoServer(object):
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
+
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	# @cherrypy.tools.allow(methods=['GET'])
+	@cherrypy.tools.json_out()
+	def download_lab_file(self, signature, msg, permittee):
+		try:
+			is_permittee = self.test_permittee_service.is_permittee(permittee)
+			if not is_permittee:
+				raise Exception("Address is no permittee")
+			is_valid = self.genotype_service.real_validation(signature, msg)
+			return is_valid
+		except:
+			raise
+		# except Exception as e:
+		# 	msg = ""
+		# 	if 'message' in e.args[0]:
+		# 		msg = str(e.args[0]['message'])
+		# 	else:
+		# 		msg = str(e)
+		# 	raise cherrypy.HTTPError("500 Internal Server Error", msg)
+
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['POST'])
