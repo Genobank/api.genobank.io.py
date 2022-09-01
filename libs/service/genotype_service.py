@@ -1,4 +1,5 @@
-from re import T
+# from re import T
+from cryptography.fernet import Fernet
 from libs.dao import genotype_dao
 from libs.exceptions import DomainInjectionError
 from libs.domain import Encryption
@@ -19,6 +20,7 @@ class genotype_service:
 
   def create(self, data, file):
     data["filename"] = str(uuid.uuid4())
+    data["key"] = Fernet.generate_key()
     token_hash = self.genotype.mint_nft(data)
     if not token_hash:
       raise Exception("Error minting token")
@@ -89,14 +91,14 @@ class genotype_service:
       raise Exception("Invalid signature")
     return name, ext
 
-  def real_validation(self, signature, msg):
-    valid = self.genotype.real_validation(signature, msg)
+  def real_validation(self, signature, msg, permittee):
+    valid = self.genotype.real_validation(signature, msg, permittee)
     return valid
 
   def download_file(self, file_name, file_ext):
     file = self.genotype.download_file(file_name, file_ext)
-    if not file:
-      raise Exception("Couldn't find file")
+    # if not file:
+    #   raise Exception("Couldn't find file")
     return file
 
   def revoke_consents(self, owner, signature, permittee):
