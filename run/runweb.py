@@ -87,7 +87,6 @@ class AppUnoServer(object):
 		t = Template(filename="public/pages/index.mako")
 		return t.render(message=os.getenv('ENVIROMENT'))
 
-
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['GET'])
@@ -102,7 +101,6 @@ class AppUnoServer(object):
 		elif place == "profile" or place == "test-profile":
 			t = self.mylookup.get_template("profiles.mako")
 			return t.render(plc = "Profiles", env=os.getenv('ENVIROMENT'))
-
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -144,7 +142,6 @@ class AppUnoServer(object):
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
-
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['GET'])
@@ -159,7 +156,6 @@ class AppUnoServer(object):
 			else:
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
-
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -178,20 +174,11 @@ class AppUnoServer(object):
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
-	# @cherrypy.tools.allow(methods=['GET'])
-	# @cherrypy.tools.json_out()
 	def download_file(self, wallet, signature):
 		try:
-			# data = json.loads(data)
-			# wallet = data['wallet']
-			# signature = data['signature']
-			
-			# name, ext = self.genotype_service.authorize_download(data)
 			name, ext = self.genotype_service.authorize_download(wallet, signature)
 			file = self.genotype_service.download_file(name, ext)
 			return file
-
-			# return self.genotype_service.download_file(authorized)
 		except:
 			raise
 
@@ -203,23 +190,15 @@ class AppUnoServer(object):
 		# 		msg = str(e)
 		# 	raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
-
-
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
-	# @cherrypy.tools.allow(methods=['GET'])
-	# @cherrypy.tools.json_out()
 	def download_lab_file(self, signature, msg, permittee):
 		try:
-			is_permittee = self.test_permittee_service.is_permittee(permittee)
-			if not is_permittee:
-				raise Exception("Address is no permittee")
-			is_valid = self.genotype_service.real_validation(signature, msg, permittee)
-			if not is_valid:
-				raise Exception("You permittee is not valid")
-			
+			self.test_permittee_service.is_permittee(permittee)
+			self.genotype_service.real_validation(signature, msg, permittee)
 			name = msg.split(".")[0]
 			ext = msg.split(".")[1]
+			self.genotype_service.is_file_enable(name)
 			file = self.genotype_service.download_file(name, ext)
 			return file
 		except Exception as e:
@@ -245,9 +224,7 @@ class AppUnoServer(object):
 			else:
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
-
-
-
+			
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['POST'])
@@ -307,7 +284,6 @@ class AppUnoServer(object):
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
-
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['POST'])
@@ -317,7 +293,6 @@ class AppUnoServer(object):
 			return self.permittee_service.testing_mongo_db()
 		except Exception as e:
 			print(e)
-
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -329,7 +304,6 @@ class AppUnoServer(object):
 		except Exception as e:
 			print(e)
 
-
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['POST'])
@@ -339,7 +313,6 @@ class AppUnoServer(object):
 			return self.genotype_service.find_all_by_table(table)
 		except Exception as e:
 			print(e)
-
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -356,7 +329,6 @@ class AppUnoServer(object):
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
-
 	# WARNING ZONE FOR TEST ONLY
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -368,7 +340,6 @@ class AppUnoServer(object):
 			return True
 		except Exception as e:
 			print(e)
-
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
