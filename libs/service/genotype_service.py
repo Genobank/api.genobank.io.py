@@ -30,7 +30,7 @@ class genotype_service:
     # if not file_name:
     #   raise Exception("Error saving file")
     # add boto to upload to the bucket
-    bucket_send = self.genotype.upload_file_to_bucket("2be7b0b8-071e-442d-9118-bafa7a79a616.zip", "somos-genobank")
+    bucket_send = self.genotype.upload_file_to_bucket("10a5c9bd-1bee-44a9-ba88-d575b2ece6ac.zip", "somos-genobank")
     if not bucket_send:
       raise Exception("Error uploading file to bucket")
     
