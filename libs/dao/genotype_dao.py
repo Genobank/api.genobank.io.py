@@ -68,6 +68,7 @@ class genotype_dao:
 				"signature": data["signature"],
 				"status": True,
 				"filesigned":data["filesigned"],
+				"filesize":data["filesize"],
 				"created": datetime.datetime.now(),
 				"updated": datetime.datetime.now()
 			}
@@ -88,20 +89,18 @@ class genotype_dao:
 			f.write(encrypted_file)
 		return file_name
 
-
-
-
 	def download_file (self, name, ext):
 		try:
 			collection = self.db.genotypes
 			cur = collection.find_one({"filename": name})
 			file_path = os.path.abspath("storage/genotypes/"+name+"."+ext)
 			key = cur['key']
-			key = type(key)
+			print(key)
+			key = bytes(key)
 			# key = key[2:-1]
 			print(key)
 			fernet = Fernet(key)
-			with open(file_path) as enc_file:
+			with open(file_path, 'rb') as enc_file:
 				encrypted = enc_file.read()
 			decrypted = fernet.decrypt(encrypted)
 			return decrypted
@@ -208,6 +207,18 @@ class genotype_dao:
 
 			# s3_client.download_file(Bucket='somos-genobank', Key='GHAnDU0029.txt', Filename='GHAnDU0029.txt')
 		return (wallet == permittee)
+
+	def is_file_enable(self, filename):
+		try:
+			collection = self.db.genotypes
+			cur = collection.find_one({"filename": filename})
+			enable = cur["status"]
+			return enable
+			# return enable.lower() in ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh']
+		except Exception as e:
+			print(e)
+			return e
+
 		
 
 	def revoke_consents(self, owner, permittee):

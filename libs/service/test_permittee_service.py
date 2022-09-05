@@ -45,8 +45,11 @@ class test_permittee_service:
   def is_permittee(self, permittee):
     permittee = self.test_permittee.validate_permittee(permittee)
     if not permittee:
-      return False
-    return True
+      raise Exception("Address is no permittee")
+    return permittee
+    # if not permittee:
+    #   return False
+    # return True
 
 # WARNING ZONE
   

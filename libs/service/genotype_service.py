@@ -78,6 +78,8 @@ class genotype_service:
     _json["ext"] = _genotype["extension"]
     _json["lab"] = _genotype["labaddr"]
     _json["status"] = _genotype["status"]
+    _json["filesize"] = _genotype["filesize"]
+    _json["consents"] = _genotype["consents"]
 
     return _json
 
@@ -94,7 +96,15 @@ class genotype_service:
 
   def real_validation(self, signature, msg, permittee):
     valid = self.genotype.real_validation(signature, msg, permittee)
+    if not valid:
+      raise Exception("You permittee is not valid")
     return valid
+
+  def is_file_enable(self, file_name):
+    is_enable = self.genotype.is_file_enable(file_name)
+    if not is_enable:
+      raise Exception("This file has consents revoked")
+    return is_enable
 
   def download_file(self, file_name, file_ext):
     file = self.genotype.download_file(file_name, file_ext)

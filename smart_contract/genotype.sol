@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0
+// SPDX-License-Identifier: MIT
 pragma solidity = 0.8.9;
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC1155/ERC1155.sol";
 
@@ -12,6 +12,8 @@ contract GenoType is ERC1155{
         address laboratory;
         bool enable;
     }
+
+    event Transferconsent (address _user, address _permittee, uint _tokenId);
 
     //Biosamples [] all_samples;
     mapping (address => Biosample) public biosamples;
@@ -40,6 +42,8 @@ contract GenoType is ERC1155{
         bytes memory bOwner = toBytes(_owner);
         _mint(_owner, counter, 1, bPermittee);
         _mint(_permittee, counter, 1, bOwner);
+
+        emit Transferconsent(_owner, _permittee, counter);
     }
     
     function getMyGenotype() public view returns (Biosample memory){
@@ -52,15 +56,6 @@ contract GenoType is ERC1155{
 
     function getGebnotypesByPermittee(address _permittee) public view returns(Biosample[] memory){
         return laboratoriesSamples[_permittee];
-    }
-
-    function disableGenotype(address _permittee, address _owner) public {
-        require (msg.sender == owner || isPermittee(msg.sender), "YO CANNOT CALL THIS FUNCTION");
-        if(msg.sender == owner){
-            biosamples[_permittee].enable = false;
-        }else{
-            biosamples[msg.sender].enable = false;
-        }
     }
 
     function burnToken (address _owner, address _permittee) public {
