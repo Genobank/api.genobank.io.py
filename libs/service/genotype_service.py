@@ -1,4 +1,5 @@
-from re import T
+# from re import T
+from cryptography.fernet import Fernet
 from libs.dao import genotype_dao
 from libs.exceptions import DomainInjectionError
 from libs.domain import Encryption
@@ -18,24 +19,25 @@ class genotype_service:
     self.encryption = Encryption.Encryption()
 
   def create(self, data, file):
-    # data["filename"] = str(uuid.uuid4())
-    # token_hash = self.genotype.mint_nft(data)
-    # if not token_hash:
-    #   raise Exception("Error minting token")
-    # data["token_hash"] = token_hash
-    # save_db_file = self.genotype.save_db_file(data)
-    # if not save_db_file:
-    #   raise Exception("Error saving file in database")
-    # file_name = self.genotype.save_file(file, data)
-    # if not file_name:
-    #   raise Exception("Error saving file")
+    data["filename"] = str(uuid.uuid4())
+    data["key"] = Fernet.generate_key()
+    token_hash = self.genotype.mint_nft(data)
+    if not token_hash:
+      raise Exception("Error minting token")
+    data["token_hash"] = token_hash
+    save_db_file = self.genotype.save_db_file(data)
+    if not save_db_file:
+      raise Exception("Error saving file in database")
+    file_name = self.genotype.save_file(file, data)
+    if not file_name:
+      raise Exception("Error saving file")
     # add boto to upload to the bucket
-    bucket_send = self.genotype.upload_file_to_bucket("10a5c9bd-1bee-44a9-ba88-d575b2ece6ac.zip", "somos-genobank")
+
+    bucket_send = self.genotype.upload_file_to_bucket(data["filename"]+"."+data["extension"], "somos-genobank")
     if not bucket_send:
       raise Exception("Error uploading file to bucket")
     
-
-    return {"token": bucket_send}
+    return {"token": token_hash}
 
   def find_by_owner(self, owner):
     genotype = self.genotype.find_genotype_by_owner(owner)
@@ -74,6 +76,8 @@ class genotype_service:
     _json = {}
     _json["name"] = _genotype["filename"]
     _json["ext"] = _genotype["extension"]
+    _json["lab"] = _genotype["labaddr"]
+    _json["status"] = _genotype["status"]
 
     return _json
 
@@ -82,16 +86,31 @@ class genotype_service:
     # wallet = data["wallet"]
     # # message = signature+wallet
     # # mark_key = hmac.new(signature.encode('utf-8'),msg=message.encode(), digestmod="sha256")
+
     validation, name, ext= self.genotype.verify_signature(wallet, signature)
     if not validation:
       raise Exception("Invalid signature")
     return name, ext
 
+  def real_validation(self, signature, msg, permittee):
+    valid = self.genotype.real_validation(signature, msg, permittee)
+    return valid
+
   def download_file(self, file_name, file_ext):
     file = self.genotype.download_file(file_name, file_ext)
-    if not file:
-      raise Exception("Couldn't find file")
+    # if not file:
+    #   raise Exception("Couldn't find file")
     return file
+
+  def revoke_consents(self, owner, signature, permittee):
+    authorized, name, ext= self.genotype.verify_signature(owner, signature)
+    if not authorized:
+      raise Exception("Invalid signature")
+    revoked = self.genotype.revoke_consents(owner, permittee)
+    # if not revoked:
+    #   raise Exception("Couldn't revoke consent")
+    return revoked
+
 
   def checkPermitteeSecret(self, id, address, secret):
     try:

@@ -159,6 +159,7 @@ class test_permittee_dao:
       return e
 
 
+
 # WARING ZONE
   def delete_permittee(self, id):
     try:

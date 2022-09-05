@@ -71,7 +71,7 @@ class AppUnoServer(object):
 
 	def CORS():
 		if cherrypy.request.method == 'OPTIONS':
-			cherrypy.response.headers['Access-Control-Allow-Methods'] = 'POST, GET'
+			cherrypy.response.headers['Access-Control-Allow-Methods'] = 'POST, GET, DELETE'
 			cherrypy.response.headers['Access-Control-Allow-Headers'] = 'content-type'
 			cherrypy.response.headers['Access-Control-Allow-Origin']  = '*'
 			return True
@@ -117,13 +117,15 @@ class AppUnoServer(object):
 			if "extension" not in data:
 				raise Exception("This extension is not supported")
 			return self.genotype_service.create(data, file)
-		except Exception as e:
-			msg = ""
-			if 'message' in e.args[0]:
-				msg = str(e.args[0]['message'])
-			else:
-				msg = str(e)
-			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+		except:
+			raise
+		# except Exception as e:
+		# 	msg = ""
+		# 	if 'message' in e.args[0]:
+		# 		msg = str(e.args[0]['message'])
+		# 	else:
+		# 		msg = str(e)
+		# 	raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -190,9 +192,36 @@ class AppUnoServer(object):
 			return file
 
 			# return self.genotype_service.download_file(authorized)
-		# except:
-		# 	raise
+		except:
+			raise
 
+		# except Exception as e:
+		# 	msg = ""
+		# 	if 'message' in e.args[0]:
+		# 		msg = str(e.args[0]['message'])
+		# 	else:
+		# 		msg = str(e)
+		# 	raise cherrypy.HTTPError("500 Internal Server Error", msg)
+
+
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	# @cherrypy.tools.allow(methods=['GET'])
+	# @cherrypy.tools.json_out()
+	def download_lab_file(self, signature, msg, permittee):
+		try:
+			is_permittee = self.test_permittee_service.is_permittee(permittee)
+			if not is_permittee:
+				raise Exception("Address is no permittee")
+			is_valid = self.genotype_service.real_validation(signature, msg, permittee)
+			if not is_valid:
+				raise Exception("You permittee is not valid")
+			
+			name = msg.split(".")[0]
+			ext = msg.split(".")[1]
+			file = self.genotype_service.download_file(name, ext)
+			return file
 		except Exception as e:
 			msg = ""
 			if 'message' in e.args[0]:
@@ -200,6 +229,23 @@ class AppUnoServer(object):
 			else:
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.json_out()
+	def revoke_consents(self, owner, signature, permittee):
+		try:
+			revoked = self.genotype_service.revoke_consents(owner, signature, permittee)
+			return revoked
+		except Exception as e:
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+
 
 
 	@cherrypy.expose
@@ -228,15 +274,17 @@ class AppUnoServer(object):
 	@cherrypy.tools.json_out()
 	def test_validate_permittee(self, permittee):
 		try:
-			created = self.test_permittee_service.validate_permittee(permittee)
-			return created
-		except Exception as e:
-			msg = ""
-			if 'message' in e.args[0]:
-				msg = str(e.args[0]['message'])
-			else:
-				msg = str(e)
-			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+			permittee = self.test_permittee_service.validate_permittee(permittee)
+			return permittee
+		except:
+			raise
+		# except Exception as e:
+		# 	msg = ""
+		# 	if 'message' in e.args[0]:
+		# 		msg = str(e.args[0]['message'])
+		# 	else:
+		# 		msg = str(e)
+		# 	raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 # addition
 
@@ -351,6 +399,8 @@ class AppUno(object):
 			},
 			'/': {
 				'tools.sessions.on': True,
+				'tools.response_headers.on': True,
+        'tools.response_headers.headers': [('Content-Type', 'application/json'), ('Access-Control-Allow-Origin', 'http://127.0.0.1:5502/')],
 				'server.socket_port': os.path.abspath(os.getcwd()),
 				'response.timeout': False
 			},
