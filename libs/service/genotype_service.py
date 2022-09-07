@@ -32,12 +32,31 @@ class genotype_service:
     if not file_name:
       raise Exception("Error saving file")
     # add boto to upload to the bucket
-
-    bucket_send = self.genotype.upload_file_to_bucket(data["filename"]+"."+data["extension"], "somos-genobank")
-    if not bucket_send:
-      raise Exception("Error uploading file to bucket")
-    
+    # bucket_send = self.genotype.upload_file_to_bucket(data["filename"]+"."+data["extension"], "somos-genobank")
+    # if not bucket_send:
+    #   raise Exception("Error uploading file to bucket")
     return {"token": token_hash}
+
+  def validate_consents_metadata(self, data):
+    if "agreements" not in data:
+      raise Exception("Invalid consent metadata")
+    agreements = data['agreements']
+    if "questions" not in agreements:
+      raise Exception("question is required for consent metadata")
+    if "document" not in agreements:
+      raise Exception("document is required for consent metadata")
+    if "read" not in agreements:
+      raise Exception("read is required for consent metadata")
+    if "permission" not in agreements:
+      raise Exception("permission is required for consent metadata")
+    if "providing" not in agreements:
+      raise Exception("providing is required for consent metadata")
+    if "analysis" not in agreements:
+      raise Exception("analysis is required for consent metadata")
+    if "results" not in agreements:
+      raise Exception("results is required for consent metadata")
+
+    
 
   def find_by_owner(self, owner):
     genotype = self.genotype.find_genotype_by_owner(owner)

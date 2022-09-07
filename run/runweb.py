@@ -114,9 +114,8 @@ class AppUnoServer(object):
 				raise Exception("'data' is not a json object")
 			if "extension" not in data:
 				raise Exception("This extension is not supported")
+			self.genotype_service.validate_consents_metadata(data)
 			return self.genotype_service.create(data, file)
-		# except:
-		# 	raise
 		except Exception as e:
 			msg = ""
 			if 'message' in e.args[0]:
