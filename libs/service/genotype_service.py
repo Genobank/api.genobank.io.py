@@ -60,6 +60,8 @@ class genotype_service:
       if "filesigned" in index: del index["filesigned"]
       if "hash" in index: del index["hash"]
       if "signature" in index: del index["signature"]
+      if "key" in index: del index["key"]
+      if "updated" in index: del index["updated"]
     return genotype
 
   def list_to_json(self, gen_list):
