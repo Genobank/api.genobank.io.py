@@ -329,27 +329,27 @@ class AppUnoServer(object):
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 	# WARNING ZONE FOR TEST ONLY
-	@cherrypy.expose
-	@cherrypy.config(**{'tools.CORS.on': True})
-	@cherrypy.tools.allow(methods=['POST'])
-	@cherrypy.tools.json_out()
-	def delete_permittee(self, id):
-		try:
-			deleted = self.permittee_service.delete_permittee(id)
-			return True
-		except Exception as e:
-			print(e)
+	# @cherrypy.expose
+	# @cherrypy.config(**{'tools.CORS.on': True})
+	# @cherrypy.tools.allow(methods=['POST'])
+	# @cherrypy.tools.json_out()
+	# def delete_permittee(self, id):
+	# 	try:
+	# 		deleted = self.permittee_service.delete_permittee(id)
+	# 		return True
+	# 	except Exception as e:
+	# 		print(e)
 
-	@cherrypy.expose
-	@cherrypy.config(**{'tools.CORS.on': True})
-	@cherrypy.tools.allow(methods=['DELETE'])
-	@cherrypy.tools.json_out()
-	def reset_genotype_table(self):
-		try:
-			self.genotype_service.delete_table()
-			return "You will need to deploy a new Smartcontract and change on the enviroment file"
-		except Exception as e:
-			print(e)
+	# @cherrypy.expose
+	# @cherrypy.config(**{'tools.CORS.on': True})
+	# @cherrypy.tools.allow(methods=['DELETE'])
+	# @cherrypy.tools.json_out()
+	# def reset_genotype_table(self):
+	# 	try:
+	# 		self.genotype_service.delete_table()
+	# 		return "You will need to deploy a new Smartcontract and change on the enviroment file"
+	# 	except Exception as e:
+	# 		print(e)
 
 class AppUno(object):
 	def __init__(self):
