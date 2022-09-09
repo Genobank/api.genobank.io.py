@@ -83,7 +83,6 @@ class AppUnoServer(object):
 	#Methods -------------------------------------------------------------------
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
-	@cherrypy.tools.json_out()
 	def index(self):
 		t = Template(filename="public/pages/index.mako")
 		return t.render(message=os.getenv('ENVIROMENT'))
@@ -371,7 +370,7 @@ class AppUno(object):
 			'/': {
 				'tools.sessions.on': True,
 				'tools.response_headers.on': True,
-        'tools.response_headers.headers': [('Content-Type', 'application/json'), ('Access-Control-Allow-Origin', 'http://127.0.0.1:5502/')],
+        # 'tools.response_headers.headers': [('Content-Type', 'application/json'), ('Access-Control-Allow-Origin', 'http://127.0.0.1:5502/')],
 				'server.socket_port': os.path.abspath(os.getcwd()),
 				'response.timeout': False
 			},
