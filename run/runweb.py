@@ -83,6 +83,7 @@ class AppUnoServer(object):
 	#Methods -------------------------------------------------------------------
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.json_out()
 	def index(self):
 		t = Template(filename="public/pages/index.mako")
 		return t.render(message=os.getenv('ENVIROMENT'))
