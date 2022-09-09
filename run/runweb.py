@@ -40,6 +40,7 @@ from mako.lookup import TemplateLookup
 from math import perm
 from os.path import abspath
 from cherrypy import wsgi
+from cherrypy.process.plugins import Daemonizer
 import cherrypy
 import hmac
 import json
@@ -375,6 +376,9 @@ class AppUno(object):
 				'response.timeout': False
 			},
 		}
+		
+		d = Daemonizer(cherrypy.engine)
+		d.subscribe()
 
 		cherrypy.server.socket_host = '0.0.0.0'
 		cherrypy.server.socket_port = port
