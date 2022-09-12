@@ -27,6 +27,7 @@
 from email import message
 from unicodedata import name
 from dotenv import load_dotenv
+from cryptography.fernet import Fernet
 from pathlib import Path
 from libs import database
 from libs.dao import permitte_dao
@@ -46,6 +47,7 @@ import hmac
 import json
 import os
 from settings import settings
+
 
 class AppUnoServer(object):
 	def __init__(self):
@@ -116,6 +118,7 @@ class AppUnoServer(object):
 			if "extension" not in data:
 				raise Exception("This extension is not supported")
 			self.genotype_service.validate_consents_metadata(data)
+			# return {"harcodedhash":"this is only hardcoded test", "token":"0x987fy9sduf9sduyf98sdufshd9fhsdifhsid"}
 			return self.genotype_service.create(data, file)
 		except Exception as e:
 			msg = ""
@@ -124,6 +127,70 @@ class AppUnoServer(object):
 			else:
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+
+
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.json_out()
+	def test_process_1(self, data):
+		try:
+			data = json.loads(data)
+			if "extension" not in data:
+				raise Exception("This extension is not supported")
+			self.genotype_service.validate_consents_metadata(data)
+			return self.genotype_service.mint_nft(data)
+		except:
+			raise
+
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.json_out()
+	def test_process_2(self, data):
+		try:
+			try:
+				data = json.loads(data)
+			except:
+				raise Exception("'data' is not a json object")
+			print("\n\n\nDATA:",data,"\n\n\n")
+			print("\nExtension:",data['extension'],"\n\n\n")
+			
+			if "extension" not in data:
+				raise Exception("This extension is not supported")
+			self.genotype_service.validate_consents_metadata(data)
+			return self.genotype_service.save_db_file(data)
+		except:
+			raise
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.json_out()
+	def test_process_3(self, data, file):
+		try:
+			try:
+				data = json.loads(data)
+			except:
+				raise Exception("'data' is not a json object")
+			if "extension" not in data:
+				raise Exception("This extension is not supported")
+			self.genotype_service.validate_consents_metadata(data)
+			data["key"] = Fernet(data["key"])
+			return self.genotype_service.storage_file(data, file)
+		except:
+			raise
+
+
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['GET'])
+	@cherrypy.tools.json_out()
+	def get_serial_permittee_by_address(self, address):
+		return self.test_permittee_service.get_serial_from_address(address)
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -377,8 +444,8 @@ class AppUno(object):
 			},
 		}
 		
-		d = Daemonizer(cherrypy.engine)
-		d.subscribe()
+		# d = Daemonizer(cherrypy.engine)
+		# d.subscribe()
 
 		cherrypy.server.socket_host = '0.0.0.0'
 		cherrypy.server.socket_port = port

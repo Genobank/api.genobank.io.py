@@ -37,11 +37,19 @@ class test_permittee_service:
       raise
 
 
+  def get_serial_from_address(self, address):
+    serial = self.test_permittee.get_serial_from_address(address)
+    if not serial:
+      return[]
+    return serial
+
+
   def validate_permittee(self, permittee):
     validated = self.test_permittee.validate_permittee(permittee)
     print ("\n\n\n\n",validated,"\n\n\n")
     # return validated
     return validated != None
+  
   def is_permittee(self, permittee):
     permittee = self.test_permittee.validate_permittee(permittee)
     if not permittee:

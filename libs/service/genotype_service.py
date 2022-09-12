@@ -1,4 +1,5 @@
 # from re import T
+from time import sleep
 from cryptography.fernet import Fernet
 from libs.dao import genotype_dao
 from libs.exceptions import DomainInjectionError
@@ -18,6 +19,7 @@ class genotype_service:
     self.genotype = _genotype
     self.encryption = Encryption.Encryption()
 
+  # obsolete method
   def create(self, data, file):
     data["filename"] = str(uuid.uuid4())
     data["key"] = Fernet.generate_key()
@@ -36,6 +38,31 @@ class genotype_service:
     # if not bucket_send:
     #   raise Exception("Error uploading file to bucket")
     return {"token": token_hash}
+
+
+  # Partitionated methos
+  def mint_nft(self, data):
+    data["filename"] = str(uuid.uuid4())
+    data["key"] = str(Fernet.generate_key())
+    token_hash = self.genotype.mint_nft(data)
+    if not token_hash:
+      raise Exception("Error minting token")
+    data["token_hash"] = token_hash
+    return data
+
+  def save_db_file(self, data):
+    save_db_file = self.genotype.save_db_file(data)
+    if not save_db_file:
+      raise Exception("Error saving file in database")
+    return data
+
+  def storage_file(self, data, file):
+    file_name = self.genotype.save_file(file, data)
+    if not file_name:
+      raise Exception("Error saving file")
+    return {"token":data["token_hash"]}
+
+
 
   def validate_consents_metadata(self, data):
     if "agreements" not in data:
@@ -56,6 +83,19 @@ class genotype_service:
     if "results" not in agreements:
       raise Exception("results is required for consent metadata")
 
+
+# ONLY TEST PURPOSES
+  def test_process_1(self):
+    sleep(1)
+    return "1 second waited"
+  
+  def test_process_2(self):
+    sleep(5)
+    return "1 second waited"
+
+  def test_process_3(self):
+    sleep(3)
+    return "1 second waited"
     
 
   def find_by_owner(self, owner):

@@ -24,14 +24,11 @@ class test_permittee_dao:
     self.w3 = Web3(HTTPProvider(os.getenv('PROVIDER')))
     self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
     self.account = self.w3.eth.account.privateKeyToAccount(os.getenv('TEST_ROOT_KEY_EXECUTOR'))
-
     self.SM_JSONINTERFACE = self.load_smart_contract(os.getenv('ABI_SM_PATH'))
     
     return None
   # load_dotenv()
 
-    
-  
 
   def create_permittee(self, id, address, secret):
     try:
@@ -114,7 +111,6 @@ class test_permittee_dao:
       message=id+address
       hmac1 = hmac.new(os.getenv('TEST_APP_SECRET').encode('utf-8'),msg=message.encode(), digestmod="sha256")
       hmac1 = str(hmac1.hexdigest())
-
       return hmac1 == secret
     except Exception as e:
       raise e
@@ -145,6 +141,17 @@ class test_permittee_dao:
       return tx_hash.hex()
     except:#Exception as e:
       raise
+
+  def get_serial_from_address(self, address):
+    try:
+      collection = self.db.permittees
+      cur = collection.find_one({"owner": address})
+      if not cur:
+        return []
+      return cur['serial']
+    except Exception as e:
+      raise
+
 
   def validate_permittee(self, permittee):
     try:
