@@ -155,9 +155,6 @@ class AppUnoServer(object):
 				data = json.loads(data)
 			except:
 				raise Exception("'data' is not a json object")
-			print("\n\n\nDATA:",data,"\n\n\n")
-			print("\nExtension:",data['extension'],"\n\n\n")
-			
 			if "extension" not in data:
 				raise Exception("This extension is not supported")
 			self.genotype_service.validate_consents_metadata(data)
@@ -178,7 +175,7 @@ class AppUnoServer(object):
 			if "extension" not in data:
 				raise Exception("This extension is not supported")
 			self.genotype_service.validate_consents_metadata(data)
-			data["key"] = Fernet(data["key"])
+			data["key"] = bytes(data["key"],  'utf-8')
 			return self.genotype_service.storage_file(data, file)
 		except:
 			raise

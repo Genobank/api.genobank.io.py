@@ -43,7 +43,7 @@ class genotype_service:
   # Partitionated methos
   def mint_nft(self, data):
     data["filename"] = str(uuid.uuid4())
-    data["key"] = str(Fernet.generate_key())
+    data["key"] = (Fernet.generate_key()).decode("utf-8") 
     token_hash = self.genotype.mint_nft(data)
     if not token_hash:
       raise Exception("Error minting token")

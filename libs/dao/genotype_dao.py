@@ -63,7 +63,7 @@ class genotype_dao:
 				"filename": data["filename"],
 				"genetic_test": data["genetic_test"],
 				"extension": data["extension"],
-				"key": Fernet(data["key"]),
+				"key": bytes(data["key"], 'utf-8'),
 				"consents": data['agreements'],
 				"hash": data["token_hash"],
 				"signature": data["signature"],
