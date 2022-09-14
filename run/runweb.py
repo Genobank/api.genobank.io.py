@@ -307,6 +307,7 @@ class AppUnoServer(object):
 	def test_validate_permittee(self, permittee):
 		try:
 			permittee = self.test_permittee_service.validate_permittee(permittee)
+			permittee = self.test_permittee_service.basic_reference(permittee)
 			return permittee
 		except:
 			raise

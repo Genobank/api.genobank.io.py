@@ -46,9 +46,19 @@ class test_permittee_service:
 
   def validate_permittee(self, permittee):
     validated = self.test_permittee.validate_permittee(permittee)
-    print ("\n\n\n\n",validated,"\n\n\n")
+    if not validated:
+      return False
     # return validated
-    return validated != None
+    return validated
+
+  def basic_reference(self, _permittee):
+    if not _permittee:
+      return False
+    _json = {}
+    _json["public_address"] = _permittee["owner"]
+    _json["id_number"] = _permittee["serial"]
+    _json["status"] = _permittee["status"]
+    return _json
   
   def is_permittee(self, permittee):
     permittee = self.test_permittee.validate_permittee(permittee)
