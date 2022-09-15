@@ -46,12 +46,10 @@ import cherrypy
 import hmac
 import json
 import os
-from settings import settings
 
 
 class AppUnoServer(object):
 	def __init__(self):
-		# self.db = database.database()
 		permitte = permitte_dao.permittee_dao()
 		test_permitte = test_permitte_dao.test_permittee_dao()
 		genotype = genotype_dao.genotype_dao()
@@ -94,7 +92,6 @@ class AppUnoServer(object):
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['GET'])
 	def adminpage(self, place=None):
-		# print("\n\nplace: " + place+"\n\n")
 		if place == None or place == "test":
 			t = self.mylookup.get_template("adminpage.mako")
 			return t.render(plc = "AdminPage", env=os.getenv('ENVIROMENT'))
@@ -128,8 +125,6 @@ class AppUnoServer(object):
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
-
-
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['POST'])
@@ -143,7 +138,6 @@ class AppUnoServer(object):
 			return self.genotype_service.mint_nft(data)
 		except:
 			raise
-
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -180,8 +174,6 @@ class AppUnoServer(object):
 		except:
 			raise
 
-
-
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['GET'])
@@ -196,7 +188,6 @@ class AppUnoServer(object):
 	def find_file(self, owner):
 		try:
 			file_data = self.genotype_service.find_by_owner(owner)
-			# print(file_data)
 			return self.genotype_service.basic_reference(file_data)
 		except Exception as e:
 			msg = ""
@@ -316,6 +307,7 @@ class AppUnoServer(object):
 	def test_validate_permittee(self, permittee):
 		try:
 			permittee = self.test_permittee_service.validate_permittee(permittee)
+			permittee = self.test_permittee_service.basic_reference(permittee)
 			return permittee
 		except:
 			raise

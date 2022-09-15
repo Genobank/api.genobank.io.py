@@ -141,6 +141,7 @@ class genotype_service:
     _json["status"] = _genotype["status"]
     _json["filesize"] = _genotype["filesize"]
     _json["consents"] = _genotype["consents"]
+    _json["created"] = _genotype["created"]
 
     return _json
 

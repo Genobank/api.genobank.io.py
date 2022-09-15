@@ -157,6 +157,11 @@ class test_permittee_dao:
     try:
       collection = self.db.permittees
       cur = collection.find_one({"owner": permittee})
+      if not cur:
+        return False
+      for key in cur:
+        if (not isinstance(cur[key], str)) or (not isinstance(cur[key], int)) or (not isinstance(cur[key], float)):
+          cur[key] = str(cur[key])
       # rows = []
       # for row in cur:
       #   rows.append(row)
