@@ -25,6 +25,7 @@
 #--------------------------------------------------------------------------
 
 from email import message
+import random
 from unicodedata import name
 from dotenv import load_dotenv
 from cryptography.fernet import Fernet
@@ -57,6 +58,8 @@ class AppUnoServer(object):
 		self.test_permittee_service = test_permittee_service.test_permittee_service(test_permitte)
 		self.genotype_service = genotype_service.genotype_service(genotype)
 		self.mylookup = TemplateLookup(directories=['public/pages'])
+
+		# delete despues
 		return None
 	
 	load_dotenv()
@@ -87,6 +90,8 @@ class AppUnoServer(object):
 	def index(self):
 		t = Template(filename="public/pages/index.mako")
 		return t.render(message=os.getenv('ENVIROMENT'))
+
+	
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
