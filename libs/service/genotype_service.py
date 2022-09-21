@@ -39,6 +39,13 @@ class genotype_service:
     #   raise Exception("Error uploading file to bucket")
     return {"token": token_hash}
 
+  def upload_file_to_bucket(self):
+    # add boto to upload to the bucket
+    bucket_send = self.genotype.upload_file_to_bucket("55052008713979.zip", "somos-genobank")
+    if not bucket_send:
+      raise Exception("Error uploading file to bucket")
+    return {"response": bucket_send}
+
 
   # Partitionated methos
   def mint_nft(self, data):
