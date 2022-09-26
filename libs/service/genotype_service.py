@@ -39,6 +39,13 @@ class genotype_service:
     #   raise Exception("Error uploading file to bucket")
     return {"token": token_hash}
 
+  def upload_file_to_bucket(self):
+    # add boto to upload to the bucket
+    bucket_send = self.genotype.upload_file_to_bucket("55052008713979.zip", "somos-genobank")
+    if not bucket_send:
+      raise Exception("Error uploading file to bucket")
+    return {"response": bucket_send}
+
 
   # Partitionated methos
   def mint_nft(self, data):
@@ -142,6 +149,7 @@ class genotype_service:
     _json["filesize"] = _genotype["filesize"]
     _json["consents"] = _genotype["consents"]
     _json["created"] = _genotype["created"]
+    _json["interpretation"] = {"FVS":{"AFR_ESTE":1.8547,"AFR_NORTE":0.001,"AFR_OESTE":0.001,"ASIA_ESTE":0.001,"ASIA_SUR":0.001,"ASIA_SURESTE":0.001,"EUR_ESTE":0.001,"EUR_NORESTE":5.0803,"EUR_NORTE":0.001,"EUR_OESTE":0.001,"EUR_SUROESTE":65.7974,"JUDIO":15.8035,"MEDIO_ORIENTE":0.001,"OCEANIA":0.8112,"AMAZONAS":0.001,"ANDES":0.001,"MAYA":0.001,"PIMA":0.001,"ZAPOTECA":0.001,"HUICHOL":1.283,"MIXTECA":0.001,"NAHUA_OTOMI":9.3528,"TARAHUMARA":0.001,"TRIQUI":0.001,"Hp_m":None,"Hp_y":None}}
 
     return _json
 

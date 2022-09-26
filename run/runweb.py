@@ -134,6 +134,14 @@ class AppUnoServer(object):
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['POST'])
 	@cherrypy.tools.json_out()
+	def upload_file_to_bucket(self,):
+		return self.genotype_service.upload_file_to_bucket()
+
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.json_out()
 	def test_process_1(self, data):
 		try:
 			data = json.loads(data)
@@ -432,7 +440,7 @@ class AppUno(object):
 			'/': {
 				'tools.sessions.on': True,
 				'tools.response_headers.on': True,
-        # 'tools.response_headers.headers': [('Content-Type', 'application/json'), ('Access-Control-Allow-Origin', 'http://127.0.0.1:5502/')],
+        	# 'tools.response_headers.headers': [('Content-Type', 'application/json'), ('Access-Control-Allow-Origin', 'http://127.0.0.1:5502/')],
 				'server.socket_port': os.path.abspath(os.getcwd()),
 				'response.timeout': False
 			},

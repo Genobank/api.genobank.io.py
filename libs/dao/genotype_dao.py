@@ -116,11 +116,11 @@ class genotype_dao:
 		if object_name is None:
 			object_name = os.path.basename("storage/genotypes/"+file_name)
 		s3_client = boto3.client(service_name='s3',
-																		aws_access_key_id='AKIAUFOG4Q6XPT3LMZHB',
-																		aws_secret_access_key='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')
+								aws_access_key_id='AKIAUFOG4Q6XPT3LMZHB',
+								aws_secret_access_key='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')
 		try:
 			response = s3_client.upload_file("storage/genotypes/"+file_name, bucket, object_name)
-			print
+			# return response
 		except ClientError as e:
 			print(e)
 			logging.error(e)
