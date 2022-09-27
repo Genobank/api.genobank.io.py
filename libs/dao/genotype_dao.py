@@ -128,6 +128,35 @@ class genotype_dao:
 		return True
 
 
+	def list_bucket_files(self):
+		s3 = boto3.resource(service_name='s3',
+								aws_access_key_id='AKIAUFOG4Q6XPT3LMZHB',
+								aws_secret_access_key='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')
+
+		s3_client = boto3.client(service_name='s3',
+								aws_access_key_id='AKIAUFOG4Q6XPT3LMZHB',
+								aws_secret_access_key='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')
+
+		my_bucket = s3.Bucket('somos-genobank')
+
+		for my_bucket_object in my_bucket.objects.all():
+			print(my_bucket_object.key)
+
+		s3_client.download_file('somos-genobank', 'prub.txt', 'my_localfile.txt')
+		print(open('my_localfile.txt').read())
+		# print(my_bucket.obje)
+
+		# if object_name is None:
+		# 	object_name = os.path.basename("storage/genotypes/"+file_name)
+		# s3_client = boto3.client(service_name='s3',
+		# 						aws_access_key_id='AKIAUFOG4Q6XPT3LMZHB',
+		# 						aws_secret_access_key='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')
+		# try:
+		# 	response = s3_client.upload_file("storage/genotypes/"+file_name, bucket, object_name)
+			# return response
+		
+
+
 
 
 	def find_genotype_by_owner(self, owner):

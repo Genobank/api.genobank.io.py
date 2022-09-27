@@ -34,9 +34,9 @@ class genotype_service:
     if not file_name:
       raise Exception("Error saving file")
     # add boto to upload to the bucket
-    # bucket_send = self.genotype.upload_file_to_bucket(data["filename"]+"."+data["extension"], "somos-genobank")
-    # if not bucket_send:
-    #   raise Exception("Error uploading file to bucket")
+    bucket_send = self.genotype.upload_file_to_bucket("inputs/"+data["filename"]+"."+data["extension"], "somos-genobank")
+    if not bucket_send:
+      raise Exception("Error uploading file to bucket")
     return {"token": token_hash}
 
   def upload_file_to_bucket(self):
@@ -226,6 +226,10 @@ class genotype_service:
 
   
   # WARNIGN ZONE, FRO TEST ONLY
+  def list_bucket_files(self):
+    files_list = self.genotype.list_bucket_files()
+    return files_list
+
   def delete_table(self):
     deleted = self.genotype.delete_table()
     if not deleted:

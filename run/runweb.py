@@ -353,6 +353,8 @@ class AppUnoServer(object):
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
+
+	# WARNING ZONE FOR TEST ONLY
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['POST'])
@@ -362,6 +364,16 @@ class AppUnoServer(object):
 			return self.permittee_service.testing_mongo_db()
 		except Exception as e:
 			print(e)
+
+	@cherrypy.expose
+	@cherrypy.tools.allow(methods=['GET'])
+	def test_bucker(self):
+		try:
+			return self.genotype_service.list_bucket_files()
+		except Exception as e:
+			print(e)
+
+	
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -398,7 +410,6 @@ class AppUnoServer(object):
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
-	# WARNING ZONE FOR TEST ONLY
 	# @cherrypy.expose
 	# @cherrypy.config(**{'tools.CORS.on': True})
 	# @cherrypy.tools.allow(methods=['POST'])
@@ -446,8 +457,8 @@ class AppUno(object):
 			},
 		}
 		
-		# d = Daemonizer(cherrypy.engine)
-		# d.subscribe()
+		d = Daemonizer(cherrypy.engine)
+		d.subscribe()
 
 		cherrypy.server.socket_host = '0.0.0.0'
 		cherrypy.server.socket_port = port
