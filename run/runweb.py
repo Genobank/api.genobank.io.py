@@ -457,8 +457,8 @@ class AppUno(object):
 			},
 		}
 		
-		d = Daemonizer(cherrypy.engine)
-		d.subscribe()
+		# d = Daemonizer(cherrypy.engine)
+		# d.subscribe()
 
 		cherrypy.server.socket_host = '0.0.0.0'
 		cherrypy.server.socket_port = port
