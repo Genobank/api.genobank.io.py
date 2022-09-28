@@ -1,2 +1,9 @@
 .env
 storage/genotypes/
+__pycache__/
+libs/__pycache__/
+libs/dao/__pycache__/
+libs/domain/__pycache__/
+libs/exceptions/__pycache__/
+libs/service/__pycache__/
+run/__pycache__/
