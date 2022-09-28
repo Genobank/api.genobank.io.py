@@ -465,8 +465,8 @@ class AppUno(object):
 		}
 		
 		# when 	UPLOAD to SERVER descomment the following lines
-		d = Daemonizer(cherrypy.engine)
-		d.subscribe()
+		# d = Daemonizer(cherrypy.engine)
+		# d.subscribe()
 
 		cherrypy.server.socket_host = '0.0.0.0'
 		cherrypy.server.socket_port = port
