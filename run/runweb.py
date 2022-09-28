@@ -440,18 +440,18 @@ class AppUno(object):
 		CONF = {
 			'/static': {
 				'tools.staticdir.on': True,
-				# 'cors.expose.on': True,
+				'cors.expose.on': True,
 				'tools.staticdir.dir': abspath('./public'),
 			},
 			'/js': {
 				'tools.staticdir.on': True,
-				# 'cors.expose.on': True,
+				'cors.expose.on': True,
 				'tools.staticdir.dir': abspath('./public/pages/js'),
 			},
 			'/': {
 				'tools.sessions.on': True,
 				'tools.response_headers.on': True,
-        	# 'tools.response_headers.headers': [('Content-Type', 'application/json'), ('Access-Control-Allow-Origin', 'http://127.0.0.1:5502/')],
+        'tools.response_headers.headers': [('Content-Type', 'application/json'), ('Access-Control-Allow-Origin', 'http://127.0.0.1:5502/')],
 				'server.socket_port': os.path.abspath(os.getcwd()),
 				'response.timeout': False
 			},

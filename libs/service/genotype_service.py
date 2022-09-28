@@ -64,10 +64,13 @@ class genotype_service:
     return data
 
   def storage_file(self, data, file):
-    file_name = self.genotype.save_file(file, data)
-    if not file_name:
-      raise Exception("Error saving file")
-    return {"token":data["token_hash"]}
+    try:
+      file_name = self.genotype.save_file(file, data)
+      if not file_name:
+        raise Exception("Error saving file")
+      return {"token":data["token_hash"]}
+    except:
+      raise
 
 
 
