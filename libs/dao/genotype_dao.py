@@ -17,8 +17,6 @@ import datetime
 import json
 import os, os.path
 
-
-
 class genotype_dao:
 	def __init__(self):
 		self.w3 = Web3(HTTPProvider(os.getenv('BIOSAMPLE_PROVIDER')))
@@ -157,10 +155,6 @@ class genotype_dao:
 		# try:
 		# 	response = s3_client.upload_file("storage/genotypes/"+file_name, bucket, object_name)
 			# return response
-		
-
-
-
 
 	def find_genotype_by_owner(self, owner):
 		try:
