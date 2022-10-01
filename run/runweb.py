@@ -72,15 +72,16 @@ class AppUnoServer(object):
 
 	_cp_config = {"error_page.default": jsonify_error}
 
-
 	def CORS():
 		if cherrypy.request.method == 'OPTIONS':
 			cherrypy.response.headers['Access-Control-Allow-Methods'] = 'POST, GET, DELETE'
 			cherrypy.response.headers['Access-Control-Allow-Headers'] = 'content-type'
 			cherrypy.response.headers['Access-Control-Allow-Origin']  = '*'
+			# cherrypy.response.headers['Access-Control-Allow-Origin']  = 'http://127.0.0.1:5500'
 			return True
 		else:
 			cherrypy.response.headers['Access-Control-Allow-Origin'] = '*'
+			# cherrypy.response.headers['Access-Control-Allow-Origin'] = 'http://127.0.0.1:5500'
 	
 	cherrypy.tools.CORS = cherrypy._cptools.HandlerTool(CORS)
 
@@ -90,8 +91,6 @@ class AppUnoServer(object):
 	def index(self):
 		t = Template(filename="public/pages/index.mako")
 		return t.render(message=os.getenv('ENVIROMENT'))
-
-	
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -142,15 +141,41 @@ class AppUnoServer(object):
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['POST'])
 	@cherrypy.tools.json_out()
+	def test_progress_bar(self, file):
+		try:
+			print("\n\nCalled method\n\n")
+			recived_file = file
+			print("\n\nFile\n",recived_file," method\n\n")
+
+			return {"status":"file recieved successfully"}
+		except Exception as e:
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.json_out()
 	def test_process_1(self, data):
 		try:
 			data = json.loads(data)
 			if "extension" not in data:
 				raise Exception("This extension is not supported")
+			self.genotype_service.validate_dtc()
 			self.genotype_service.validate_consents_metadata(data)
 			return self.genotype_service.mint_nft(data)
-		except:
-			raise
+		except Exception as e:
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -166,8 +191,13 @@ class AppUnoServer(object):
 				raise Exception("This extension is not supported")
 			self.genotype_service.validate_consents_metadata(data)
 			return self.genotype_service.save_db_file(data)
-		except:
-			raise
+		except Exception as e:
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -184,8 +214,6 @@ class AppUnoServer(object):
 			self.genotype_service.validate_consents_metadata(data)
 			data["key"] = bytes(data["key"],  'utf-8')
 			return self.genotype_service.storage_file(data, file)
-		# except:
-		# 	raise
 		except Exception as e:
 			msg = ""
 			if 'message' in e.args[0]:
@@ -254,16 +282,13 @@ class AppUnoServer(object):
 			name, ext = self.genotype_service.authorize_download(wallet, signature)
 			file = self.genotype_service.download_file(name, ext)
 			return file
-		except:
-			raise
-
-		# except Exception as e:
-		# 	msg = ""
-		# 	if 'message' in e.args[0]:
-		# 		msg = str(e.args[0]['message'])
-		# 	else:
-		# 		msg = str(e)
-		# 	raise cherrypy.HTTPError("500 Internal Server Error", msg)
+		except Exception as e:
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -341,7 +366,6 @@ class AppUnoServer(object):
 
 # addition
 
-
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['POST'])
@@ -359,7 +383,6 @@ class AppUnoServer(object):
 			else:
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
-
 
 	# WARNING ZONE FOR TEST ONLY
 	@cherrypy.expose
@@ -379,8 +402,6 @@ class AppUnoServer(object):
 			return self.genotype_service.list_bucket_files()
 		except Exception as e:
 			print(e)
-
-	
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -447,18 +468,15 @@ class AppUno(object):
 		CONF = {
 			'/static': {
 				'tools.staticdir.on': True,
-				# 'cors.expose.on': True,
 				'tools.staticdir.dir': abspath('./public'),
 			},
 			'/js': {
 				'tools.staticdir.on': True,
-				# 'cors.expose.on': True,
 				'tools.staticdir.dir': abspath('./public/pages/js'),
 			},
 			'/': {
 				'tools.sessions.on': True,
 				'tools.response_headers.on': True,
-        # 'tools.response_headers.headers': [('Content-Type', 'application/json'), ('Access-Control-Allow-Origin', 'http://127.0.0.1:5502/')],
 				'server.socket_port': os.path.abspath(os.getcwd()),
 				'response.timeout': False
 			},
@@ -471,6 +489,5 @@ class AppUno(object):
 		cherrypy.server.socket_host = '0.0.0.0'
 		cherrypy.server.socket_port = port
 		cherrypy.quickstart(AppUnoServer(), '/', CONF)
-
 
 # Avocado Blockchain Services at Merida, Yucatan
