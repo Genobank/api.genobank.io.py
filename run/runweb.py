@@ -26,6 +26,7 @@
 
 from email import message
 import random
+from time import sleep
 from unicodedata import name
 from dotenv import load_dotenv
 from cryptography.fernet import Fernet
@@ -108,10 +109,11 @@ class AppUnoServer(object):
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
-	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.allow(methods=['POST', 'OPTIONS'])
 	@cherrypy.tools.json_out()
 	def save_genotype(self, data, file):
 		try:
+			self.genotype_service.validate_file(file)
 			try:
 				data = json.loads(data)
 			except:
@@ -119,6 +121,7 @@ class AppUnoServer(object):
 			if "extension" not in data:
 				raise Exception("This extension is not supported")
 			self.genotype_service.validate_consents_metadata(data)
+			# raise Exception("TESTING EXCEPTION MAANGMENT")
 			# return {"harcodedhash":"this is only hardcoded test", "token":"0x987fy9sduf9sduyf98sdufshd9fhsdifhsid"}
 			return self.genotype_service.create(data, file)
 		except Exception as e:
@@ -139,15 +142,16 @@ class AppUnoServer(object):
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
-	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.allow(methods=['POST', 'OPTIONS'])
 	@cherrypy.tools.json_out()
 	def test_progress_bar(self, file):
 		try:
 			print("\n\nCalled method\n\n")
 			recived_file = file
 			print("\n\nFile\n",recived_file," method\n\n")
-
-			return {"status":"file recieved successfully"}
+			return {"valid":validated}
+		# except:
+		# 	raise
 		except Exception as e:
 			msg = ""
 			if 'message' in e.args[0]:

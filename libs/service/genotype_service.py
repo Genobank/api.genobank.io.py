@@ -9,6 +9,8 @@ import requests
 import os
 import uuid
 import hmac
+import io
+
 
 
 
@@ -22,7 +24,7 @@ class genotype_service:
   # obsolete method
   def create(self, data, file):
     data["filename"] = str(uuid.uuid4())
-    data["key"] = Fernet.generate_key()
+    data["key"] = (Fernet.generate_key()).decode("utf-8") 
     token_hash = self.genotype.mint_nft(data)
     if not token_hash:
       raise Exception("Error minting token")
@@ -34,9 +36,9 @@ class genotype_service:
     if not file_name:
       raise Exception("Error saving file")
     # add boto to upload to the bucket
-    bucket_send = self.genotype.upload_file_to_bucket("inputs/"+data["filename"]+"."+data["extension"], "somos-genobank")
-    if not bucket_send:
-      raise Exception("Error uploading file to bucket")
+    # bucket_send = self.genotype.upload_file_to_bucket("inputs/"+data["filename"]+"."+data["extension"], "somos-genobank")
+    # if not bucket_send:
+    #   raise Exception("Error uploading file to bucket")
     return {"token": token_hash}
 
   def upload_file_to_bucket(self):
@@ -72,6 +74,12 @@ class genotype_service:
     except:
       raise
 
+  def validate_file(self, file):
+    f = file.file.read()
+    source =  self.genotype.Manejador(f)
+    print(source)
+
+
 
 
   def validate_consents_metadata(self, data):
@@ -92,21 +100,6 @@ class genotype_service:
       raise Exception("analysis is required for consent metadata")
     if "results" not in agreements:
       raise Exception("results is required for consent metadata")
-
-
-# ONLY TEST PURPOSES
-  def test_process_1(self):
-    sleep(1)
-    return "1 second waited"
-  
-  def test_process_2(self):
-    sleep(5)
-    return "1 second waited"
-
-  def test_process_3(self):
-    sleep(3)
-    return "1 second waited"
-    
 
   def find_by_owner(self, owner):
     genotype = self.genotype.find_genotype_by_owner(owner)

@@ -16,6 +16,12 @@ import base64
 import datetime
 import json
 import os, os.path
+import zipfile
+import gzip
+import io
+import binascii
+import re
+
 
 class genotype_dao:
 	def __init__(self):
@@ -270,6 +276,68 @@ class genotype_dao:
 		self.w3.eth.waitForTransactionReceipt(tx_hash)    
 		print("tx hash\n",tx_hash.hex())
 		return tx_hash.hex()
+
+
+	# dtc validation section
+
+	def Source(self, line):
+		if "23andMe" in line:
+			source = 0
+		elif "Ancestry" in line:
+			source = 1
+		elif line.startswith("RSID"):
+			source = 2
+		elif "MyHeritage" in line:
+			source = 3
+		elif "Living DNA" in line:
+			source = 4
+		elif re.match("^#*[ \t]*rsid[, \t]*chr", line):
+			source = 5
+		elif "Genes for Good" in line:
+			source = 6
+		elif "PLINK" in line:
+			source = 7
+		return source
+
+
+	def Is_zip(self, bytes_data):
+		return zipfile.is_zipfile(bytes_data) 
+		
+	def Is_gzip(self, bytes_data):
+		return binascii.hexlify(bytes_data[:2]) == b"1f8b"
+
+
+		
+	def Extract_source(self, a, decode=False):
+		first_line = self.Read_line(a, decode)
+		return self.Source(first_line)
+			
+	def Read_line(self, file, decode):
+		if decode:
+			return file.readline().decode("utf8")
+		else:
+			return file.readline()
+		
+
+	def Manejador(self, dtc):
+		try:
+			if self.Is_gzip(dtc):
+				with gzip.open(io.BytesIO(dtc), "rb") as f1:
+					source = self.Extract_source(f1,decode=True)
+			elif self.Is_zip(dtc):
+				with zipfile.ZipFile(io.BytesIO(dtc)) as z:
+					namelist = z.namelist()[0]
+					with z.open(namelist, "r") as f:
+						source = self.Extract_source(f1,decode=True)
+			else:
+				file = io.BytesIO(dtc)
+				source = self.Extract_source(file,decode=True)
+			
+			return source
+		except:
+			raise Exception("No valid File, upload a TXT dtc file, change your file and try again")
+
+
 
 
 
