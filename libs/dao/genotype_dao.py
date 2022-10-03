@@ -87,10 +87,8 @@ class genotype_dao:
 			ext = data["extension"]
 			file_name = data["filename"]
 			fernet = Fernet(data["key"])
-
 			content_file = file.file.read()
 			encrypted_file = fernet.encrypt(content_file)
-
 			with open(f"storage/genotypes/{file_name}."+ext, "wb") as f:
 				f.write(encrypted_file)
 			return file_name

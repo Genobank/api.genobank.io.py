@@ -24,7 +24,7 @@ class genotype_service:
   # obsolete method
   def create(self, data, file):
     data["filename"] = str(uuid.uuid4())
-    data["key"] = (Fernet.generate_key()).decode("utf-8") 
+    data["key"] = str(Fernet.generate_key())
     token_hash = self.genotype.mint_nft(data)
     if not token_hash:
       raise Exception("Error minting token")
@@ -32,6 +32,7 @@ class genotype_service:
     save_db_file = self.genotype.save_db_file(data)
     if not save_db_file:
       raise Exception("Error saving file in database")
+    data["key"] = bytes(data["key"],  'utf-8')
     file_name = self.genotype.save_file(file, data)
     if not file_name:
       raise Exception("Error saving file")
