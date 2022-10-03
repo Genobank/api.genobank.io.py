@@ -48,8 +48,6 @@ import cherrypy
 import hmac
 import json
 import os
-
-
 class AppUnoServer(object):
 	def __init__(self):
 		permitte = permitte_dao.permittee_dao()
@@ -59,8 +57,6 @@ class AppUnoServer(object):
 		self.test_permittee_service = test_permittee_service.test_permittee_service(test_permitte)
 		self.genotype_service = genotype_service.genotype_service(genotype)
 		self.mylookup = TemplateLookup(directories=['public/pages'])
-
-		# delete despues
 		return None
 	
 	load_dotenv()
@@ -77,12 +73,10 @@ class AppUnoServer(object):
 		if cherrypy.request.method == 'OPTIONS':
 			cherrypy.response.headers['Access-Control-Allow-Methods'] = 'POST, GET, DELETE'
 			cherrypy.response.headers['Access-Control-Allow-Headers'] = 'content-type'
-			cherrypy.response.headers['Access-Control-Allow-Origin']  = '*'
-			# cherrypy.response.headers['Access-Control-Allow-Origin']  = 'http://127.0.0.1:5500'
+			cherrypy.response.headers['Access-Control-Allow-Origin'] = '*'
 			return True
 		else:
 			cherrypy.response.headers['Access-Control-Allow-Origin'] = '*'
-			# cherrypy.response.headers['Access-Control-Allow-Origin'] = 'http://127.0.0.1:5500'
 	
 	cherrypy.tools.CORS = cherrypy._cptools.HandlerTool(CORS)
 
@@ -113,17 +107,17 @@ class AppUnoServer(object):
 	@cherrypy.tools.json_out()
 	def save_genotype(self, data, file):
 		try:
-			self.genotype_service.validate_file(file)
-			try:
-				data = json.loads(data)
-			except:
-				raise Exception("'data' is not a json object")
-			if "extension" not in data:
-				raise Exception("This extension is not supported")
-			self.genotype_service.validate_consents_metadata(data)
-			# raise Exception("TESTING EXCEPTION MAANGMENT")
-			# return {"harcodedhash":"this is only hardcoded test", "token":"0x987fy9sduf9sduyf98sdufshd9fhsdifhsid"}
-			return self.genotype_service.create(data, file)
+			valid_file = self.genotype_service.validate_file(file)
+			if valid_file:
+				try:
+					data = json.loads(data)
+				except:
+					raise Exception("'data' is not a json object")
+				if "extension" not in data:
+					raise Exception("This extension is not supported")
+				self.genotype_service.validate_consents_metadata(data)
+				return self.genotype_service.create(data, file)
+				# return {"token": "IT WORKS"}
 		except Exception as e:
 			msg = ""
 			if 'message' in e.args[0]:
@@ -131,100 +125,13 @@ class AppUnoServer(object):
 			else:
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
-
+		
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['POST'])
 	@cherrypy.tools.json_out()
 	def upload_file_to_bucket(self,):
 		return self.genotype_service.upload_file_to_bucket()
-
-
-	@cherrypy.expose
-	@cherrypy.config(**{'tools.CORS.on': True})
-	@cherrypy.tools.allow(methods=['POST', 'OPTIONS'])
-	@cherrypy.tools.json_out()
-	def test_progress_bar(self, file):
-		try:
-			print("\n\nCalled method\n\n")
-			recived_file = file
-			print("\n\nFile\n",recived_file," method\n\n")
-			return {"valid":validated}
-		# except:
-		# 	raise
-		except Exception as e:
-			msg = ""
-			if 'message' in e.args[0]:
-				msg = str(e.args[0]['message'])
-			else:
-				msg = str(e)
-			raise cherrypy.HTTPError("500 Internal Server Error", msg)
-
-
-	@cherrypy.expose
-	@cherrypy.config(**{'tools.CORS.on': True})
-	@cherrypy.tools.allow(methods=['POST'])
-	@cherrypy.tools.json_out()
-	def test_process_1(self, data):
-		try:
-			data = json.loads(data)
-			if "extension" not in data:
-				raise Exception("This extension is not supported")
-			self.genotype_service.validate_dtc()
-			self.genotype_service.validate_consents_metadata(data)
-			return self.genotype_service.mint_nft(data)
-		except Exception as e:
-			msg = ""
-			if 'message' in e.args[0]:
-				msg = str(e.args[0]['message'])
-			else:
-				msg = str(e)
-			raise cherrypy.HTTPError("500 Internal Server Error", msg)
-
-	@cherrypy.expose
-	@cherrypy.config(**{'tools.CORS.on': True})
-	@cherrypy.tools.allow(methods=['POST'])
-	@cherrypy.tools.json_out()
-	def test_process_2(self, data):
-		try:
-			try:
-				data = json.loads(data)
-			except:
-				raise Exception("'data' is not a json object")
-			if "extension" not in data:
-				raise Exception("This extension is not supported")
-			self.genotype_service.validate_consents_metadata(data)
-			return self.genotype_service.save_db_file(data)
-		except Exception as e:
-			msg = ""
-			if 'message' in e.args[0]:
-				msg = str(e.args[0]['message'])
-			else:
-				msg = str(e)
-			raise cherrypy.HTTPError("500 Internal Server Error", msg)
-
-	@cherrypy.expose
-	@cherrypy.config(**{'tools.CORS.on': True})
-	@cherrypy.tools.allow(methods=['POST'])
-	@cherrypy.tools.json_out()
-	def test_process_3(self, data, file):
-		try:
-			try:
-				data = json.loads(data)
-			except:
-				raise Exception("'data' is not a json object")
-			if "extension" not in data:
-				raise Exception("This extension is not supported")
-			self.genotype_service.validate_consents_metadata(data)
-			data["key"] = bytes(data["key"],  'utf-8')
-			return self.genotype_service.storage_file(data, file)
-		except Exception as e:
-			msg = ""
-			if 'message' in e.args[0]:
-				msg = str(e.args[0]['message'])
-			else:
-				msg = str(e)
-			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -358,18 +265,15 @@ class AppUnoServer(object):
 			permittee = self.test_permittee_service.validate_permittee(permittee)
 			permittee = self.test_permittee_service.basic_reference(permittee)
 			return permittee
-		except:
-			raise
-		# except Exception as e:
-		# 	msg = ""
-		# 	if 'message' in e.args[0]:
-		# 		msg = str(e.args[0]['message'])
-		# 	else:
-		# 		msg = str(e)
-		# 	raise cherrypy.HTTPError("500 Internal Server Error", msg)
+		except Exception as e:
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 # addition
-
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['POST'])
@@ -389,58 +293,58 @@ class AppUnoServer(object):
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 	# WARNING ZONE FOR TEST ONLY
-	@cherrypy.expose
-	@cherrypy.config(**{'tools.CORS.on': True})
-	@cherrypy.tools.allow(methods=['POST'])
-	@cherrypy.tools.json_out()
-	def testing_db(self):
-		try:
-			return self.permittee_service.testing_mongo_db()
-		except Exception as e:
-			print(e)
+	# @cherrypy.expose
+	# @cherrypy.config(**{'tools.CORS.on': True})
+	# @cherrypy.tools.allow(methods=['POST'])
+	# @cherrypy.tools.json_out()
+	# def testing_db(self):
+	# 	try:
+	# 		return self.permittee_service.testing_mongo_db()
+	# 	except Exception as e:
+	# 		print(e)
 
-	@cherrypy.expose
-	@cherrypy.tools.allow(methods=['GET'])
-	def test_bucker(self):
-		try:
-			return self.genotype_service.list_bucket_files()
-		except Exception as e:
-			print(e)
+	# @cherrypy.expose
+	# @cherrypy.tools.allow(methods=['GET'])
+	# def test_bucker(self):
+	# 	try:
+	# 		return self.genotype_service.list_bucket_files()
+	# 	except Exception as e:
+	# 		print(e)
 
-	@cherrypy.expose
-	@cherrypy.config(**{'tools.CORS.on': True})
-	@cherrypy.tools.allow(methods=['POST'])
-	@cherrypy.tools.json_out()
-	def search_all_by_table(self, table=None):
-		try:
-			return self.permittee_service.find_all_by_table(table)
-		except Exception as e:
-			print(e)
+	# @cherrypy.expose
+	# @cherrypy.config(**{'tools.CORS.on': True})
+	# @cherrypy.tools.allow(methods=['POST'])
+	# @cherrypy.tools.json_out()
+	# def search_all_by_table(self, table=None):
+	# 	try:
+	# 		return self.permittee_service.find_all_by_table(table)
+	# 	except Exception as e:
+	# 		print(e)
 
-	@cherrypy.expose
-	@cherrypy.config(**{'tools.CORS.on': True})
-	@cherrypy.tools.allow(methods=['POST'])
-	@cherrypy.tools.json_out()
-	def search_all_by_table_test(self, table=None):
-		try:
-			return self.genotype_service.find_all_by_table(table)
-		except Exception as e:
-			print(e)
+	# @cherrypy.expose
+	# @cherrypy.config(**{'tools.CORS.on': True})
+	# @cherrypy.tools.allow(methods=['POST'])
+	# @cherrypy.tools.json_out()
+	# def search_all_by_table_test(self, table=None):
+	# 	try:
+	# 		return self.genotype_service.find_all_by_table(table)
+	# 	except Exception as e:
+	# 		print(e)
 
-	@cherrypy.expose
-	@cherrypy.config(**{'tools.CORS.on': True})
-	@cherrypy.tools.allow(methods=['POST'])
-	@cherrypy.tools.json_out()
-	def create_table(self, table_name, fields):
-		try:
-			return self.genotype_service.create_table(table_name, fields)
-		except Exception as e:
-			msg = ""
-			if 'message' in e.args[0]:
-				msg = str(e.args[0]['message'])
-			else:
-				msg = str(e)
-			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+	# @cherrypy.expose
+	# @cherrypy.config(**{'tools.CORS.on': True})
+	# @cherrypy.tools.allow(methods=['POST'])
+	# @cherrypy.tools.json_out()
+	# def create_table(self, table_name, fields):
+	# 	try:
+	# 		return self.genotype_service.create_table(table_name, fields)
+	# 	except Exception as e:
+	# 		msg = ""
+	# 		if 'message' in e.args[0]:
+	# 			msg = str(e.args[0]['message'])
+	# 		else:
+	# 			msg = str(e)
+	# 		raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 	# @cherrypy.expose
 	# @cherrypy.config(**{'tools.CORS.on': True})

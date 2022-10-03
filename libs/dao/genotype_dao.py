@@ -1,7 +1,6 @@
 import boto3
 import re
 import logging
-
 from botocore.exceptions import ClientError
 from cherrypy.lib import static
 from cryptography.fernet import Fernet
@@ -11,7 +10,6 @@ from pymongo import MongoClient
 from web3 import Web3, HTTPProvider
 from web3.middleware import geth_poa_middleware
 from web3.auto import w3
-
 import base64
 import datetime
 import json
@@ -21,8 +19,6 @@ import gzip
 import io
 import binascii
 import re
-
-
 class genotype_dao:
 	def __init__(self):
 		self.w3 = Web3(HTTPProvider(os.getenv('BIOSAMPLE_PROVIDER')))
@@ -47,9 +43,7 @@ class genotype_dao:
 		file_name = metadata["filename"]
 		owner = metadata["userAddress"]
 		permittee = metadata["labAddress"]
-
 		contract = self.w3.eth.contract(address=os.getenv('TEST_BIOSAMPLE_COTRACT'), abi=self.SM_JSONINTERFACE['abi'])
-
 		tx = contract.functions.addGenotype(file_name, owner, permittee).buildTransaction({
 			'nonce': self.w3.eth.getTransactionCount(self.account.address)
 			})
@@ -84,6 +78,7 @@ class genotype_dao:
 
 	def save_file(self, file, data):
 		try:
+			file.file.seek(0)
 			ext = data["extension"]
 			file_name = data["filename"]
 			fernet = Fernet(data["key"])
@@ -110,8 +105,6 @@ class genotype_dao:
 				encrypted = enc_file.read()
 			decrypted = fernet.decrypt(encrypted)
 			return decrypted
-
-
 			# return static.serve_file(file_path, 'application/x-download','attachment', os.path.basename(file_path))  #<---extension file
 		except Exception as e:
 			print(e)
@@ -132,25 +125,19 @@ class genotype_dao:
 			return False
 		return True
 
-
 	def list_bucket_files(self):
 		s3 = boto3.resource(service_name='s3',
 								aws_access_key_id='AKIAUFOG4Q6XPT3LMZHB',
 								aws_secret_access_key='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')
-
 		s3_client = boto3.client(service_name='s3',
 								aws_access_key_id='AKIAUFOG4Q6XPT3LMZHB',
 								aws_secret_access_key='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')
-
 		my_bucket = s3.Bucket('somos-genobank')
-
 		for my_bucket_object in my_bucket.objects.all():
 			print(my_bucket_object.key)
-
 		s3_client.download_file('somos-genobank', 'prub.txt', 'my_localfile.txt')
 		print(open('my_localfile.txt').read())
 		# print(my_bucket.obje)
-
 		# if object_name is None:
 		# 	object_name = os.path.basename("storage/genotypes/"+file_name)
 		# s3_client = boto3.client(service_name='s3',
@@ -227,7 +214,6 @@ class genotype_dao:
 	def real_validation(self, signed_message, msg, permittee):
 		msg = encode_defunct(text=msg)
 		wallet = w3.eth.account.recover_message(msg, signature=signed_message)
-
 		print("\n\n\n\n\nWallet:", wallet,"\n\n\n")
 		# delete this part only to download boto3
 			# s3_client = boto3.client(service_name='s3',
@@ -235,7 +221,6 @@ class genotype_dao:
 			# 													aws_secret_access_key='POFO8ilsPnBEEBEjNxjAJssPwBNxEOmODbOaIx7+',
 			# 													region_name='us-east-1'
 			# 												)
-
 			# s3_client.download_file(Bucket='somos-genobank', Key='GHAnDU0029.txt', Filename='GHAnDU0029.txt')
 		return (wallet == permittee)
 
@@ -249,8 +234,6 @@ class genotype_dao:
 		except Exception as e:
 			print(e)
 			return e
-
-		
 
 	def revoke_consents(self, owner, permittee):
 		try:
@@ -275,9 +258,7 @@ class genotype_dao:
 		print("tx hash\n",tx_hash.hex())
 		return tx_hash.hex()
 
-
 	# dtc validation section
-
 	def Source(self, line):
 		if "23andMe" in line:
 			source = 0
@@ -297,14 +278,11 @@ class genotype_dao:
 			source = 7
 		return source
 
-
 	def Is_zip(self, bytes_data):
 		return zipfile.is_zipfile(bytes_data) 
 		
 	def Is_gzip(self, bytes_data):
 		return binascii.hexlify(bytes_data[:2]) == b"1f8b"
-
-
 		
 	def Extract_source(self, a, decode=False):
 		first_line = self.Read_line(a, decode)
@@ -315,7 +293,6 @@ class genotype_dao:
 			return file.readline().decode("utf8")
 		else:
 			return file.readline()
-		
 
 	def Manejador(self, dtc):
 		try:
@@ -330,16 +307,9 @@ class genotype_dao:
 			else:
 				file = io.BytesIO(dtc)
 				source = self.Extract_source(file,decode=True)
-			
 			return source
 		except:
 			raise Exception("No valid File, upload a TXT dtc file, change your file and try again")
-
-
-
-
-
-
 
 	def create_table(self, name, fields):
 		try:

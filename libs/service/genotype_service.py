@@ -4,16 +4,11 @@ from cryptography.fernet import Fernet
 from libs.dao import genotype_dao
 from libs.exceptions import DomainInjectionError
 from libs.domain import Encryption
-
 import requests
 import os
 import uuid
 import hmac
 import io
-
-
-
-
 class genotype_service:
   def __init__(self, _genotype):
     if not isinstance(_genotype, genotype_dao.genotype_dao):
@@ -21,10 +16,9 @@ class genotype_service:
     self.genotype = _genotype
     self.encryption = Encryption.Encryption()
 
-  # obsolete method
   def create(self, data, file):
     data["filename"] = str(uuid.uuid4())
-    data["key"] = str(Fernet.generate_key())
+    data["key"] = (Fernet.generate_key()).decode("utf-8")
     token_hash = self.genotype.mint_nft(data)
     if not token_hash:
       raise Exception("Error minting token")
@@ -41,6 +35,7 @@ class genotype_service:
     # if not bucket_send:
     #   raise Exception("Error uploading file to bucket")
     return {"token": token_hash}
+    # return {"token": "token_hash"}
 
   def upload_file_to_bucket(self):
     # add boto to upload to the bucket
@@ -49,42 +44,15 @@ class genotype_service:
       raise Exception("Error uploading file to bucket")
     return {"response": bucket_send}
 
-
-  # Partitionated methos
-  def mint_nft(self, data):
-    data["filename"] = str(uuid.uuid4())
-    data["key"] = (Fernet.generate_key()).decode("utf-8") 
-    token_hash = self.genotype.mint_nft(data)
-    if not token_hash:
-      raise Exception("Error minting token")
-    data["token_hash"] = token_hash
-    return data
-
-  def save_db_file(self, data):
-    save_db_file = self.genotype.save_db_file(data)
-    if not save_db_file:
-      raise Exception("Error saving file in database")
-    return data
-
-  def storage_file(self, data, file):
-    try:
-      file_name = self.genotype.save_file(file, data)
-      if not file_name:
-        raise Exception("Error saving file")
-      return {"token":data["token_hash"]}
-    except:
-      raise
-
   def validate_file(self, file):
     f = file.file.read()
     source =  self.genotype.Manejador(f)
-    print(source)
-
-
-
+    return source
+    # print(source)
 
   def validate_consents_metadata(self, data):
     if "agreements" not in data:
+      # raise Exception("Invalid consent metadata")
       raise Exception("Invalid consent metadata")
     agreements = data['agreements']
     if "questions" not in agreements:
@@ -133,7 +101,6 @@ class genotype_service:
       for key in gen:
         _json[key] = gen[key]
 
-
   def basic_reference(self, _genotype):
     if not _genotype:
       return []
@@ -147,7 +114,6 @@ class genotype_service:
     _json["consents"] = _genotype["consents"]
     _json["created"] = _genotype["created"]
     _json["interpretation"] = {"FVS":{"AFR_ESTE":1.8547,"AFR_NORTE":0.001,"AFR_OESTE":0.001,"ASIA_ESTE":0.001,"ASIA_SUR":0.001,"ASIA_SURESTE":0.001,"EUR_ESTE":0.001,"EUR_NORESTE":5.0803,"EUR_NORTE":0.001,"EUR_OESTE":0.001,"EUR_SUROESTE":65.7974,"JUDIO":15.8035,"MEDIO_ORIENTE":0.001,"OCEANIA":0.8112,"AMAZONAS":0.001,"ANDES":0.001,"MAYA":0.001,"PIMA":0.001,"ZAPOTECA":0.001,"HUICHOL":1.283,"MIXTECA":0.001,"NAHUA_OTOMI":9.3528,"TARAHUMARA":0.001,"TRIQUI":0.001,"Hp_m":None,"Hp_y":None}}
-
     return _json
 
   def authorize_download(self, wallet, signature):
@@ -155,7 +121,6 @@ class genotype_service:
     # wallet = data["wallet"]
     # # message = signature+wallet
     # # mark_key = hmac.new(signature.encode('utf-8'),msg=message.encode(), digestmod="sha256")
-
     validation, name, ext= self.genotype.verify_signature(wallet, signature)
     if not validation:
       raise Exception("Invalid signature")
@@ -188,7 +153,6 @@ class genotype_service:
     #   raise Exception("Couldn't revoke consent")
     return revoked
 
-
   def checkPermitteeSecret(self, id, address, secret):
     try:
       secret = str(secret)
@@ -220,12 +184,11 @@ class genotype_service:
       if not search:
         return []
     return search
-
   
   # WARNIGN ZONE, FRO TEST ONLY
-  def list_bucket_files(self):
-    files_list = self.genotype.list_bucket_files()
-    return files_list
+  # def list_bucket_files(self):
+  #   files_list = self.genotype.list_bucket_files()
+  #   return files_list
 
   def delete_table(self):
     deleted = self.genotype.delete_table()
