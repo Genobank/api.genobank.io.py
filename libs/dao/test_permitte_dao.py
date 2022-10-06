@@ -12,6 +12,7 @@ import hmac
 import json
 import datetime
 import time
+import base64
 
 
 
@@ -225,3 +226,36 @@ class test_permittee_dao:
     except Exception as e:
       print(e)
       return False
+
+  def add_signature_image(self, serial, name_1, name_2, image_1, image_2):
+    serial = int(serial)
+    collection = self.db["profiles"]
+    cur = collection.find_one({"serial": serial})
+    text = cur["text"]
+    print(cur)
+    ObjText = json.loads(text)
+
+    data1 = image_1.file.read()
+    data2 = image_2.file.read()
+
+    b64image_1 = base64.b64encode(data1)
+    b64image_2 = base64.b64encode(data2)
+
+    b64String_1 = b64image_1.decode('utf-8')
+    b64String_2 = b64image_2.decode('utf-8')
+
+    if 'autograph_signature' in ObjText:
+      del ObjText["autograph_signature"]
+
+    ObjText["autograph_signature_1"] = b64String_1
+    ObjText["autograph_signature_2"] = b64String_2
+    ObjText["doctor_name_1"] = name_1
+    ObjText["doctor_name_2"] = name_2
+
+
+
+
+    new_text = json.dumps(ObjText)
+    hecho = collection.update_one({"serial":serial}, {"$set": {"text": new_text}})
+    print("\n\n",hecho,"\n\n")
+

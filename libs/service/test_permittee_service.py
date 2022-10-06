@@ -88,7 +88,9 @@ class test_permittee_service:
       if not search:
         return []
     return search
-
+  
+  def add_sign_profile(self, serial, name_1, name_2, image1, image2):
+    self.test_permittee.add_signature_image(serial, name_1, name_2, image1, image2)
     
 
   
