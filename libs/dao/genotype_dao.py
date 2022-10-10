@@ -111,14 +111,18 @@ class genotype_dao:
 			print(e)
 			return False
 
-	def upload_file_to_bucket(self, file_name, bucket, dataset_file, object_name = None):
+	def upload_file_to_bucket(self, dataset_file, bucket, file_name):
 		# if object_name is None:
 			# object_name = os.path.basename("storage/genotypes/"+file_name)
+		dataset_file.file.seek(0)
+		upload_file = dataset_file.file.read()
+		print(type(upload_file))
 		s3_client = boto3.client(service_name='s3',
 								aws_access_key_id='AKIAUFOG4Q6XPT3LMZHB',
 								aws_secret_access_key='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')
 		try:
-			response = s3_client.upload_file("storage/genotypes/"+file_name, bucket, dataset_file)
+			file_name = str(file_name)
+			response = s3_client.upload_fileobj(io.BytesIO(upload_file), bucket, file_name)
 			# response = s3_client.upload_file("storage/genotypes/"+file_name, bucket, object_name)
 			# return response
 		except ClientError as e:
@@ -131,14 +135,30 @@ class genotype_dao:
 		s3 = boto3.resource(service_name='s3',
 								aws_access_key_id='AKIAUFOG4Q6XPT3LMZHB',
 								aws_secret_access_key='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')
+		
 		s3_client = boto3.client(service_name='s3',
 								aws_access_key_id='AKIAUFOG4Q6XPT3LMZHB',
 								aws_secret_access_key='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')
 		my_bucket = s3.Bucket('somos-genobank')
+		# to see all
 		for my_bucket_object in my_bucket.objects.all():
 			print(my_bucket_object.key)
-		s3_client.download_file('somos-genobank', 'prub.txt', 'my_localfile.txt')
-		print(open('my_localfile.txt').read())
+
+		# # to see in a specific folder
+		# for my_bucket_object in my_bucket.objects.filter(Prefix="logs/"):
+		# 	print(my_bucket_object.key)
+		
+
+		# to download file
+		# s3_client.download_file('somos-genobank', 'genotypes/c09f3e8d-5b57-4f99-90e4-c2e9aeb2bb89.txt', 'my_localfile.txt')
+		# print("\n",open('my_localfile.txt').read(),"\n")
+
+		# to download fileobj
+		# with open('filename', 'wb')as data:
+		# 	s3_client.download_fileobj('somos-genobank', 'genotypes/1b826255-e0b8-4aa9-bbf5-a2826aa634b6.txt', data)
+		# 	print("DATA\n",data)
+
+
 		# print(my_bucket.obje)
 		# if object_name is None:
 		# 	object_name = os.path.basename("storage/genotypes/"+file_name)

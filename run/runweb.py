@@ -114,10 +114,10 @@ class AppUnoServer(object):
 				except:
 					raise Exception("'data' is not a json object")
 				if "extension" not in data:
-					raise Exception("This extension is not supported")
+					raise Exception("This file does not have extension")
+				self.genotype_service.validate_extension(data["extension"])
 				self.genotype_service.validate_consents_metadata(data)
 				return self.genotype_service.create(data, file)
-				# return {"token": "IT WORKS"}
 		except Exception as e:
 			msg = ""
 			if 'message' in e.args[0]:
@@ -322,13 +322,13 @@ class AppUnoServer(object):
 	# 	except Exception as e:
 	# 		print(e)
 
-	# @cherrypy.expose
-	# @cherrypy.tools.allow(methods=['GET'])
-	# def test_bucker(self):
-	# 	try:
-	# 		return self.genotype_service.list_bucket_files()
-	# 	except Exception as e:
-	# 		print(e)
+	@cherrypy.expose
+	@cherrypy.tools.allow(methods=['GET'])
+	def list_bucket_files(self):
+		try:
+			return self.genotype_service.list_bucket_files()
+		except Exception as e:
+			print(e)
 
 	# @cherrypy.expose
 	# @cherrypy.config(**{'tools.CORS.on': True})

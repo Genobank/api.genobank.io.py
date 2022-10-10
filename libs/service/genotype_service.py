@@ -33,7 +33,7 @@ class genotype_service:
     # add boto to upload to the bucket
     # resetear el file
     file.file.seek(0)
-    bucket_send = self.genotype.upload_file_to_bucket("inputs/"+data["filename"]+"."+data["extension"], file, "somos-genobank")
+    bucket_send = self.genotype.upload_file_to_bucket(file, "somos-genobank", "genotypes/"+data["filename"]+"."+data["extension"])
     if not bucket_send:
       raise Exception("Error uploading file to bucket")
     return {"token": token_hash}
@@ -55,6 +55,11 @@ class genotype_service:
     source =  self.genotype.Manejador(f)
     return source
     # print(source)
+  def validate_extension(self, ext):
+    if ext != "txt":
+      raise Exception("Invalid extension you file needs to be a txt extension")
+    return True
+
 
   def validate_consents_metadata(self, data):
     if "agreements" not in data:
@@ -62,19 +67,17 @@ class genotype_service:
       raise Exception("Invalid consent metadata")
     agreements = data['agreements']
     if "questions" not in agreements:
-      raise Exception("question is required for consent metadata")
+      raise Exception('Consent #1 is required for consent metadata')
     if "document" not in agreements:
-      raise Exception("document is required for consent metadata")
+      raise Exception('Consent #2 is required for consent metadata')
     if "read" not in agreements:
-      raise Exception("read is required for consent metadata")
+      raise Exception('Consent #3 is required for consent metadata')
     if "permission" not in agreements:
-      raise Exception("permission is required for consent metadata")
+      raise Exception('Consent #4 is required for consent metadata')
     if "providing" not in agreements:
-      raise Exception("providing is required for consent metadata")
-    if "analysis" not in agreements:
-      raise Exception("analysis is required for consent metadata")
+      raise Exception('Consent #5 is required for consent metadata')
     if "results" not in agreements:
-      raise Exception("results is required for consent metadata")
+      raise Exception('Consent #6 is required for consent metadata')
 
   def find_by_owner(self, owner):
     genotype = self.genotype.find_genotype_by_owner(owner)
@@ -192,9 +195,9 @@ class genotype_service:
     return search
   
   # WARNIGN ZONE, FRO TEST ONLY
-  # def list_bucket_files(self):
-  #   files_list = self.genotype.list_bucket_files()
-  #   return files_list
+  def list_bucket_files(self):
+    files_list = self.genotype.list_bucket_files()
+    return files_list
 
   def delete_table(self):
     deleted = self.genotype.delete_table()
