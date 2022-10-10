@@ -24,54 +24,73 @@ contract GenoType is ERC1155{
         owner = msg.sender;
     }
 
-    function addGenotype(string memory _name, address _owner, address _permittee) public {
+    function addGenotype(string memory _name, address _user, address _permittee) public {
         require (msg.sender == owner, "YO CANNOT CALL THIS FUNCTION");
-        require (isStringEmpty(biosamples[_owner].name), "You already have a registered genotype");
+        require (isStringEmpty(biosamples[_user].name), "You already have a registered genotype");
         require (!isStringEmpty(_name), "You file name is empty");
         counter++;
         Biosample memory newSample = Biosample(
             _name,
-            _owner,
+            _user,
             counter,
             _permittee,
             true
             );
-        biosamples[_owner] = newSample;
+        biosamples[_user] = newSample;
         laboratoriesSamples[_permittee].push(newSample);
         bytes memory bPermittee = toBytes(_permittee);
-        bytes memory bOwner = toBytes(_owner);
-        _mint(_owner, counter, 1, bPermittee);
-        _mint(_permittee, counter, 1, bOwner);
+        bytes memory bUser = toBytes(_user);
+        _mint(_user, counter, 1, bPermittee);
+        _mint(_permittee, counter, 1, bUser);
+        emit Transferconsent(_user, _permittee, counter);
+    }
 
-        emit Transferconsent(_owner, _permittee, counter);
+    // function resetSM(){
+    //     require(msg.sender == owner, "YO CANNOT CALL THIS FUNCTION");
+    // }
+
+    function resetUserAndLab(address _user, address _lab) public returns(Biosample memory){
+        require(msg.sender == owner, "YO CANNOT CALL THIS FUNCTION");
+        burnToken(_user, _lab);
+        delete laboratoriesSamples[_lab][(biosamples[_user].tokenId-1)];
+        Biosample memory newSample = Biosample(
+            "",
+            address(0),
+            0,
+            address(0),
+            true
+            );
+        
+        biosamples[_user] = newSample;
+        return biosamples[_user];
     }
     
     function getMyGenotype() public view returns (Biosample memory){
         return biosamples[msg.sender];
     }
 
-    function getGenoetype (address _owner) public view returns (Biosample memory){
-        return biosamples[_owner];
+    function getGenoetype (address _user) public view returns (Biosample memory){
+        return biosamples[_user];
     }
 
     function getGebnotypesByPermittee(address _permittee) public view returns(Biosample[] memory){
         return laboratoriesSamples[_permittee];
     }
 
-    function burnToken (address _owner, address _permittee) public {
+    function burnToken (address _user, address _permittee) public {
         require (msg.sender == owner || isPermittee(msg.sender), "YO CANNOT CALL THIS FUNCTION");
-        require (biosamples[_owner].enable, "You no longer have this object");
-        uint _idtoken = biosamples[_owner].tokenId;
+        require (biosamples[_user].enable, "You no longer have this object");
+        uint _idtoken = biosamples[_user].tokenId;
         
         
-        _burn(_owner, _idtoken, 1);
+        _burn(_user, _idtoken, 1);
         _burn(_permittee, _idtoken, 1);
-        biosamples[_owner].enable = false;
+        biosamples[_user].enable = false;
     }
 
 
-    function check_genotype_status(address _owner) public view returns(bool){
-        return biosamples[_owner].enable;
+    function check_genotype_status(address _user) public view returns(bool){
+        return biosamples[_user].enable;
     }
 
     function isPermittee(address _someone) public view returns(bool){

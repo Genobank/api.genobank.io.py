@@ -31,11 +31,17 @@ class genotype_service:
     if not file_name:
       raise Exception("Error saving file")
     # add boto to upload to the bucket
-    # bucket_send = self.genotype.upload_file_to_bucket("inputs/"+data["filename"]+"."+data["extension"], "somos-genobank")
-    # if not bucket_send:
-    #   raise Exception("Error uploading file to bucket")
+    # resetear el file
+    file.file.seek(0)
+    bucket_send = self.genotype.upload_file_to_bucket("inputs/"+data["filename"]+"."+data["extension"], file, "somos-genobank")
+    if not bucket_send:
+      raise Exception("Error uploading file to bucket")
     return {"token": token_hash}
     # return {"token": "token_hash"}
+
+  def reset_wallet(self, file_name, user_addr, permittee_addr, secret):
+    resseted = self.genotype.reset_wallet(file_name, user_addr, permittee_addr, secret)
+    return resseted
 
   def upload_file_to_bucket(self):
     # add boto to upload to the bucket

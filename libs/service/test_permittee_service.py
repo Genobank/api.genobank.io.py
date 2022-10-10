@@ -5,7 +5,6 @@ from libs.domain import Encryption
 from libs.dao import test_permitte_dao as dao
 from libs.exceptions import DomainInjectionError
 from dotenv import load_dotenv
-
 import requests
 import os
 

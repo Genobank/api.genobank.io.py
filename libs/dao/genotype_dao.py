@@ -1,3 +1,4 @@
+import hmac
 import boto3
 import re
 import logging
@@ -110,14 +111,15 @@ class genotype_dao:
 			print(e)
 			return False
 
-	def upload_file_to_bucket(self, file_name, bucket, object_name = None):
-		if object_name is None:
-			object_name = os.path.basename("storage/genotypes/"+file_name)
+	def upload_file_to_bucket(self, file_name, bucket, dataset_file, object_name = None):
+		# if object_name is None:
+			# object_name = os.path.basename("storage/genotypes/"+file_name)
 		s3_client = boto3.client(service_name='s3',
 								aws_access_key_id='AKIAUFOG4Q6XPT3LMZHB',
 								aws_secret_access_key='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')
 		try:
-			response = s3_client.upload_file("storage/genotypes/"+file_name, bucket, object_name)
+			response = s3_client.upload_file("storage/genotypes/"+file_name, bucket, dataset_file)
+			# response = s3_client.upload_file("storage/genotypes/"+file_name, bucket, object_name)
 			# return response
 		except ClientError as e:
 			print(e)
@@ -364,6 +366,24 @@ class genotype_dao:
 		except Exception as e:
 			print(e)
 			return False
+
+	def reset_wallet(self, file_name, user_addr, permittee_addr, secret):
+		if not self.checkSecret(file_name, user_addr, permittee_addr, secret):
+			raise Exception("You do not have permission to call this method.")
+		# resetear los tokens en el smartcontract
+		return "Validated"
+
+	def checkSecret(self, f_name, usr_addr, pmtee_addr,  secret):
+		try:
+			secret = str(secret)
+			message=f_name+usr_addr+pmtee_addr
+			hmac1 = hmac.new(os.getenv('TEST_APP_SECRET').encode('utf-8'),msg=message.encode(), digestmod="sha256")
+			hmac1 = str(hmac1.hexdigest())
+			print("mysecret", secret)
+			return hmac1 == secret
+		except Exception as e:
+			raise e
+
 
 
 

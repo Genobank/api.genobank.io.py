@@ -125,6 +125,25 @@ class AppUnoServer(object):
 			else:
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.json_out()
+	def reset_wallet(self, file_name, user_addr, permittee_addr, secret):
+		try:
+			message=file_name+user_addr+permittee_addr
+			hash1 = hmac.new(secret.encode('utf-8'),msg=message.encode(), digestmod="sha256")
+			resetted = self.genotype_service.reset_wallet(file_name, user_addr, permittee_addr, hash1.hexdigest())
+			return resetted
+		except Exception as e:
+				msg = ""
+				if 'message' in e.args[0]:
+					msg = str(e.args[0]['message'])
+				else:
+					msg = str(e)
+				raise cherrypy.HTTPError("500 Internal Server Error", msg)
+	
 		
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
