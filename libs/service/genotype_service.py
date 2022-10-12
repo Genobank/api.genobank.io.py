@@ -9,6 +9,7 @@ import os
 import uuid
 import hmac
 import io
+import json
 class genotype_service:
   def __init__(self, _genotype):
     if not isinstance(_genotype, genotype_dao.genotype_dao):
@@ -193,7 +194,32 @@ class genotype_service:
       if not search:
         return []
     return search
-  
+
+  def is_json(self, jsonObj):
+    try:
+      json_loaded = json.dumps(jsonObj)
+      return json_loaded
+    except:
+      raise Exception("Failed to load json")
+
+  def validate_posp(self, posp_metadata):
+    if "title" not in posp_metadata:
+      raise Exception ("Error metadata has not title")
+    
+    if "msg" not in posp_metadata:
+      raise Exception ("Error metadata has not a msg")
+    
+    if "user_address" not in posp_metadata:
+      raise Exception ("Error metadata has not user_address")
+    
+    if "lab_address" not in posp_metadata:
+      raise Exception ("Error metadata has not lab_address")
+      
+    return True
+
+
+
+
   # WARNIGN ZONE, FRO TEST ONLY
   def list_bucket_files(self):
     files_list = self.genotype.list_bucket_files()
