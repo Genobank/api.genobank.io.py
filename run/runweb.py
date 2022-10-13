@@ -240,15 +240,16 @@ class AppUnoServer(object):
 	
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
-	@cherrypy.tools.json_in()
 	@cherrypy.tools.allow(methods=['POST'])
-	def emit_posp(self):
+	@cherrypy.tools.json_out()
+	def emit_posp(self, metadata):
 		try:
-			metadata = cherrypy.request.json
 			_json_metadata = self.genotype_service.is_json(metadata)
+			self.test_permittee_service.validate_permittee_signature(_json_metadata)
 			self.genotype_service.validate_posp(_json_metadata)
 			print("\n\nVALIDATED SUCCESSFULLY \n\n")
-			return _json_metadata
+			return {"Server_message":"Successfully"}
+
 		except Exception as e:
 			msg = ""
 			if 'message' in e.args[0]:

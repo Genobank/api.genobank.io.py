@@ -50,6 +50,14 @@ class test_permittee_service:
     # return validated
     return validated
 
+  def validate_permittee_signature(self, metadata):
+    permittee = metadata["lab_address"]
+    signature = metadata["signature"]
+    validated = self.test_permittee.validate_permittee_signature(permittee, signature)
+    if not validated:
+      raise Exception("Failed to validate permittee signature")
+    return validated
+
   def basic_reference(self, _permittee):
     if not _permittee:
       return False

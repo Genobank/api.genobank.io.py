@@ -4,6 +4,9 @@ from dotenv import load_dotenv
 from web3 import Web3, HTTPProvider
 from web3.middleware import geth_poa_middleware
 from pymongo import MongoClient
+from eth_account.messages import encode_defunct
+from web3.auto import w3
+
 
 
 import os
@@ -13,6 +16,7 @@ import json
 import datetime
 import time
 import base64
+
 
 
 
@@ -170,6 +174,14 @@ class test_permittee_dao:
     except Exception as e:
       print(e)
       return e
+
+  def validate_permittee_signature(self, permittee, signed_message):
+    if not self.validate_permittee(permittee):
+      raise Exception("Invalid permittee signature")
+
+    msg = encode_defunct(text=permittee)
+    wallet = w3.eth.account.recover_message(msg, signature=signed_message)
+    return (wallet == permittee)
 
 
 

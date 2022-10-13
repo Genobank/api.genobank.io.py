@@ -197,7 +197,7 @@ class genotype_service:
 
   def is_json(self, jsonObj):
     try:
-      json_loaded = json.dumps(jsonObj)
+      json_loaded = json.loads(jsonObj)
       return json_loaded
     except:
       raise Exception("Failed to load json")
@@ -205,16 +205,12 @@ class genotype_service:
   def validate_posp(self, posp_metadata):
     if "title" not in posp_metadata:
       raise Exception ("Error metadata has not title")
-    
     if "msg" not in posp_metadata:
       raise Exception ("Error metadata has not a msg")
-    
     if "user_address" not in posp_metadata:
       raise Exception ("Error metadata has not user_address")
-    
     if "lab_address" not in posp_metadata:
       raise Exception ("Error metadata has not lab_address")
-      
     return True
 
 
