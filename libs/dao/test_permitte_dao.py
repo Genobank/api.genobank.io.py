@@ -175,11 +175,10 @@ class test_permittee_dao:
       print(e)
       return e
 
-  def validate_permittee_signature(self, permittee, signed_message):
+  def validate_permittee_signature(self, permittee, msg, signed_message):
     if not self.validate_permittee(permittee):
       raise Exception("Invalid permittee signature")
-
-    msg = encode_defunct(text=permittee)
+    msg = encode_defunct(text=msg)
     wallet = w3.eth.account.recover_message(msg, signature=signed_message)
     return (wallet == permittee)
 

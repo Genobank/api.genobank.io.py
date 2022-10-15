@@ -245,8 +245,9 @@ class AppUnoServer(object):
 	def emit_posp(self, metadata):
 		try:
 			_json_metadata = self.genotype_service.is_json(metadata)
-			self.test_permittee_service.validate_permittee_signature(_json_metadata)
 			self.genotype_service.validate_posp(_json_metadata)
+			self.test_permittee_service.validate_permittee_signature(_json_metadata)
+			self.genotype_service.mint_posp(_json_metadata)
 			print("\n\nVALIDATED SUCCESSFULLY \n\n")
 			return {"Server_message":"Successfully"}
 
@@ -257,6 +258,16 @@ class AppUnoServer(object):
 			else:
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['GET'])
+	@cherrypy.tools.json_out()
+	def get_posp_token(self, lab_address, user_address):
+		token_data = self.genotype_service.get_posp_token(lab_address, user_address)
+		return token_data
+
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})

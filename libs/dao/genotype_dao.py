@@ -27,6 +27,7 @@ class genotype_dao:
 		self.account = self.w3.eth.account.privateKeyToAccount(os.getenv('BIOSAMPLE_EXECUTOR'))
 		self.w3.eth.default_account = self.account.address
 		self.SM_JSONINTERFACE = self.load_smart_contract(os.getenv('ABI_BIOSAMPLE_PATH'))
+		self.SM_JSONINTERFACE_POSP = self.load_smart_contract(os.getenv('ABI_POSP_PATH'))
 		self.client = MongoClient(os.getenv('TEST_MONGO_DB_HOST'))
 		self.db = self.client[os.getenv('TEST_DB_NAME')]
 		self.table = self.db.genotypes
@@ -53,6 +54,36 @@ class genotype_dao:
 		self.w3.eth.waitForTransactionReceipt(tx_hash)    
 		print("tx hash\n",tx_hash.hex())
 		return tx_hash.hex()
+
+	def mint_posp(self, metadata):
+		PospToken = []
+		PospToken.append(0)
+		PospToken.append(metadata["user_address"])
+		PospToken.append(metadata["lab_address"])
+		PospToken.append(metadata["title"])
+		PospToken.append(metadata["msg"])
+		PospToken.append(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+
+		posp_contract = self.w3.eth.contract(address=os.getenv('TEST_POSP_CONTRACT'), abi=self.SM_JSONINTERFACE_POSP['abi'])
+		tx = posp_contract.functions.mintPOSP(PospToken).buildTransaction({
+			'nonce': self.w3.eth.getTransactionCount(self.account.address)
+		})
+		signed_tx = self.w3.eth.account.signTransaction(tx, private_key=os.getenv('BIOSAMPLE_EXECUTOR'))
+		tx_hash = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+		self.w3.eth.waitForTransactionReceipt(tx_hash)    
+		print("tx hash\n",tx_hash.hex())
+		return tx_hash.hex()
+
+
+	def get_posp_token(self, lab_address, user_address):
+		posp_contract = self.w3.eth.contract(address=os.getenv('TEST_POSP_CONTRACT'), abi=self.SM_JSONINTERFACE_POSP['abi'])
+		tx = posp_contract.functions.getPoSP(lab_address, user_address).call({
+			'nonce': self.w3.eth.getTransactionCount(self.account.address)
+		})
+		print(tx)
+		return tx
+
+
 
 	def save_db_file(self, data):
 		try:

@@ -211,7 +211,26 @@ class genotype_service:
       raise Exception ("Error metadata has not user_address")
     if "lab_address" not in posp_metadata:
       raise Exception ("Error metadata has not lab_address")
+    if "signature" not in posp_metadata:
+      raise Exception ("Error metadata has not signature")
     return True
+
+  def mint_posp(self, posp_metadata):
+    token_exist = self.get_posp_token(
+                    posp_metadata["lab_address"],
+                    posp_metadata["user_address"]
+                  )
+    print("\n\n",token_exist[0],"\n\n")
+    if token_exist[0] != 0:
+      raise Exception("This user already has your PoSP")
+    token_hash = self.genotype.mint_posp(posp_metadata)
+    if not token_hash:
+      raise Exception("Error during token minting")
+    return token_hash
+
+  def get_posp_token(self, lab_address, user_address):
+    token = self.genotype.get_posp_token(lab_address, user_address)
+    return token
 
 
 
