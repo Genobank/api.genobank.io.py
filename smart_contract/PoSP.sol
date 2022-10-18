@@ -15,6 +15,9 @@ contract PoSP is ERC721URIStorage {
         string title;
         string message;
         string date;
+        string tokenName;
+        string symbol;
+        address smartcontract;
     }
 
     event createPoSP (
@@ -25,7 +28,7 @@ contract PoSP is ERC721URIStorage {
 
     mapping (address => mapping(address => PoSPStruct)) PoSPList;
 
-    constructor() ERC721("Proof Of Participation", "PoSP") {
+    constructor() ERC721("Proof Of Stack", "PoSP") {
         owner = msg.sender;
         _tokenIds.increment();
     }
@@ -43,6 +46,9 @@ contract PoSP is ERC721URIStorage {
         );
         uint256 newItemId = _tokenIds.current();
         PoSPToken.id = newItemId;
+        PoSPToken.tokenName = name();
+        PoSPToken.symbol = symbol();
+        PoSPToken.smartcontract = address(this);
         PoSPList[PoSPToken.lab][PoSPToken.user] = PoSPToken;
         _mint(PoSPToken.user, newItemId);
         _tokenIds.increment();
