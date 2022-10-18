@@ -63,6 +63,9 @@ class genotype_dao:
 		PospToken.append(metadata["title"])
 		PospToken.append(metadata["msg"])
 		PospToken.append(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+		PospToken.append("")
+		PospToken.append("")
+		PospToken.append("0x0000000000000000000000000000000000000000")
 
 		posp_contract = self.w3.eth.contract(address=os.getenv('TEST_POSP_CONTRACT'), abi=self.SM_JSONINTERFACE_POSP['abi'])
 		tx = posp_contract.functions.mintPOSP(PospToken).buildTransaction({
@@ -100,6 +103,7 @@ class genotype_dao:
 				"status": True,
 				"filesigned":data["filesigned"],
 				"filesize":data["filesize"],
+				"stack_nfts":{},
 				"created": datetime.datetime.now(),
 				"updated": datetime.datetime.now()
 			}

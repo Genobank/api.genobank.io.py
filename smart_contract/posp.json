@@ -151,6 +151,21 @@
               "internalType": "string",
               "name": "date",
               "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "tokenName",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "symbol",
+              "type": "string"
+            },
+            {
+              "internalType": "address",
+              "name": "smartcontract",
+              "type": "address"
             }
           ],
           "internalType": "struct PoSP.PoSPStruct",
@@ -344,6 +359,21 @@
               "internalType": "string",
               "name": "date",
               "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "tokenName",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "symbol",
+              "type": "string"
+            },
+            {
+              "internalType": "address",
+              "name": "smartcontract",
+              "type": "address"
             }
           ],
           "internalType": "struct PoSP.PoSPStruct",
