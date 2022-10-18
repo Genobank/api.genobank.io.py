@@ -77,6 +77,25 @@ class genotype_dao:
 		print("tx hash\n",tx_hash.hex())
 		return tx_hash.hex()
 
+	def save_posp_hash (self, metadata, token_hash):
+		collection = self.db.genotypes
+		cur = collection.find_one({"owneraddr": metadata["user_address"]})
+		if not cur:
+			raise Exception("Could not find this user")
+
+		if "stake_nfts" not in cur:
+			cur["stake_nfts"] = {}
+
+		_json = cur["stake_nfts"]
+		_json[metadata["lab_address"]] = token_hash
+		collection.update_one({"owneraddr":metadata["user_address"]}, {"$set": {"stake_nfts": _json}})
+		return {"transactionHash":token_hash}
+
+	def reset_posp_db (self):
+		collection = self.db.genotypes
+		collection.update_many({},{"$set": {"stake_nfts": {}}})
+		return True
+
 
 	def get_posp_token(self, lab_address, user_address):
 		posp_contract = self.w3.eth.contract(address=os.getenv('TEST_POSP_CONTRACT'), abi=self.SM_JSONINTERFACE_POSP['abi'])
@@ -103,7 +122,7 @@ class genotype_dao:
 				"status": True,
 				"filesigned":data["filesigned"],
 				"filesize":data["filesize"],
-				"stack_nfts":{},
+				"stake_nfts":{},
 				"created": datetime.datetime.now(),
 				"updated": datetime.datetime.now()
 			}

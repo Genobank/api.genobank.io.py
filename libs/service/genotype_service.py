@@ -228,6 +228,18 @@ class genotype_service:
       raise Exception("Error during token minting")
     return token_hash
 
+  def save_posp_hash(self, metadata, token_hash):
+    saved = self.genotype.save_posp_hash(metadata, token_hash)
+    if not saved:
+      raise Exception("Error during saving posp hash")
+    return saved
+
+  def reset_posp_db(self):
+    reset = self.genotype.reset_posp_db()
+    if not reset:
+      raise Exception("Error during reset posp database")
+    return reset
+
   def get_posp_token(self, lab_address, user_address):
     token = self.genotype.get_posp_token(lab_address, user_address)
     return token

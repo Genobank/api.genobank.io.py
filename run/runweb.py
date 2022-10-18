@@ -247,7 +247,8 @@ class AppUnoServer(object):
 			_json_metadata = self.genotype_service.is_json(metadata)
 			self.genotype_service.validate_posp(_json_metadata)
 			self.test_permittee_service.validate_permittee_signature(_json_metadata)
-			self.genotype_service.mint_posp(_json_metadata)
+			token_hash = self.genotype_service.mint_posp(_json_metadata)
+			self.genotype_service.save_posp_hash(_json_metadata, token_hash)
 			print("\n\nVALIDATED SUCCESSFULLY \n\n")
 			return {"Server_message":"Successfully"}
 
@@ -389,6 +390,14 @@ class AppUnoServer(object):
 			self.test_permittee_service.add_sign_profile(serial, name_1, name_2, img_signature_1, img_signature_2)
 		except Exception as e:
 			print(e)
+
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.json_out()
+	def reset_posp_db(self, table=None):
+		return self.genotype_service.reset_posp_db()
 
 	# @cherrypy.expose
 	# @cherrypy.config(**{'tools.CORS.on': True})
