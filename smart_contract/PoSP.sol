@@ -27,6 +27,7 @@ contract PoSP is ERC721URIStorage {
     );
 
     mapping (address => mapping(address => PoSPStruct)) PoSPList;
+    mapping (address => PoSPStruct[]) labTokens;
 
     constructor() ERC721("Proof Of Stack", "PoSP") {
         owner = msg.sender;
@@ -50,12 +51,17 @@ contract PoSP is ERC721URIStorage {
         PoSPToken.symbol = symbol();
         PoSPToken.smartcontract = address(this);
         PoSPList[PoSPToken.lab][PoSPToken.user] = PoSPToken;
+        labTokens[PoSPToken.lab].push(PoSPToken);
         _mint(PoSPToken.user, newItemId);
         _tokenIds.increment();
     }
 
     function getPoSP(address _lab, address _user) public view returns(PoSPStruct memory){
         return PoSPList[_lab][_user];
+    }
+
+    function getPosPlist(address _lab) public view returns(PoSPStruct[] memory){
+        return labTokens[_lab];
     }
 
 }
