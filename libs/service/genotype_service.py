@@ -33,10 +33,10 @@ class genotype_service:
       raise Exception("Error saving file")
     # add boto to upload to the bucket
     # resetear el file
-    file.file.seek(0)
-    bucket_send = self.genotype.upload_file_to_bucket(file, "somos-genobank", "genotypes/"+data["filename"]+"."+data["extension"])
-    if not bucket_send:
-      raise Exception("Error uploading file to bucket")
+    # file.file.seek(0)
+    # bucket_send = self.genotype.upload_file_to_bucket(file, "somos-genobank", "genotypes/"+data["filename"]+"."+data["extension"])
+    # if not bucket_send:
+    #   raise Exception("Error uploading file to bucket")
     return {"token": token_hash}
     # return {"token": "token_hash"}
 
@@ -213,6 +213,8 @@ class genotype_service:
       raise Exception ("Error metadata has not lab_address")
     if "signature" not in posp_metadata:
       raise Exception ("Error metadata has not signature")
+    if "filename" not in posp_metadata:
+      raise Exception ("Error metadata has not filename")
     return True
 
   def mint_posp(self, posp_metadata):

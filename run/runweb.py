@@ -246,9 +246,13 @@ class AppUnoServer(object):
 		try:
 			_json_metadata = self.genotype_service.is_json(metadata)
 			self.genotype_service.validate_posp(_json_metadata)
+			# check if file is enabled () thif cuntion recieves the file name
+			name = _json_metadata["filename"]
+			print(name)
+			self.genotype_service.is_file_enable(name)
 			self.test_permittee_service.validate_permittee_signature(_json_metadata)
-			token_hash = self.genotype_service.mint_posp(_json_metadata)
-			self.genotype_service.save_posp_hash(_json_metadata, token_hash)
+			# token_hash = self.genotype_service.mint_posp(_json_metadata)
+			# self.genotype_service.save_posp_hash(_json_metadata, token_hash)
 			print("\n\nVALIDATED SUCCESSFULLY \n\n")
 			return {"Server_message":"Successfully"}
 
