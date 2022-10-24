@@ -251,10 +251,11 @@ class AppUnoServer(object):
 			print(name)
 			self.genotype_service.is_file_enable(name)
 			self.test_permittee_service.validate_permittee_signature(_json_metadata)
-			# token_hash = self.genotype_service.mint_posp(_json_metadata)
-			# self.genotype_service.save_posp_hash(_json_metadata, token_hash)
-			print("\n\nVALIDATED SUCCESSFULLY \n\n")
-			return {"Server_message":"Successfully"}
+			token_hash = self.genotype_service.mint_posp(_json_metadata)
+			self.genotype_service.save_posp_hash(_json_metadata, token_hash)
+			return {"posp_token_hash": token_hash}
+			# print("\n\nVALIDATED SUCCESSFULLY \n\n")
+			# return {"Server_message":"Successfully"}
 
 		except Exception as e:
 			msg = ""
