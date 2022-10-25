@@ -251,9 +251,15 @@ class AppUnoServer(object):
 			print(name)
 			self.genotype_service.is_file_enable(name)
 			self.test_permittee_service.validate_permittee_signature(_json_metadata)
-			token_hash = self.genotype_service.mint_posp(_json_metadata)
-			self.genotype_service.save_posp_hash(_json_metadata, token_hash)
-			return {"posp_token_hash": token_hash}
+
+			self.genotype_service.create_sm_token_manager(_json_metadata)
+
+			# token_hash = self.genotype_service.mint_posp(_json_metadata)
+			# self.genotype_service.save_posp_hash(_json_metadata, token_hash)
+			# return {"posp_token_hash": token_hash}
+
+
+
 			# print("\n\nVALIDATED SUCCESSFULLY \n\n")
 			# return {"Server_message":"Successfully"}
 
@@ -347,6 +353,8 @@ class AppUnoServer(object):
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
+
+
 	# WARNING ZONE FOR TEST ONLY
 	# @cherrypy.expose
 	# @cherrypy.config(**{'tools.CORS.on': True})
@@ -397,12 +405,12 @@ class AppUnoServer(object):
 			print(e)
 
 
-	@cherrypy.expose
-	@cherrypy.config(**{'tools.CORS.on': True})
-	@cherrypy.tools.allow(methods=['POST'])
-	@cherrypy.tools.json_out()
-	def reset_posp_db(self, table=None):
-		return self.genotype_service.reset_posp_db()
+	# @cherrypy.expose
+	# @cherrypy.config(**{'tools.CORS.on': True})
+	# @cherrypy.tools.allow(methods=['POST'])
+	# @cherrypy.tools.json_out()
+	# def reset_posp_db(self, table=None):
+	# 	return self.genotype_service.reset_posp_db()
 
 	# @cherrypy.expose
 	# @cherrypy.config(**{'tools.CORS.on': True})

@@ -55,6 +55,10 @@ class genotype_dao:
 		print("tx hash\n",tx_hash.hex())
 		return tx_hash.hex()
 
+	def create_sm_token_manager(self, _metadata):
+		print(_metadata)
+		# pass
+
 	def mint_posp(self, metadata):
 		PospToken = []
 		PospToken.append(0)
@@ -389,25 +393,24 @@ class genotype_dao:
 
 	def create_table(self, name, fields):
 		try:
-			# self.db.create_collection(name)
-			
-			# self.db[name].insert_one(fields)
+			self.db.create_collection(name)
+			self.db[name].insert_one(fields)
 
-			# self.db.create_collection(name,{
-			# 	"labaddr": <String>,
-			# 	"owneraddr": <String>,
-			# 	"filename": <String>,
-			# 	"extension": <String>,
-			# 	"hash": <String>,
-			# 	"signature": <String>,
-			# 	"created": <Date>,
-			# 	"updated": <Date>
-			# })
+			# # self.db.create_collection(name,{
+			# #	 "labaddr": <String>,
+			# #	 "owneraddr": <String>,
+			# #	 "filename": <String>,
+			# #	 "extension": <String>,
+			# #	 "hash": <String>,
+			# #	 "signature": <String>,
+			# #	 "created": <Date>,
+			# #	 "updated": <Date>
+			# # })
 
 
 			# return self.db.list_collection_names()
 
-			raise Exception("Failed to create new table, this methos is locked")
+			# raise Exception("Failed to create new table, this methos is locked")
 			# return True
 		except:
 			raise 
