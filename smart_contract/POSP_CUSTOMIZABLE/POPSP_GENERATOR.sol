@@ -40,15 +40,16 @@ contract PoSP is ERC721URIStorage, Ownable{
             PoSPList[PoSPToken.lab][PoSPToken.user].id == 0,
             "Yo have now a token participation"
         );
-        uint256 newItemId = _tokenIds.current();
-        PoSPToken.id = newItemId;
+        uint256 pospId = _tokenIds.current();
+        PoSPToken.id = pospId;
         PoSPToken.tokenName = name();
         PoSPToken.symbol = symbol();
         PoSPToken.smartcontract = address(this);
         PoSPList[PoSPToken.lab][PoSPToken.user] = PoSPToken;
         labTokens[PoSPToken.lab].push(PoSPToken);
-        _mint(PoSPToken.user, newItemId);
+        _mint(PoSPToken.user, pospId);
         _tokenIds.increment();
+        emit createPoSP(PoSPToken.user, PoSPToken.lab, pospId);
     }
 
     function getPoSP(address _lab, address _user) public view returns(PoSPStruct memory){
@@ -58,22 +59,42 @@ contract PoSP is ERC721URIStorage, Ownable{
     function getPosPlist(address _lab) public view returns(PoSPStruct[] memory){
         return labTokens[_lab];
     }
-
 }
 
 
 contract POSPTokenFactory is Ownable{
-    mapping (address => bool) contracts;
+    struct Token{
+        string name;
+        string symbol;
+        address lab_emmiter;
+        PoSP sm_address;
+    }
+    event tokenCreationEvent(
+        address emmiter_address,
+        PoSP sm_address
+    );
 
-    function createToken(string memory _name, string memory _symbol) public returns (PoSP) {
+    mapping (address => Token) contracts;
+    
+    function createToken(string memory _name, string memory _symbol, address _lab) public onlyOwner returns (PoSP) {
         if (isStringEmpty(_name)){
-            _name = "Proof OF Stake Protocol";
+            _name = "Proof OF Stake Protocol";  
         }
         if (isStringEmpty(_symbol)){
             _symbol = "POSP";
         }
-        PoSP newPOSPToken = new PoSP(_name, _symbol);
-        return newPOSPToken;
+        PoSP sm_posp_token = new PoSP(_name, _symbol);
+
+        Token memory tknstruct = Token({
+            name:_name,
+            symbol:_symbol,
+            lab_emmiter:_lab,
+            sm_address: sm_posp_token
+        });
+
+        contracts[_lab] = tknstruct;
+        emit tokenCreationEvent(_lab, sm_posp_token);
+        return sm_posp_token;
     }
 
     function mintInstancePOSP(PoSP _token_contract_address, PoSP.PoSPStruct memory PoSPToken)public onlyOwner{
@@ -84,6 +105,9 @@ contract POSPTokenFactory is Ownable{
         _token_contract_address.transferOwnership(_newSMOwner);
     }
 
+    function getTokenLab(address _lab) public view returns(Token memory){
+        return contracts[_lab];
+    }
 
     function isStringEmpty(string memory value) internal pure returns(bool){
         bytes1 space = ' ';
