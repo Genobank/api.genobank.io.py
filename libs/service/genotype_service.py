@@ -56,6 +56,7 @@ class genotype_service:
     source =  self.genotype.Manejador(f)
     return source
     # print(source)
+
   def validate_extension(self, ext):
     if ext != "txt":
       raise Exception("Invalid extension you file needs to be a txt extension")
@@ -94,6 +95,7 @@ class genotype_service:
 
   def find_by_permittee_only_basic_data(self, _permittee):
     genotype = self.genotype.find_genotype_by_permittee(_permittee)
+    token = self.genotype.find_token_by_permittee(_permittee)
     if not genotype:
       return {}
     for index in genotype:
@@ -103,6 +105,8 @@ class genotype_service:
       if "signature" in index: del index["signature"]
       if "key" in index: del index["key"]
       if "updated" in index: del index["updated"]
+    genotype.insert(0, token)
+    # genotype["token"] = token
     return genotype
 
   def list_to_json(self, gen_list):
@@ -217,27 +221,28 @@ class genotype_service:
       raise Exception ("Error metadata has not filename")
     return True
 
-  def create_sm_token_manager(self, _metadata):
-    manager = self.genotype.create_sm_token_manager(_metadata)
-    if not manager:
+  def create_sm_token(self, _metadata):
+    sm_token = self.genotype.create_sm_token(_metadata)
+    if not sm_token:
       raise Exception("Error creating token manager")
-    return manager
+    return sm_token
 
   def mint_posp(self, posp_metadata):
     token_exist = self.get_posp_token(
                     posp_metadata["lab_address"],
                     posp_metadata["user_address"]
                   )
-    print("\n\n",token_exist[0],"\n\n")
-    
+    posp_metadata["token_sm"] = token_exist[1]
+    token_exist = token_exist[0]
+
+    print("\n\n token_exist: ",token_exist,"\n\n")
+    print("\n\n TOKEN[0]: ",token_exist[0],"\n\n")
     if token_exist[0] != 0:
       raise Exception("This user already has your PoSP")
     token_hash = self.genotype.mint_posp(posp_metadata)
     if not token_hash:
       raise Exception("Error during token minting")
     return token_hash
-
-  
 
   def save_posp_hash(self, metadata, token_hash):
     saved = self.genotype.save_posp_hash(metadata, token_hash)
@@ -252,11 +257,9 @@ class genotype_service:
     return reset
 
   def get_posp_token(self, lab_address, user_address):
-    token = self.genotype.get_posp_token(lab_address, user_address)
-    return token
-
-
-
+    token_sm = self.genotype.get_token_sm(lab_address)
+    token = self.genotype.get_posp_token(token_sm, lab_address, user_address)
+    return token, token_sm
 
   # WARNIGN ZONE, FRO TEST ONLY
   def list_bucket_files(self):

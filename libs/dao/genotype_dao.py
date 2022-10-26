@@ -28,6 +28,7 @@ class genotype_dao:
 		self.w3.eth.default_account = self.account.address
 		self.SM_JSONINTERFACE = self.load_smart_contract(os.getenv('ABI_BIOSAMPLE_PATH'))
 		self.SM_JSONINTERFACE_POSP = self.load_smart_contract(os.getenv('ABI_POSP_PATH'))
+		self.SM_JSONINTERFACE_POSP_FACTORY = self.load_smart_contract(os.getenv('ABI_POSP_FACTORY_PATH'))
 		self.client = MongoClient(os.getenv('TEST_MONGO_DB_HOST'))
 		self.db = self.client[os.getenv('TEST_DB_NAME')]
 		self.table = self.db.genotypes
@@ -55,9 +56,33 @@ class genotype_dao:
 		print("tx hash\n",tx_hash.hex())
 		return tx_hash.hex()
 
-	def create_sm_token_manager(self, _metadata):
+	def create_sm_token(self, _metadata):
 		print(_metadata)
-		# pass
+		name = str(_metadata["name"])
+		symbol = _metadata["symbol"]
+		laboratory = _metadata["laboratory"]
+
+		# # checar en la base de datos si el laboratorio cuienta con su respectiva licencia
+		manager_sm = self.w3.eth.contract(address=os.getenv('TEST_POSP_FACTORY_CONTRACT'), abi=self.SM_JSONINTERFACE_POSP_FACTORY['abi'])
+		create_token_tx = manager_sm.functions.createToken(name, symbol, laboratory).buildTransaction({
+			'nonce': self.w3.eth.getTransactionCount(self.account.address)
+		})
+		
+		signed_tx = self.w3.eth.account.signTransaction(create_token_tx, private_key=os.getenv('BIOSAMPLE_EXECUTOR'))
+		tx_hash = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+		self.w3.eth.waitForTransactionReceipt(tx_hash)    
+		print("tx hash\n",tx_hash.hex())
+		return tx_hash.hex()
+
+	def get_token_sm(self, lab_address):
+		posp_factory_contract = self.w3.eth.contract(address=os.getenv('TEST_POSP_FACTORY_CONTRACT'), abi=self.SM_JSONINTERFACE_POSP_FACTORY['abi'])
+		posp_sm_address = posp_factory_contract.functions.getTokenLab(lab_address).call({
+			'nonce': self.w3.eth.getTransactionCount(self.account.address)
+		})
+
+		print("\nposp_sm_address\n", posp_sm_address[3],"\n\n")
+		return posp_sm_address[3]
+
 
 	def mint_posp(self, metadata):
 		PospToken = []
@@ -71,8 +96,8 @@ class genotype_dao:
 		PospToken.append("")
 		PospToken.append("0x0000000000000000000000000000000000000000")
 
-		posp_contract = self.w3.eth.contract(address=os.getenv('TEST_POSP_CONTRACT'), abi=self.SM_JSONINTERFACE_POSP['abi'])
-		tx = posp_contract.functions.mintPOSP(PospToken).buildTransaction({
+		posp_contract = self.w3.eth.contract(address=os.getenv('TEST_POSP_FACTORY_CONTRACT'), abi=self.SM_JSONINTERFACE_POSP_FACTORY['abi'])
+		tx = posp_contract.functions.mintInstancePOSP(metadata["token_sm"], PospToken).buildTransaction({
 			'nonce': self.w3.eth.getTransactionCount(self.account.address)
 		})
 		signed_tx = self.w3.eth.account.signTransaction(tx, private_key=os.getenv('BIOSAMPLE_EXECUTOR'))
@@ -101,13 +126,12 @@ class genotype_dao:
 		return True
 
 
-	def get_posp_token(self, lab_address, user_address):
-		posp_contract = self.w3.eth.contract(address=os.getenv('TEST_POSP_CONTRACT'), abi=self.SM_JSONINTERFACE_POSP['abi'])
-		tx = posp_contract.functions.getPoSP(lab_address, user_address).call({
+	def get_posp_token(self,  token_sm_address, lab_address, user_address):
+		posp_contract = self.w3.eth.contract(address=token_sm_address, abi=self.SM_JSONINTERFACE_POSP['abi'])
+		POSP = posp_contract.functions.getPoSP(lab_address, user_address).call({
 			'nonce': self.w3.eth.getTransactionCount(self.account.address)
 		})
-		print(tx)
-		return tx
+		return POSP
 
 
 
@@ -260,6 +284,14 @@ class genotype_dao:
 		except Exception as e:
 			print(e)
 			return False
+
+	def find_token_by_permittee(self, permittee):
+		posp_factory_contract = self.w3.eth.contract(address=os.getenv('TEST_POSP_FACTORY_CONTRACT'), abi=self.SM_JSONINTERFACE_POSP_FACTORY['abi'])
+		token_sm = posp_factory_contract.functions.getTokenLab(permittee).call({
+			'nonce': self.w3.eth.getTransactionCount(self.account.address)
+		})
+		print("\n\n",token_sm,"\n\n")
+		return token_sm[3]
 
 	def find_genotype_by_signature(self, signature):
 		try:
