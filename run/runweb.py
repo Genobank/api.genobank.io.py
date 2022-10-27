@@ -35,9 +35,11 @@ from libs import database
 from libs.dao import permitte_dao
 from libs.dao import test_permitte_dao
 from libs.dao import genotype_dao
+from libs.dao import licences_dao
 from libs.service import permittee_service
 from libs.service import test_permittee_service
 from libs.service import genotype_service
+from libs.service import licence_service
 from mako.template import Template
 from mako.lookup import TemplateLookup
 from math import perm
@@ -53,9 +55,11 @@ class AppUnoServer(object):
 		permitte = permitte_dao.permittee_dao()
 		test_permitte = test_permitte_dao.test_permittee_dao()
 		genotype = genotype_dao.genotype_dao()
+		licence = licences_dao.licence_dao()
 		self.permittee_service = permittee_service.permittee_service(permitte)
 		self.test_permittee_service = test_permittee_service.test_permittee_service(test_permitte)
 		self.genotype_service = genotype_service.genotype_service(genotype)
+		self.licence_service = licence_service.licence_service(licence)
 		self.mylookup = TemplateLookup(directories=['public/pages'])
 		return None
 	
@@ -285,14 +289,13 @@ class AppUnoServer(object):
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 
-
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['GET'])
 	@cherrypy.tools.json_out()
 	def get_posp_token(self, lab_address, user_address):
 		token_data = self.genotype_service.get_posp_token(lab_address, user_address)
-		return token_data
+		return token_data[0]
 
 
 	@cherrypy.expose
@@ -347,6 +350,18 @@ class AppUnoServer(object):
 			else:
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+			
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.json_out()
+	def add_test_licence(self, permittee, secret, licence_metadata):
+		secret = hmac.new(secret.encode('utf-8'),msg=permittee.encode(), digestmod="sha256") # remove this line when we have the web page
+		secret = secret.hexdigest()																													 # remove this line when we have the web page
+		self.genotype_service.check_generic_secret(permittee, secret)
+		return self.licence_service.create_licence(licence_metadata)
+
 
 # addition
 	@cherrypy.expose
@@ -426,20 +441,20 @@ class AppUnoServer(object):
 	# def reset_posp_db(self, table=None):
 	# 	return self.genotype_service.reset_posp_db()
 
-	# @cherrypy.expose
-	# @cherrypy.config(**{'tools.CORS.on': True})
-	# @cherrypy.tools.allow(methods=['POST'])
-	# @cherrypy.tools.json_out()
-	# def create_table(self, table_name, fields):
-	# 	try:
-	# 		return self.genotype_service.create_table(table_name, fields)
-	# 	except Exception as e:
-	# 		msg = ""
-	# 		if 'message' in e.args[0]:
-	# 			msg = str(e.args[0]['message'])
-	# 		else:
-	# 			msg = str(e)
-	# 		raise cherrypy.HTTPError("500 Internal Server Error", msg)
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.json_out()
+	def create_table(self, table_name, fields):
+		try:
+			return self.genotype_service.create_table(table_name, fields)
+		except Exception as e:
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 	# @cherrypy.expose
 	# @cherrypy.config(**{'tools.CORS.on': True})
@@ -489,6 +504,7 @@ class AppUno(object):
 		# d = Daemonizer(cherrypy.engine)
 		# d.subscribe()
 
+		
 		cherrypy.server.socket_host = '0.0.0.0'
 		cherrypy.server.socket_port = port
 		cherrypy.quickstart(AppUnoServer(), '/', CONF)

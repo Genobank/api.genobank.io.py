@@ -70,6 +70,47 @@
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "_lab",
+          "type": "address"
+        }
+      ],
+      "name": "getTokenSmartContractAddress",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "symbol",
+              "type": "string"
+            },
+            {
+              "internalType": "address",
+              "name": "lab_emmiter",
+              "type": "address"
+            },
+            {
+              "internalType": "contract PoSP",
+              "name": "sm_address",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct POSPTokenFactory.Token",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "contract PoSP",
           "name": "_token_contract_address",
           "type": "address"
@@ -134,6 +175,19 @@
     },
     {
       "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "renounceOwnership",
       "outputs": [],
       "stateMutability": "nonpayable",
@@ -168,60 +222,6 @@
       "name": "transferOwnership",
       "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_lab",
-          "type": "address"
-        }
-      ],
-      "name": "getTokenLab",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "name",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "symbol",
-              "type": "string"
-            },
-            {
-              "internalType": "address",
-              "name": "lab_emmiter",
-              "type": "address"
-            },
-            {
-              "internalType": "contract PoSP",
-              "name": "sm_address",
-              "type": "address"
-            }
-          ],
-          "internalType": "struct POSPTokenFactory.Token",
-          "name": "",
-          "type": "tuple"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "owner",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
       "type": "function"
     }
   ]

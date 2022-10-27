@@ -104,8 +104,9 @@ contract POSPTokenFactory is Ownable{
     function transferInstancePOSPOwner(address _newSMOwner, PoSP _token_contract_address ) public onlyOwner{
         _token_contract_address.transferOwnership(_newSMOwner);
     }
-
-    function getTokenLab(address _lab) public view returns(Token memory){
+    //this name is wromg we are getting the sm address, and no the laboratiory asdres
+    //suggested name getTokenSmartContractAddress()
+    function getTokenSmartContractAddress(address _lab) public view returns(Token memory){
         return contracts[_lab];
     }
 

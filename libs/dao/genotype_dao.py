@@ -76,13 +76,13 @@ class genotype_dao:
 
 	def get_token_sm(self, lab_address):
 		posp_factory_contract = self.w3.eth.contract(address=os.getenv('TEST_POSP_FACTORY_CONTRACT'), abi=self.SM_JSONINTERFACE_POSP_FACTORY['abi'])
-		posp_sm_address = posp_factory_contract.functions.getTokenLab(lab_address).call({
+		posp_sm_address = posp_factory_contract.functions.getTokenSmartContractAddress(lab_address).call({
 			'nonce': self.w3.eth.getTransactionCount(self.account.address)
 		})
 
 		print("\nposp_sm_address\n", posp_sm_address[3],"\n\n")
 		return posp_sm_address[3]
-
+		
 
 	def mint_posp(self, metadata):
 		PospToken = []
@@ -287,7 +287,7 @@ class genotype_dao:
 
 	def find_token_by_permittee(self, permittee):
 		posp_factory_contract = self.w3.eth.contract(address=os.getenv('TEST_POSP_FACTORY_CONTRACT'), abi=self.SM_JSONINTERFACE_POSP_FACTORY['abi'])
-		token_sm = posp_factory_contract.functions.getTokenLab(permittee).call({
+		token_sm = posp_factory_contract.functions.getTokenSmartContractAddress(permittee).call({
 			'nonce': self.w3.eth.getTransactionCount(self.account.address)
 		})
 		print("\n\n",token_sm,"\n\n")
@@ -493,6 +493,14 @@ class genotype_dao:
 		except Exception as e:
 			raise e
 
+	def check_generic_secret(self, message, secret):
+		try:
+			secret = str(secret)
+			hmac1 = hmac.new(os.getenv('TEST_APP_SECRET').encode('utf-8'),msg=message.encode(), digestmod="sha256")
+			hmac1 = str(hmac1.hexdigest())
+			return hmac1 == secret
+		except Exception as e:
+			raise e
 
 
 
