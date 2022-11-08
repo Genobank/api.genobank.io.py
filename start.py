@@ -1,6 +1,5 @@
 import sys
 import multiprocessing
-from settings import settings
 from run import runweb
 
 def worker(port):
@@ -9,7 +8,7 @@ def worker(port):
 
 if __name__ == '__main__':
 	jobs = []
-	ports = [settings.PORT]
+	ports = [8081]
 	for port in ports:
 		p = multiprocessing.Process(target=worker, args=(port,))
 		jobs.append(p)

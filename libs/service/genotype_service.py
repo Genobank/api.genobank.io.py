@@ -253,6 +253,22 @@ class genotype_service:
 			raise Exception("Error during token minting")
 		return token_hash
 
+	def mint_posp_auto(self, lab_address, user_address):
+		token_sm = self.genotype.get_token_sm(lab_address)
+		if int(token_sm, 16) > 0:
+			_posp_metadata = {
+				"user_address": user_address,
+				"lab_address": lab_address,
+				"title":"Welcome",
+				"msg":"Welcome to the metac¿verse"
+			}
+			print("\nntoken_sm",token_sm,"\n\n")
+			return self.mint_posp(_posp_metadata)
+		else:
+			return False
+			
+
+
 	def save_posp_hash(self, metadata, token_hash):
 		saved = self.genotype.save_posp_hash(metadata, token_hash)
 		if not saved:

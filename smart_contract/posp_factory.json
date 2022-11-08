@@ -70,47 +70,6 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "_lab",
-          "type": "address"
-        }
-      ],
-      "name": "getTokenSmartContractAddress",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "name",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "symbol",
-              "type": "string"
-            },
-            {
-              "internalType": "address",
-              "name": "lab_emmiter",
-              "type": "address"
-            },
-            {
-              "internalType": "contract PoSP",
-              "name": "sm_address",
-              "type": "address"
-            }
-          ],
-          "internalType": "struct POSPTokenFactory.Token",
-          "name": "",
-          "type": "tuple"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "contract PoSP",
           "name": "_token_contract_address",
           "type": "address"
@@ -174,16 +133,68 @@
       "type": "function"
     },
     {
-      "inputs": [],
-      "name": "owner",
-      "outputs": [
+      "inputs": [
         {
-          "internalType": "address",
-          "name": "",
+          "internalType": "contract PoSP",
+          "name": "_token_contract_address",
           "type": "address"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "user",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "lab",
+              "type": "address"
+            },
+            {
+              "internalType": "string",
+              "name": "title",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "message",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "date",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "tokenName",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "symbol",
+              "type": "string"
+            },
+            {
+              "internalType": "address",
+              "name": "smartcontract",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct PoSP.PoSPStruct[]",
+          "name": "PoSPTokenList",
+          "type": "tuple[]"
         }
       ],
-      "stateMutability": "view",
+      "name": "mintInstancePOSPBatch",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -222,6 +233,60 @@
       "name": "transferOwnership",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_lab",
+          "type": "address"
+        }
+      ],
+      "name": "getTokenSmartContractAddress",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "symbol",
+              "type": "string"
+            },
+            {
+              "internalType": "address",
+              "name": "lab_emmiter",
+              "type": "address"
+            },
+            {
+              "internalType": "contract PoSP",
+              "name": "sm_address",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct POSPTokenFactory.Token",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     }
   ]

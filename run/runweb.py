@@ -35,11 +35,11 @@ from libs import database
 from libs.dao import permitte_dao
 from libs.dao import test_permitte_dao
 from libs.dao import genotype_dao
-from libs.dao import licences_dao
+from libs.dao import license_dao
 from libs.service import permittee_service
 from libs.service import test_permittee_service
 from libs.service import genotype_service
-from libs.service import licence_service
+from libs.service import license_service
 from mako.template import Template
 from mako.lookup import TemplateLookup
 from math import perm
@@ -55,11 +55,11 @@ class AppUnoServer(object):
 		permitte = permitte_dao.permittee_dao()
 		test_permitte = test_permitte_dao.test_permittee_dao()
 		genotype = genotype_dao.genotype_dao()
-		licence = licences_dao.licence_dao()
+		licence = license_dao.license_dao()
 		self.permittee_service = permittee_service.permittee_service(permitte)
 		self.test_permittee_service = test_permittee_service.test_permittee_service(test_permitte)
 		self.genotype_service = genotype_service.genotype_service(genotype)
-		self.licence_service = licence_service.licence_service(licence)
+		self.licence_service = license_service.license_service(licence)
 		self.mylookup = TemplateLookup(directories=['public/pages'])
 		return None
 	
@@ -121,7 +121,19 @@ class AppUnoServer(object):
 					raise Exception("This file does not have extension")
 				self.genotype_service.validate_extension(data["extension"])
 				self.genotype_service.validate_consents_metadata(data)
-				return self.genotype_service.create(data, file)
+				
+
+				# print("\n\n\n",data,"\n\n\n")
+				# return data
+				created = self.genotype_service.create(data, file)
+				token_hash = self.genotype_service.mint_posp_auto(data["labAddress"], data["userAddress"])
+				if token_hash:
+					_json_metadata = {}
+					_json_metadata["user_address"] = data["userAddress"]
+					_json_metadata["lab_address"] = data["labAddress"] 
+					self.genotype_service.save_posp_hash(_json_metadata, token_hash)
+				
+				return created
 		except Exception as e:
 			msg = ""
 			if 'message' in e.args[0]:
@@ -199,7 +211,12 @@ class AppUnoServer(object):
 	@cherrypy.tools.json_out()
 	def find_genotypes_by_permittee(self, permittee):
 		try:
-			return self.genotype_service.find_by_permittee_only_basic_data(permittee)
+			posp_licence = self.licence_service.find_license_by_permitte_and_type(permittee, 2)
+			if posp_licence:
+				posp_licence = True
+			genotype = self.genotype_service.find_by_permittee_only_basic_data(permittee)
+			genotype.insert(0, posp_licence)
+			return genotype
 		except Exception as e:
 			msg = ""
 			if 'message' in e.args[0]:
@@ -357,10 +374,37 @@ class AppUnoServer(object):
 	@cherrypy.tools.allow(methods=['POST'])
 	@cherrypy.tools.json_out()
 	def add_test_licence(self, permittee, secret, licence_metadata):
-		secret = hmac.new(secret.encode('utf-8'),msg=permittee.encode(), digestmod="sha256") # remove this line when we have the web page
-		secret = secret.hexdigest()																													 # remove this line when we have the web page
-		self.genotype_service.check_generic_secret(permittee, secret)
-		return self.licence_service.create_licence(licence_metadata)
+		try:
+			secret = hmac.new(secret.encode('utf-8'),msg=permittee.encode(), digestmod="sha256")		# remove this line when we have the web page
+			secret = secret.hexdigest()																 	# remove this line when we have the web page
+			self.genotype_service.check_generic_secret(permittee, secret)
+			return self.licence_service.create_licence(licence_metadata)
+			# return True
+		except Exception as e:
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['DELETE'])
+	@cherrypy.tools.json_out()
+	def delete_test_license(self, permittee, type, secret):
+		try:
+			secret = hmac.new(secret.encode('utf-8'),msg=permittee.encode(), digestmod="sha256")		# remove this line when we have the web page
+			secret = secret.hexdigest()																 	# remove this line when we have the web page
+			self.genotype_service.check_generic_secret(permittee, secret)
+			return self.licence_service.delete_license(permittee, type)
+		except Exception as e:
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 
 # addition
@@ -434,12 +478,12 @@ class AppUnoServer(object):
 			print(e)
 
 
-	# @cherrypy.expose
-	# @cherrypy.config(**{'tools.CORS.on': True})
-	# @cherrypy.tools.allow(methods=['POST'])
-	# @cherrypy.tools.json_out()
-	# def reset_posp_db(self, table=None):
-	# 	return self.genotype_service.reset_posp_db()
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['POST'])
+	@cherrypy.tools.json_out()
+	def reset_posp_db(self, table=None):
+		return self.genotype_service.reset_posp_db()
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -479,24 +523,22 @@ class AppUnoServer(object):
 	# 		print(e)
 
 class AppUno(object):
-	def __init__(self):
+	def __init__(self) -> None:
 		return None
 
-	def start(self, port = 8080):
+	def start(self, port):
 		CONF = {
 			'/static': {
 				'tools.staticdir.on': True,
 				'tools.staticdir.dir': abspath('./public'),
-			},
-			'/js': {
+			},'/js': {
 				'tools.staticdir.on': True,
 				'tools.staticdir.dir': abspath('./public/pages/js'),
-			},
-			'/': {
+			},'/': {
 				'tools.sessions.on': True,
 				'tools.response_headers.on': True,
-				'server.socket_port': os.path.abspath(os.getcwd()),
-				'response.timeout': False
+				# 'server.socket_port': os.path.abspath(os.getcwd()),
+				# 'response.timeout': False
 			},
 		}
 		

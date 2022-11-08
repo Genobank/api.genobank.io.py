@@ -105,7 +105,7 @@ async function createPermittee(permitteeId, permitteeAddress, appSecret) {
   const url = `${window.NEWAPIBASE}/create_permitee`;
   return fetch(url, {
     method: 'POST',
-    header: {
+    headers: {
       'Content-Type': 'application/json'
     },
     body: bodyContent
