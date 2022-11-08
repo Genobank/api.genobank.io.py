@@ -75,6 +75,7 @@ contract POSPTokenFactory is Ownable{
     );
 
     mapping (address => Token) contracts;
+    mapping (address => PoSP[]) userTokens;
     
     function createToken(string memory _name, string memory _symbol, address _lab) public onlyOwner returns (PoSP) {
         if (isStringEmpty(_name)){
@@ -99,6 +100,11 @@ contract POSPTokenFactory is Ownable{
 
     function mintInstancePOSP(PoSP _token_contract_address, PoSP.PoSPStruct memory PoSPToken)public onlyOwner{
         _token_contract_address.mintPOSP(PoSPToken);
+        userTokens[PoSPToken.user].push(_token_contract_address);
+    }
+
+    function getTokensByUsers(address _user) public view returns(PoSP[] memory _allUserTokens){
+        return userTokens[_user];
     }
 
     function transferInstancePOSPOwner(address _newSMOwner, PoSP _token_contract_address ) public onlyOwner{
