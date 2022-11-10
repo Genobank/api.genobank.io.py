@@ -43,7 +43,8 @@ from libs.service import genotype_service
 from libs.service import license_service
 from libs.service import posp_service
 
-# from libs.service import 
+from libs.dao import restore_api_dao
+from libs.service import restore_api_service
 
 from mako.template import Template
 from mako.lookup import TemplateLookup
@@ -67,6 +68,9 @@ class AppUnoServer(object):
 		self.genotype_service = genotype_service.genotype_service(genotype, posp)
 		self.licence_service = license_service.license_service(licence)
 		self.posp_service = posp_service.posp_service(posp)
+
+		restore = restore_api_dao.restore_api_dao()
+		self.restore_api_service = restore_api_service.restore_api_serivice(restore)
 		# self.RESTORE_API_SERVICE = RESTORE_API()
 		self.mylookup = TemplateLookup(directories=['public/pages'])
 		return None
@@ -558,10 +562,8 @@ class AppUnoServer(object):
 	@cherrypy.tools.allow(methods=['DELETE'])
 	@cherrypy.tools.json_out()
 	def reset_all_ancestry_API(self):
-		print("Cleaning genotype table...")
-		os.system('clear')
-		self.genotype_service.delete_table()
-		print("Table cleaned [OK]")
+		return self.restore_api_service.restore_api_service()
+
 
 
 
