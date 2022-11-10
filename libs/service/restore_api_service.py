@@ -18,9 +18,7 @@ class restore_api_serivice:
 		# print("Deleted genotypes files [OK]")
 		abi = self.restore_api.compile_sm_genotypes_and_save()
 		print("New SM_genotypes compiled [OK]")
-
-		# self.saving_json_abi(abi)
-		# sm_address = self.deploy_genotype_smartcontract(abi)
+		sm_address = self.deploy_genotype_smartcontract(abi)
 		# self.save_sm_env(sm_address)
 
 		# abi = self.coompile_sm_posp()
