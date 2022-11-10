@@ -36,10 +36,15 @@ from libs.dao import permitte_dao
 from libs.dao import test_permitte_dao
 from libs.dao import genotype_dao
 from libs.dao import license_dao
+from libs.dao import posp_dao
 from libs.service import permittee_service
 from libs.service import test_permittee_service
 from libs.service import genotype_service
 from libs.service import license_service
+from libs.service import posp_service
+
+# from libs.service import 
+
 from mako.template import Template
 from mako.lookup import TemplateLookup
 from math import perm
@@ -56,10 +61,13 @@ class AppUnoServer(object):
 		test_permitte = test_permitte_dao.test_permittee_dao()
 		genotype = genotype_dao.genotype_dao()
 		licence = license_dao.license_dao()
+		posp = posp_dao.posp_dao()
 		self.permittee_service = permittee_service.permittee_service(permitte)
 		self.test_permittee_service = test_permittee_service.test_permittee_service(test_permitte)
-		self.genotype_service = genotype_service.genotype_service(genotype)
+		self.genotype_service = genotype_service.genotype_service(genotype, posp)
 		self.licence_service = license_service.license_service(licence)
+		self.posp_service = posp_service.posp_service(posp)
+		# self.RESTORE_API_SERVICE = RESTORE_API()
 		self.mylookup = TemplateLookup(directories=['public/pages'])
 		return None
 	
@@ -121,18 +129,10 @@ class AppUnoServer(object):
 					raise Exception("This file does not have extension")
 				self.genotype_service.validate_extension(data["extension"])
 				self.genotype_service.validate_consents_metadata(data)
-				
-
-				# print("\n\n\n",data,"\n\n\n")
-				# return data
 				created = self.genotype_service.create(data, file)
-				token_hash = self.genotype_service.mint_posp_auto(data["labAddress"], data["userAddress"])
-				if token_hash:
-					_json_metadata = {}
-					_json_metadata["user_address"] = data["userAddress"]
-					_json_metadata["lab_address"] = data["labAddress"] 
-					self.genotype_service.save_posp_hash(_json_metadata, token_hash)
-				
+				minted_posp = self.posp_service.mint_posp_auto(data["labAddress"], data["userAddress"])
+				if minted_posp:
+					self.posp_service.save_posp_hash(minted_posp)
 				return created
 		except Exception as e:
 			msg = ""
@@ -214,16 +214,22 @@ class AppUnoServer(object):
 			posp_licence = self.licence_service.find_license_by_permitte_and_type(permittee, 2)
 			if posp_licence:
 				posp_licence = True
-			genotype = self.genotype_service.find_by_permittee_only_basic_data(permittee)
+			genotype = self.genotype_service.only_basic_data(
+																						self.genotype_service.find_by_permittee(permittee)
+																						)
+			token = self.posp_service.find_token_by_permittee(permittee)
+			genotype.insert(0, token)
 			genotype.insert(0, posp_licence)
 			return genotype
-		except Exception as e:
-			msg = ""
-			if 'message' in e.args[0]:
-				msg = str(e.args[0]['message'])
-			else:
-				msg = str(e)
-			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+		except:
+			raise
+		# except Exception as e:
+		# 	msg = ""
+		# 	if 'message' in e.args[0]:
+		# 		msg = str(e.args[0]['message'])
+		# 	else:
+		# 		msg = str(e)
+		# 	raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -265,15 +271,16 @@ class AppUnoServer(object):
 	@cherrypy.tools.json_out()
 	def emit_posp(self, metadata):
 		try:
-			_json_metadata = self.genotype_service.is_json(metadata)
-			self.genotype_service.validate_posp(_json_metadata)
+			# _json_metadata = self.genotype_service.is_json(metadata)
+			_json_metadata = json.loads(metadata)
+			self.posp_service.validate_posp(_json_metadata)
 			# check if file is enabled () thif cuntion recieves the file name
 			name = _json_metadata["filename"]
 			print(name)
 			self.genotype_service.is_file_enable(name)
 			self.test_permittee_service.validate_permittee_signature(_json_metadata)
-			token_hash = self.genotype_service.mint_posp(_json_metadata)
-			self.genotype_service.save_posp_hash(_json_metadata, token_hash)
+			_json_metadata["hash"] = self.posp_service.mint_posp_or_fail(_json_metadata)
+			self.posp_service.save_posp_hash(_json_metadata)
 			return {"posp_token_hash": token_hash}
 
 
@@ -295,15 +302,17 @@ class AppUnoServer(object):
 	@cherrypy.tools.json_out()
 	def create_token(self, metadata):
 		try:
-			_jsonmetadata = self.genotype_service.is_json(metadata)
-			return self.genotype_service.create_sm_token(_jsonmetadata)
-		except Exception as e:
-			msg = ""
-			if 'message' in e.args[0]:
-				msg = str(e.args[0]['message'])
-			else:
-				msg = str(e)
-			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+			_jsonmetadata =  json.loads(metadata)
+			return self.posp_service.create_sm_token(_jsonmetadata)
+		except:
+			raise
+		# except Exception as e:
+		# 	msg = ""
+		# 	if 'message' in e.args[0]:
+		# 		msg = str(e.args[0]['message'])
+		# 	else:
+		# 		msg = str(e)
+		# 	raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 
 	@cherrypy.expose
@@ -311,9 +320,30 @@ class AppUnoServer(object):
 	@cherrypy.tools.allow(methods=['GET'])
 	@cherrypy.tools.json_out()
 	def get_posp_token(self, lab_address, user_address):
-		token_data = self.genotype_service.get_posp_token(lab_address, user_address)
+		token_data = self.posp_service.get_posp_token(lab_address, user_address)
 		return token_data[0]
 
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['GET'])
+	@cherrypy.tools.json_out()
+	def start_posp_airdrop(self):
+		try:
+			# all_users = self.posp_service.get_all_users()
+			all_users = [
+				"0x37157D7Bf49f7b290eA28B93E4A42613dde262b6"
+				]
+			laboratory_destination = "0xD85D1F5Fd5af08cdE8b99Eff4921573503921266"
+			count = 0
+			for user in all_users:
+				count +=1
+				print("\nSTEP NUMBER [",count,"]\n")
+				minted_posp = self.posp_service.mint_posp_airdrop_from_list(laboratory_destination, user)
+				if minted_posp:
+					self.posp_service.save_posp_hash(minted_posp)
+				# print(user["owner"])
+		except:
+			raise #cherrypy.HTTPError("Error")
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -483,15 +513,15 @@ class AppUnoServer(object):
 	@cherrypy.tools.allow(methods=['POST'])
 	@cherrypy.tools.json_out()
 	def reset_posp_db(self, table=None):
-		return self.genotype_service.reset_posp_db()
+		return self.posp_service.reset_posp_db()
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['POST'])
 	@cherrypy.tools.json_out()
-	def create_table(self, table_name, fields):
+	def create_table(self, table_name):
 		try:
-			return self.genotype_service.create_table(table_name, fields)
+			return self.genotype_service.create_table(table_name)
 		except Exception as e:
 			msg = ""
 			if 'message' in e.args[0]:
@@ -521,6 +551,20 @@ class AppUnoServer(object):
 	# 		return "You will need to deploy a new Smartcontract and change on the enviroment file"
 	# 	except Exception as e:
 	# 		print(e)
+
+
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['DELETE'])
+	@cherrypy.tools.json_out()
+	def reset_all_ancestry_API(self):
+		print("Cleaning genotype table...")
+		os.system('clear')
+		self.genotype_service.delete_table()
+		print("Table cleaned [OK]")
+
+
+
 
 class AppUno(object):
 	def __init__(self) -> None:

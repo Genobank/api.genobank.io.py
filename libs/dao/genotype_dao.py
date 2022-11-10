@@ -27,8 +27,7 @@ class genotype_dao:
 		self.account = self.w3.eth.account.privateKeyToAccount(os.getenv('BIOSAMPLE_EXECUTOR'))
 		self.w3.eth.default_account = self.account.address
 		self.SM_JSONINTERFACE = self.load_smart_contract(os.getenv('ABI_BIOSAMPLE_PATH'))
-		self.SM_JSONINTERFACE_POSP = self.load_smart_contract(os.getenv('ABI_POSP_PATH'))
-		self.SM_JSONINTERFACE_POSP_FACTORY = self.load_smart_contract(os.getenv('ABI_POSP_FACTORY_PATH'))
+		
 		self.client = MongoClient(os.getenv('TEST_MONGO_DB_HOST'))
 		self.db = self.client[os.getenv('TEST_DB_NAME')]
 		self.table = self.db.genotypes
@@ -56,90 +55,20 @@ class genotype_dao:
 		print("tx hash\n",tx_hash.hex())
 		return tx_hash.hex()
 
-	def create_sm_token(self, _metadata):
-		print(_metadata)
-		name = str(_metadata["name"])
-		symbol = _metadata["symbol"]
-		laboratory = _metadata["laboratory"]
 
-		# # checar en la base de datos si el laboratorio cuienta con su respectiva licencia
-		manager_sm = self.w3.eth.contract(address=os.getenv('TEST_POSP_FACTORY_CONTRACT'), abi=self.SM_JSONINTERFACE_POSP_FACTORY['abi'])
-		create_token_tx = manager_sm.functions.createToken(name, symbol, laboratory).buildTransaction({
-			'nonce': self.w3.eth.getTransactionCount(self.account.address)
-		})
-		
-		signed_tx = self.w3.eth.account.signTransaction(create_token_tx, private_key=os.getenv('BIOSAMPLE_EXECUTOR'))
-		tx_hash = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
-		self.w3.eth.waitForTransactionReceipt(tx_hash)    
-		print("tx hash\n",tx_hash.hex())
-		return tx_hash.hex()
 
-	def get_token_sm(self, lab_address):
-		posp_factory_contract = self.w3.eth.contract(address=os.getenv('TEST_POSP_FACTORY_CONTRACT'), abi=self.SM_JSONINTERFACE_POSP_FACTORY['abi'])
-		posp_sm_address = posp_factory_contract.functions.getTokenSmartContractAddress(lab_address).call({
-			'nonce': self.w3.eth.getTransactionCount(self.account.address)
-		})
 
-		print("\nposp_sm_address\n", posp_sm_address[3],"\n\n")
-		return posp_sm_address[3]
 		
 
-	def mint_posp(self, metadata):
-		PospToken = []
-		PospToken.append(0)
-		PospToken.append(metadata["user_address"])
-		PospToken.append(metadata["lab_address"])
-		PospToken.append(metadata["title"])
-		PospToken.append(metadata["msg"])
-		PospToken.append(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-		PospToken.append("")
-		PospToken.append("")
-		PospToken.append("0x0000000000000000000000000000000000000000")
-
-		posp_contract = self.w3.eth.contract(address=os.getenv('TEST_POSP_FACTORY_CONTRACT'), abi=self.SM_JSONINTERFACE_POSP_FACTORY['abi'])
-		tx = posp_contract.functions.mintInstancePOSP(metadata["token_sm"], PospToken).buildTransaction({
-			'nonce': self.w3.eth.getTransactionCount(self.account.address)
-		})
-		signed_tx = self.w3.eth.account.signTransaction(tx, private_key=os.getenv('BIOSAMPLE_EXECUTOR'))
-		tx_hash = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
-		self.w3.eth.waitForTransactionReceipt(tx_hash)    
-		print("tx hash\n",tx_hash.hex())
-		return tx_hash.hex()
-
-	def save_posp_hash (self, metadata, token_hash):
-		collection = self.db.genotypes
-		cur = collection.find_one({"owneraddr": metadata["user_address"]})
-		if not cur:
-			raise Exception("Could not find this user")
-
-		if "stake_nfts" not in cur:
-			cur["stake_nfts"] = {}
-
-		_json = cur["stake_nfts"]
-		_json[metadata["lab_address"]] = token_hash
-		collection.update_one({"owneraddr":metadata["user_address"]}, {"$set": {"stake_nfts": _json}})
-		return {"transactionHash":token_hash}
-
-	def reset_posp_db (self):
-		collection = self.db.genotypes
-		collection.update_many({},{"$set": {"stake_nfts": {}}})
-		return True
-
-
-	def get_posp_token(self,  token_sm_address, lab_address, user_address):
-		posp_contract = self.w3.eth.contract(address=token_sm_address, abi=self.SM_JSONINTERFACE_POSP['abi'])
-		POSP = posp_contract.functions.getPoSP(lab_address, user_address).call({
-			'nonce': self.w3.eth.getTransactionCount(self.account.address)
-		})
-		return POSP
+	
 
 
 
 	def save_db_file(self, data):
 		try:
 			_fields = {
-				"labaddr": data["labAddress"],
-				"owneraddr": data["userAddress"],
+				"labaddr": str(data["labAddress"]).upper(),
+				"owneraddr": str(data["userAddress"]).upper(),
 				"filename": data["filename"],
 				"genetic_test": data["genetic_test"],
 				"extension": data["extension"],
@@ -254,7 +183,7 @@ class genotype_dao:
 	def find_genotype_by_owner(self, owner):
 		try:
 			collection = self.db.genotypes
-			cur = collection.find({"owneraddr": owner})
+			cur = collection.find({"owneraddr": str(owner).upper()})
 			_json = {}
 			row = []
 			for doc in cur:
@@ -271,7 +200,7 @@ class genotype_dao:
 	def find_genotype_by_permittee(self, permittee):
 		try:
 			collection = self.db.genotypes
-			cur = collection.find({"labaddr": permittee})
+			cur = collection.find({"labaddr": str(permittee).upper()})
 			row = []
 			for doc in cur:
 				# doc[""]
@@ -285,13 +214,7 @@ class genotype_dao:
 			print(e)
 			return False
 
-	def find_token_by_permittee(self, permittee):
-		posp_factory_contract = self.w3.eth.contract(address=os.getenv('TEST_POSP_FACTORY_CONTRACT'), abi=self.SM_JSONINTERFACE_POSP_FACTORY['abi'])
-		token_sm = posp_factory_contract.functions.getTokenSmartContractAddress(permittee).call({
-			'nonce': self.w3.eth.getTransactionCount(self.account.address)
-		})
-		print("\n\n",token_sm,"\n\n")
-		return token_sm[3]
+	
 
 	def find_genotype_by_signature(self, signature):
 		try:
@@ -353,7 +276,7 @@ class genotype_dao:
 			if not tx:
 				raise Exception("Smartcontract: Error during revoke_consents")
 			collection = self.db.genotypes
-			collection.update_one({"owneraddr":owner}, {"$set": {"status": False}})
+			collection.update_one({"owneraddr":str(owner).upper()}, {"$set": {"status": False}})
 			return {"transactionHash":tx}
 		except:
 			# print(e)
@@ -423,10 +346,10 @@ class genotype_dao:
 		except:
 			raise Exception("No valid File, upload a TXT dtc file, change your file and try again")
 
-	def create_table(self, name, fields):
+	def create_table(self, name):
 		try:
 			self.db.create_collection(name)
-			self.db[name].insert_one(fields)
+			# self.db[name].insert_one(fields)
 
 			# # self.db.create_collection(name,{
 			# #	 "labaddr": <String>,

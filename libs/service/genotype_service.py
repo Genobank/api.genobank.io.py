@@ -2,6 +2,7 @@
 from time import sleep
 from cryptography.fernet import Fernet
 from libs.dao import genotype_dao
+from libs.dao import posp_dao
 from libs.exceptions import DomainInjectionError
 from libs.domain import Encryption
 import requests
@@ -11,10 +12,14 @@ import hmac
 import io
 import json
 class genotype_service:
-	def __init__(self, _genotype):
+	def __init__(self, _genotype, _posp_dao):
 		if not isinstance(_genotype, genotype_dao.genotype_dao):
 			raise DomainInjectionError.DomainInjectionError("genotype_service", "genotype")
+		if not isinstance(_posp_dao, posp_dao.posp_dao):
+			raise DomainInjectionError.DomainInjectionError("posp_service", "posp")
+
 		self.genotype = _genotype
+		self.posp = _posp_dao
 		self.encryption = Encryption.Encryption()
 
 	def create(self, data, file):
@@ -93,21 +98,19 @@ class genotype_service:
 			return {}
 		return genotype
 
-	def find_by_permittee_only_basic_data(self, _permittee):
-		genotype = self.genotype.find_genotype_by_permittee(_permittee)
-		token = self.genotype.find_token_by_permittee(_permittee)
-		if not genotype:
-			return {}
-		for index in genotype:
+	def only_basic_data(self, genotype_list):
+		if not genotype_list:
+			return []
+		for index in genotype_list:
 			if "_id" in index: del index["_id"]
 			if "filesigned" in index: del index["filesigned"]
 			if "hash" in index: del index["hash"]
 			if "signature" in index: del index["signature"]
 			if "key" in index: del index["key"]
 			if "updated" in index: del index["updated"]
-		genotype.insert(0, token)
-		# genotype["token"] = token
-		return genotype
+			index["stake_nfts"] = self.posp.find_by_owner_and_permittee(index["owneraddr"], index["labaddr"])
+			print(index["stake_nfts"])
+		return genotype_list
 
 	def list_to_json(self, gen_list):
 		_json = {}
@@ -184,19 +187,13 @@ class genotype_service:
 			raise Exception("wrong password")
 		return checked
 
-	def save_licence(self, licence_metadata):
-		saved = self.genotype.save_licence(licence_metadata)
-		if not saved:
-			raise Exception("Licence not saved")
-		return saved
-
 	def validate_permitte(self, id):
 		resp = requests.get(
 			os.getenv('API_PERMITTEES')+"{0}".format(id)
 		)
 
-	def create_table(self, name, fields):
-		created = self.genotype.create_table(name, fields)
+	def create_table(self, name):
+		created = self.genotype.create_table(name)
 		if not created:
 			raise Exception("Failed to create new table, please try again later")
 		return created
@@ -211,83 +208,12 @@ class genotype_service:
 				return []
 		return search
 
-	def is_json(self, jsonObj):
-		try:
-			json_loaded = json.loads(jsonObj)
-			return json_loaded
-		except:
-			raise Exception("Failed to load json")
-
-	def validate_posp(self, posp_metadata):
-		if "title" not in posp_metadata:
-			raise Exception ("Error metadata has not title")
-		if "msg" not in posp_metadata:
-			raise Exception ("Error metadata has not a msg")
-		if "user_address" not in posp_metadata:
-			raise Exception ("Error metadata has not user_address")
-		if "lab_address" not in posp_metadata:
-			raise Exception ("Error metadata has not lab_address")
-		if "signature" not in posp_metadata:
-			raise Exception ("Error metadata has not signature")
-		if "filename" not in posp_metadata:
-			raise Exception ("Error metadata has not filename")
-		return True
-
-	def create_sm_token(self, _metadata):
-		sm_token = self.genotype.create_sm_token(_metadata)
-		if not sm_token:
-			raise Exception("Error creating token manager")
-		return sm_token
-
-	def mint_posp(self, posp_metadata):
-		token_exist = self.get_posp_token(
-										posp_metadata["lab_address"],
-										posp_metadata["user_address"]
-									)
-		posp_metadata["token_sm"] = token_exist[1]
-		token_exist = token_exist[0]
-		if token_exist[0] != 0:
-			raise Exception("This user already has your PoSP")
-		token_hash = self.genotype.mint_posp(posp_metadata)
-		if not token_hash:
-			raise Exception("Error during token minting")
-		return token_hash
-
-	def mint_posp_auto(self, lab_address, user_address):
-		token_sm = self.genotype.get_token_sm(lab_address)
-		if int(token_sm, 16) > 0:
-			_posp_metadata = {
-				"user_address": user_address,
-				"lab_address": lab_address,
-				"title":"Welcome",
-				"msg":"Welcome to the metac¿verse"
-			}
-			print("\nntoken_sm",token_sm,"\n\n")
-			return self.mint_posp(_posp_metadata)
-		else:
-			return False
-			
 
 
-	def save_posp_hash(self, metadata, token_hash):
-		saved = self.genotype.save_posp_hash(metadata, token_hash)
-		if not saved:
-			raise Exception("Error during saving posp hash")
-		return saved
 
-	def reset_posp_db(self):
-		reset = self.genotype.reset_posp_db()
-		if not reset:
-			raise Exception("Error during reset posp database")
-		return reset
 
-	def get_posp_token(self, lab_address, user_address):
-		token_sm = self.genotype.get_token_sm(lab_address)
-		if int(token_sm, 16) > 0:
-			token = self.genotype.get_posp_token(token_sm, lab_address, user_address)
-			return token, token_sm
-		else:
-			return [0,0,0,0,0], token_sm
+
+
 
 	# WARNIGN ZONE, FRO TEST ONLY
 	def list_bucket_files(self):
