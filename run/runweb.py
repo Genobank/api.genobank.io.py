@@ -219,8 +219,8 @@ class AppUnoServer(object):
 			if posp_licence:
 				posp_licence = True
 			genotype = self.genotype_service.only_basic_data(
-																						self.genotype_service.find_by_permittee(permittee)
-																						)
+				self.genotype_service.find_by_permittee(permittee)
+				)
 			token = self.posp_service.find_token_by_permittee(permittee)
 			genotype.insert(0, token)
 			genotype.insert(0, posp_licence)
@@ -449,8 +449,6 @@ class AppUnoServer(object):
 
 
 # addition
-	
-
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -461,9 +459,6 @@ class AppUnoServer(object):
 			return self.restore_api_service.restore_api_service()
 		except:
 			raise
-
-
-
 
 
 class AppUno(object):
