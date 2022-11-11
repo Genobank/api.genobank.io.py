@@ -197,6 +197,9 @@ class genotype_service:
 		if not created:
 			raise Exception("Failed to create new table, please try again later")
 		return created
+	
+	def insert_many_on_table(self, table, list):
+		return self.genotype.insert_many(table, list)
 
 	def find_all_by_table(self, table):
 		if table == None or table == "":
@@ -219,9 +222,3 @@ class genotype_service:
 	def list_bucket_files(self):
 		files_list = self.genotype.list_bucket_files()
 		return files_list
-
-	def delete_table(self):
-		deleted = self.genotype.delete_table()
-		if not deleted:
-			raise Exception("Failed to delete table, please try again later")
-		return deleted

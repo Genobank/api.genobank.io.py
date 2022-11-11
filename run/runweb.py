@@ -338,10 +338,9 @@ class AppUnoServer(object):
 		try:
 			# all_users = self.posp_service.get_all_users()
 			all_users = [
-				"0x46DD6033663a42e4D430aaB19e6a54850De0B9Ca",
-				"0x8f036349fF1216c8504805697Fa45a9848037BEc",
-				"0x047a9872007c7741B2eC45431981fbEf4b8CEca3",
-				"0xe5867c62fED8dD53a7250d89a98C3C7567aDd5B0"
+				"0xB931751fA194463AE252DE424911Bd5c51dF2174",
+				"0x966C6E7E80682b4EFCD7063904cBD88F3fD3eC04",
+				"0xEb62Cf01F71673C151080437cF404d97B6243600"
 				]
 			laboratory_destination = "0xD85D1F5Fd5af08cdE8b99Eff4921573503921266"
 			count = 0
@@ -363,15 +362,15 @@ class AppUnoServer(object):
 		try:
 			revoked = self.genotype_service.revoke_consents(owner, signature, permittee)
 			return revoked
-		except:
-			raise
-		# except Exception as e:
-		# 	msg = ""
-		# 	if 'message' in e.args[0]:
-		# 		msg = str(e.args[0]['message'])
-		# 	else:
-		# 		msg = str(e)
-		# 	raise cherrypy.HTTPError("500 Internal Server Error", msg)
+		# except:
+		# 	raise
+		except Exception as e:
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 			
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -450,119 +449,7 @@ class AppUnoServer(object):
 
 
 # addition
-	@cherrypy.expose
-	@cherrypy.config(**{'tools.CORS.on': True})
-	@cherrypy.tools.allow(methods=['POST'])
-	@cherrypy.tools.json_out()
-	def create_experimental_permitee(self, id, address, secret):
-		try:
-			message=id+address
-			hash1 = hmac.new(secret.encode('utf-8'),msg=message.encode(), digestmod="sha256")
-			permittee = self.permittee_service.create_permittee(id, address, hash1.hexdigest())
-			return {"created_id":str(permittee)}
-		except Exception as e:
-			msg = ""
-			if 'message' in e.args[0]:
-				msg = str(e.args[0]['message'])
-			else:
-				msg = str(e)
-			raise cherrypy.HTTPError("500 Internal Server Error", msg)
-
-
-
-	# WARNING ZONE FOR TEST ONLY
-	# @cherrypy.expose
-	# @cherrypy.config(**{'tools.CORS.on': True})
-	# @cherrypy.tools.allow(methods=['POST'])
-	# @cherrypy.tools.json_out()
-	# def testing_db(self):
-	# 	try:
-	# 		return self.permittee_service.testing_mongo_db()
-	# 	except Exception as e:
-	# 		print(e)
-
-	@cherrypy.expose
-	@cherrypy.tools.allow(methods=['GET'])
-	def list_bucket_files(self):
-		try:
-			return self.genotype_service.list_bucket_files()
-		except Exception as e:
-			print(e)
-
-	# @cherrypy.expose
-	# @cherrypy.config(**{'tools.CORS.on': True})
-	# @cherrypy.tools.allow(methods=['POST'])
-	# @cherrypy.tools.json_out()
-	# def search_all_by_table(self, table=None):
-	# 	try:
-	# 		return self.permittee_service.find_all_by_table(table)
-	# 	except Exception as e:
-	# 		print(e)
-
-	@cherrypy.expose
-	@cherrypy.config(**{'tools.CORS.on': True})
-	@cherrypy.tools.allow(methods=['POST'])
-	@cherrypy.tools.json_out()
-	def search_all_by_table_test(self, table=None):
-		try:
-			return self.genotype_service.find_all_by_table(table)
-		except Exception as e:
-			print(e)
-
-	@cherrypy.expose
-	@cherrypy.config(**{'tools.CORS.on': True})
-	@cherrypy.tools.allow(methods=['POST'])
-	@cherrypy.tools.json_out()
-	def add_sign_profile(self, serial, name_1, name_2, img_signature_1, img_signature_2):
-		try:
-			self.test_permittee_service.add_sign_profile(serial, name_1, name_2, img_signature_1, img_signature_2)
-		except Exception as e:
-			print(e)
-
-
-	@cherrypy.expose
-	@cherrypy.config(**{'tools.CORS.on': True})
-	@cherrypy.tools.allow(methods=['POST'])
-	@cherrypy.tools.json_out()
-	def reset_posp_db(self, table=None):
-		return self.posp_service.reset_posp_db()
-
-	@cherrypy.expose
-	@cherrypy.config(**{'tools.CORS.on': True})
-	@cherrypy.tools.allow(methods=['POST'])
-	@cherrypy.tools.json_out()
-	def create_table(self, table_name):
-		try:
-			return self.genotype_service.create_table(table_name)
-		except Exception as e:
-			msg = ""
-			if 'message' in e.args[0]:
-				msg = str(e.args[0]['message'])
-			else:
-				msg = str(e)
-			raise cherrypy.HTTPError("500 Internal Server Error", msg)
-
-	# @cherrypy.expose
-	# @cherrypy.config(**{'tools.CORS.on': True})
-	# @cherrypy.tools.allow(methods=['POST'])
-	# @cherrypy.tools.json_out()
-	# def delete_permittee(self, id):
-	# 	try:
-	# 		deleted = self.permittee_service.delete_permittee(id)
-	# 		return True
-	# 	except Exception as e:
-	# 		print(e)
-
-	# @cherrypy.expose
-	# @cherrypy.config(**{'tools.CORS.on': True})
-	# @cherrypy.tools.allow(methods=['DELETE'])
-	# @cherrypy.tools.json_out()
-	# def reset_genotype_table(self):
-	# 	try:
-	# 		self.genotype_service.delete_table()
-	# 		return "You will need to deploy a new Smartcontract and change on the enviroment file"
-	# 	except Exception as e:
-	# 		print(e)
+	
 
 
 	@cherrypy.expose

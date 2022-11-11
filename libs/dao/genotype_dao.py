@@ -57,14 +57,6 @@ class genotype_dao:
 		return tx_hash.hex()
 
 
-
-
-		
-
-	
-
-
-
 	def save_db_file(self, data):
 		try:
 			_fields = {
@@ -352,6 +344,7 @@ class genotype_dao:
 	def create_table(self, name):
 		try:
 			self.db.create_collection(name)
+			return True
 			# self.db[name].insert_one(fields)
 
 			# # self.db.create_collection(name,{
@@ -440,3 +433,17 @@ class genotype_dao:
 		except Exception as e:
 			print(e)
 			return False
+
+	def insert_many(self, table_name, list_string):
+		# list_json = list_json
+		new_string = str(list_string)
+		new_string = new_string[new_string.find('['):]
+		list_json = json.loads(new_string)
+		print(list_json)
+
+		print(type(list_json))
+		collection = self.db[table_name]
+		x = collection.insert_many(list_json)
+		# x = True
+		return x
+		
