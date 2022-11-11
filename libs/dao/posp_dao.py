@@ -8,6 +8,8 @@ import requests
 from web3 import Web3, HTTPProvider
 from web3.middleware import geth_poa_middleware
 from web3.auto import w3
+import web3
+import re
 
 class posp_dao:
 	def __init__(self):
@@ -54,6 +56,8 @@ class posp_dao:
 		return tx_hash.hex()
 
 	def mint_posp(self, metadata):
+		metadata["lab_address"] = web3.Web3.toChecksumAddress(metadata["lab_address"])
+		metadata["user_address"] = web3.Web3.toChecksumAddress(metadata["user_address"])
 		PospToken = []
 		PospToken.append(0)
 		PospToken.append(metadata["user_address"])
@@ -88,6 +92,7 @@ class posp_dao:
 	# 	return {"transactionHash":token_hash}
 
 	def save_posp_hash (self, metadata):
+		print(metadata)
 		cur = self.table.find_one({"owner": metadata["user_address"], "laboratory":metadata["lab_address"]})
 		if cur:
 			raise Exception("You already have this token in the database")
@@ -103,7 +108,7 @@ class posp_dao:
 
 	def find_by_owner_and_permittee(self, owner, permittee):
 		row = []
-		cur = self.table.find_one({"owner": str(owner).upper(), "laboratory":str(permittee).upper()})
+		cur = self.table.find_one({"owner": re.compile(owner, re.IGNORECASE), "laboratory":re.compile(permittee, re.IGNORECASE)})
 		if not cur:
 			return {}
 		return {permittee:cur["hash"]}
@@ -114,6 +119,7 @@ class posp_dao:
 		return True
 
 	def get_token_sm(self, lab_address):
+		lab_address = web3.Web3.toChecksumAddress(lab_address)
 		posp_factory_contract = self.w3.eth.contract(address=os.getenv('TEST_POSP_FACTORY_CONTRACT'), abi=self.SM_JSONINTERFACE_POSP_FACTORY['abi'])
 		posp_sm_address = posp_factory_contract.functions.getTokenSmartContractAddress(lab_address).call({
 			'nonce': self.w3.eth.getTransactionCount(self.account.address)
@@ -123,13 +129,25 @@ class posp_dao:
 
 
 	def get_posp_token(self,  token_sm_address, lab_address, user_address):
+		token_sm_address = token_sm_address
+		lab_address = web3.Web3.toChecksumAddress(lab_address)
+		user_address = web3.Web3.toChecksumAddress(user_address)
 		posp_contract = self.w3.eth.contract(address=token_sm_address, abi=self.SM_JSONINTERFACE_POSP['abi'])
 		POSP = posp_contract.functions.getPoSP(lab_address, user_address).call({
 			'nonce': self.w3.eth.getTransactionCount(self.account.address)
 		})
 		return POSP
 
+	def get_current_id(self, token_sm_address):
+		posp_contract = self.w3.eth.contract(address=token_sm_address, abi=self.SM_JSONINTERFACE_POSP['abi'])
+		current_id = posp_contract.functions.getCurrentId().call({
+			'nonce': self.w3.eth.getTransactionCount(self.account.address)
+		})
+		return current_id
+
 	def find_token_by_permittee(self, permittee):
+		permittee = web3.Web3.toChecksumAddress(permittee)
+
 		posp_factory_contract = self.w3.eth.contract(address=os.getenv('TEST_POSP_FACTORY_CONTRACT'), abi=self.SM_JSONINTERFACE_POSP_FACTORY['abi'])
 		token_sm = posp_factory_contract.functions.getTokenSmartContractAddress(permittee).call({
 			'nonce': self.w3.eth.getTransactionCount(self.account.address)

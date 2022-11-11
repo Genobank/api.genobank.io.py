@@ -224,6 +224,7 @@ class AppUnoServer(object):
 			token = self.posp_service.find_token_by_permittee(permittee)
 			genotype.insert(0, token)
 			genotype.insert(0, posp_licence)
+			print(json.dumps(genotype, indent=2))
 			return genotype
 		except:
 			raise
@@ -285,11 +286,13 @@ class AppUnoServer(object):
 			self.test_permittee_service.validate_permittee_signature(_json_metadata)
 			_json_metadata["hash"] = self.posp_service.mint_posp_or_fail(_json_metadata)
 			self.posp_service.save_posp_hash(_json_metadata)
-			return {"posp_token_hash": token_hash}
+			return {"posp_token_hash": _json_metadata["hash"]}
 
 
 			# print("\n\nVALIDATED SUCCESSFULLY \n\n")
 			# return {"Server_message":"Successfully"}
+		# except:
+		# 	raise
 
 		except Exception as e:
 			msg = ""
@@ -335,7 +338,10 @@ class AppUnoServer(object):
 		try:
 			# all_users = self.posp_service.get_all_users()
 			all_users = [
-				"0x37157D7Bf49f7b290eA28B93E4A42613dde262b6"
+				"0x46DD6033663a42e4D430aaB19e6a54850De0B9Ca",
+				"0x8f036349fF1216c8504805697Fa45a9848037BEc",
+				"0x047a9872007c7741B2eC45431981fbEf4b8CEca3",
+				"0xe5867c62fED8dD53a7250d89a98C3C7567aDd5B0"
 				]
 			laboratory_destination = "0xD85D1F5Fd5af08cdE8b99Eff4921573503921266"
 			count = 0
@@ -357,13 +363,15 @@ class AppUnoServer(object):
 		try:
 			revoked = self.genotype_service.revoke_consents(owner, signature, permittee)
 			return revoked
-		except Exception as e:
-			msg = ""
-			if 'message' in e.args[0]:
-				msg = str(e.args[0]['message'])
-			else:
-				msg = str(e)
-			raise cherrypy.HTTPError("500 Internal Server Error", msg)
+		except:
+			raise
+		# except Exception as e:
+		# 	msg = ""
+		# 	if 'message' in e.args[0]:
+		# 		msg = str(e.args[0]['message'])
+		# 	else:
+		# 		msg = str(e)
+		# 	raise cherrypy.HTTPError("500 Internal Server Error", msg)
 			
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
@@ -562,7 +570,10 @@ class AppUnoServer(object):
 	@cherrypy.tools.allow(methods=['DELETE'])
 	@cherrypy.tools.json_out()
 	def reset_all_ancestry_API(self):
-		return self.restore_api_service.restore_api_service()
+		try:
+			return self.restore_api_service.restore_api_service()
+		except:
+			raise
 
 
 

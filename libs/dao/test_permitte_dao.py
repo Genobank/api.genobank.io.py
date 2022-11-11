@@ -16,6 +16,7 @@ import json
 import datetime
 import time
 import base64
+import re
 
 
 
@@ -150,7 +151,8 @@ class test_permittee_dao:
   def get_serial_from_address(self, address):
     try:
       collection = self.db.permittees
-      cur = collection.find_one({"owner": address})
+      print(address)
+      cur = collection.find_one({"owner": re.compile(address, re.IGNORECASE)})
       if not cur:
         return []
       return cur['serial']
@@ -161,7 +163,7 @@ class test_permittee_dao:
   def validate_permittee(self, permittee):
     try:
       collection = self.db.permittees
-      cur = collection.find_one({"owner": permittee})
+      cur = collection.find_one({"owner": re.compile(permittee, re.IGNORECASE)})
       if not cur:
         return False
       for key in cur:

@@ -109,7 +109,7 @@ class genotype_service:
 			if "key" in index: del index["key"]
 			if "updated" in index: del index["updated"]
 			index["stake_nfts"] = self.posp.find_by_owner_and_permittee(index["owneraddr"], index["labaddr"])
-			print(index["stake_nfts"])
+			# print(index["stake_nfts"])
 		return genotype_list
 
 	def list_to_json(self, gen_list):

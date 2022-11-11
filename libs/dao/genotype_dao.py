@@ -20,6 +20,7 @@ import gzip
 import io
 import binascii
 import re
+import web3
 class genotype_dao:
 	def __init__(self):
 		self.w3 = Web3(HTTPProvider(os.getenv('BIOSAMPLE_PROVIDER')))
@@ -183,7 +184,7 @@ class genotype_dao:
 	def find_genotype_by_owner(self, owner):
 		try:
 			collection = self.db.genotypes
-			cur = collection.find({"owneraddr": str(owner).upper()})
+			cur = collection.find({"owneraddr": re.compile(owner, re.IGNORECASE)})
 			_json = {}
 			row = []
 			for doc in cur:
@@ -239,7 +240,7 @@ class genotype_dao:
 			genotype_db = self.find_genotype_by_owner(wallet)
 			if not genotype_db:
 				raise Exception("Genotype not found")
-			wallet_db = genotype_db["owneraddr"]
+			wallet_db = web3.Web3.toChecksumAddress(str(genotype_db["owneraddr"]))
 			signature_db = genotype_db["filesigned"]
 			return ((wallet == wallet_db) and (signature == signature_db)), genotype_db["filename"], genotype_db["extension"]
 		except Exception as e:
@@ -283,6 +284,8 @@ class genotype_dao:
 			raise
 
 	def burn_bio_token(self, owner, permittee):
+		owner = web3.Web3.toChecksumAddress(owner)
+		permittee = web3.Web3.toChecksumAddress(permittee)
 		contract = self.w3.eth.contract(address=os.getenv('TEST_BIOSAMPLE_COTRACT'), abi=self.SM_JSONINTERFACE['abi'])
 		tx = contract.functions.burnToken(owner, permittee).buildTransaction({
 			'nonce': self.w3.eth.getTransactionCount(self.account.address)
