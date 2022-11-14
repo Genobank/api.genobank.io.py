@@ -426,13 +426,7 @@ class genotype_dao:
 
 	# WARNING ZONE, FOR TEST ONLY
 
-	def delete_table(self):
-		try:
-			deleted = self.table.delete_many({})
-			return deleted.deleted_count+" documents deleted successfully"
-		except Exception as e:
-			print(e)
-			return False
+
 
 	def insert_many(self, table_name, list_string):
 		# list_json = list_json
