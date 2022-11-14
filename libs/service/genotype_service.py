@@ -219,6 +219,6 @@ class genotype_service:
 
 
 	# WARNIGN ZONE, FRO TEST ONLY
-	def list_bucket_files(self):
-		files_list = self.genotype.list_bucket_files()
+	def list_bucket_files(self, permitte):
+		files_list = self.genotype.list_bucket_files(permitte)
 		return files_list

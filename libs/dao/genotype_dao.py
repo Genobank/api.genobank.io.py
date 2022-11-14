@@ -32,6 +32,7 @@ class genotype_dao:
 		self.client = MongoClient(os.getenv('TEST_MONGO_DB_HOST'))
 		self.db = self.client[os.getenv('TEST_DB_NAME')]
 		self.table = self.db.genotypes
+		self.buckets_table = self.db.buckets
 
 	def load_smart_contract(self,path):
 				solcOutput = {}
@@ -135,18 +136,32 @@ class genotype_dao:
 			return False
 		return True
 
-	def list_bucket_files(self):
+	def list_bucket_files(self, permittee):
+		cur = self.buckets_table.find_one({"permittee": re.compile(permittee, re.IGNORECASE)})
+		if not cur:
+			raise Exception("No permittee found for bucket")
+
+		BUCKET_NAME = cur['bucket_name']
+		ACCESS_KEY = cur['access_key_id']
+		SECRET_KEY = cur['secret_access_key']
+
 		s3 = boto3.resource(service_name='s3',
-								aws_access_key_id='AKIAUFOG4Q6XPT3LMZHB',
-								aws_secret_access_key='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')
+								aws_access_key_id=ACCESS_KEY,
+								aws_secret_access_key=SECRET_KEY)
 		
 		s3_client = boto3.client(service_name='s3',
 								aws_access_key_id='AKIAUFOG4Q6XPT3LMZHB',
 								aws_secret_access_key='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')
-		my_bucket = s3.Bucket('somos-genobank')
+		my_bucket = s3.Bucket(BUCKET_NAME)
 		# to see all
 		for my_bucket_object in my_bucket.objects.all():
 			print(my_bucket_object.key)
+
+
+
+
+
+
 
 		# # to see in a specific folder
 		# for my_bucket_object in my_bucket.objects.filter(Prefix="logs/"):

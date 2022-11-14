@@ -482,9 +482,9 @@ class AppUnoServer(object):
 
 	@cherrypy.expose
 	@cherrypy.tools.allow(methods=['GET'])
-	def list_bucket_files(self):
+	def list_bucket_files(self, permittee):
 		try:
-			return self.genotype_service.list_bucket_files()
+			return self.genotype_service.list_bucket_files(permittee)
 		except Exception as e:
 			print(e)
 
