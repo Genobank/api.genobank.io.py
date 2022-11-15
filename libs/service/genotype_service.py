@@ -25,6 +25,10 @@ class genotype_service:
 	def create(self, data, file):
 		data["filename"] = str(uuid.uuid4())
 		data["key"] = (Fernet.generate_key()).decode("utf-8")
+		file.file.seek(0)
+		bucket_send = self.genotype.upload_file_to_bucket(file, "genotypes/"+data["filename"]+"."+data["extension"], data["labAddress"])
+		if not bucket_send:
+			raise Exception("Error uploading file to bucket")
 		token_hash = self.genotype.mint_nft(data)
 		if not token_hash:
 			raise Exception("Error minting token")
@@ -38,10 +42,7 @@ class genotype_service:
 			raise Exception("Error saving file")
 		# add boto to upload to the bucket
 		# resetear el file
-		file.file.seek(0)
-		bucket_send = self.genotype.upload_file_to_bucket(file, "genotypes/"+data["filename"]+"."+data["extension"], data["labAddress"])
-		if not bucket_send:
-			raise Exception("Error uploading file to bucket")
+		
 		return {"token": token_hash}
 		# return {"token": "token_hash"}
 
@@ -123,7 +124,6 @@ class genotype_service:
 	def basic_reference(self, _genotype):
 		if not _genotype:
 			return []
-			raise Exception("Couldn't find genotype with the given name")
 		_json = {}
 		_json["name"] = _genotype["filename"]
 		_json["ext"] = _genotype["extension"]
@@ -132,14 +132,15 @@ class genotype_service:
 		_json["filesize"] = _genotype["filesize"]
 		_json["consents"] = _genotype["consents"]
 		_json["created"] = _genotype["created"]
-		# _json["interpretation"] = {"FVS":{"AFR_ESTE":1.8547,"AFR_NORTE":0.001,"AFR_OESTE":0.001,"ASIA_ESTE":0.001,"ASIA_SUR":0.001,"ASIA_SURESTE":0.001,"EUR_ESTE":0.001,"EUR_NORESTE":5.0803,"EUR_NORTE":0.001,"EUR_OESTE":0.001,"EUR_SUROESTE":65.7974,"JUDIO":15.8035,"MEDIO_ORIENTE":0.001,"OCEANIA":0.8112,"AMAZONAS":0.001,"ANDES":0.001,"MAYA":0.001,"PIMA":0.001,"ZAPOTECA":0.001,"HUICHOL":1.283,"MIXTECA":0.001,"NAHUA_OTOMI":9.3528,"TARAHUMARA":0.001,"TRIQUI":0.001,"Hp_m":None,"Hp_y":None}}
+		# _json["interpretation"] = {"ancestry":{"AFR_ESTE":1.8547,"AFR_NORTE":0.001,"AFR_OESTE":0.001,"ASIA_ESTE":0.001,"ASIA_SUR":0.001,"ASIA_SURESTE":0.001,"EUR_ESTE":0.001,"EUR_NORESTE":5.0803,"EUR_NORTE":0.001,"EUR_OESTE":0.001,"EUR_SUROESTE":65.7974,"JUDIO":15.8035,"MEDIO_ORIENTE":0.001,"OCEANIA":0.8112,"AMAZONAS":0.001,"ANDES":0.001,"MAYA":0.001,"PIMA":0.001,"ZAPOTECA":0.001,"HUICHOL":1.283,"MIXTECA":0.001,"NAHUA_OTOMI":9.3528,"TARAHUMARA":0.001,"TRIQUI":0.001,"Hp_m":None,"Hp_y":None}}
 		results = self.genotype.find_ancestry_db(_genotype["filename"], _genotype["owneraddr"], _genotype["labaddr"])
 		if not results:
 			results = self.genotype.download_file_from_bucket(_genotype["labaddr"],  _genotype["filename"] +"."+ _genotype["extension"])
-			print(results)
+			if not results:
+				_json["interpretation"] = False
+				return _json
 			self.genotype.save_ancestry_db(_genotype, results)
-
-		_json["interpretation"] = results
+		_json["interpretation"] = json.loads(results)
 		return _json
 
 	def authorize_download(self, wallet, signature):

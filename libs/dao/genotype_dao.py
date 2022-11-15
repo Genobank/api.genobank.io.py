@@ -84,13 +84,27 @@ class genotype_dao:
 			raise
 
 	def find_ancestry_db(self, filename, owner, laboratory):
-		cur = self.table.find_one({"filename":filename, "owner": re.compile(owner, re.IGNORECASE), "laboratory": re.compile(laboratory, re.IGNORECASE)})
+		cur = self.ancestry_table.find_one({"filename":filename, "owner": re.compile(owner, re.IGNORECASE), "laboratory": re.compile(laboratory, re.IGNORECASE)})
 		if not cur:
 			return False
 		return cur["results"]
 
 	
-	def save_ancestry_db(self, genotype_info, data):
+	def save_ancestry_db(self, genotype_info, result):
+		try:
+			_fields = {
+				"owner": str(genotype_info["owneraddr"]).upper(),
+				"laboratory": str(genotype_info["labaddr"]).upper(),
+				"filename": genotype_info["filename"],
+				"extension": genotype_info["extension"],
+				"results":result,
+				"created": datetime.datetime.now(),
+				"updated": datetime.datetime.now()
+			}
+			self.ancestry_table.insert_one(_fields)
+			return True
+		except:
+			raise
 		print("\n",genotype_info, data)
 
 
@@ -134,7 +148,7 @@ class genotype_dao:
 	def upload_file_to_bucket(self, dataset_file, file_name, permittee):
 		cur = self.buckets_table.find_one({"permittee": re.compile(permittee, re.IGNORECASE)})
 		if not cur:
-			raise Exception("No permittee found for bucket")
+			raise Exception("Bucket Not found")
 
 		BUCKET_NAME = cur['bucket_name']
 		ACCESS_KEY = cur['access_key_id']
@@ -179,13 +193,13 @@ class genotype_dao:
 
 		my_bucket = s3.Bucket(BUCKET_NAME)
 		file_key = 'results-test/json/'+file_name+'.json'
-		print(file_name)
-
-
-		response = s3_client.get_object(Bucket=BUCKET_NAME, Key=file_key)
-		data = response['Body'].read()
-		print(response)
-		print(data)
+		try:
+			response = s3_client.get_object(Bucket=BUCKET_NAME, Key=file_key)
+			data = response['Body'].read()
+			return data.decode("utf-8") 
+		except:
+			return False
+			
 
 
 

@@ -20,6 +20,7 @@ class restore_api_dao:
 		self.db = self.client[os.getenv('TEST_DB_NAME')]
 		self.genotypes_table = self.db.genotypes
 		self.posp_table = self.db.posp
+		self.ancestry_table = self.db.ancestry
 		
 	def delete_genotypes_table(self):
 		try:
@@ -149,6 +150,14 @@ class restore_api_dao:
 		#Move new file
 		move(abs_path, file_path)
 
+
+	def delete_ancestry_table(self):
+		try:
+			deleted = self.ancestry_table.delete_many({})
+			return deleted.deleted_count+" documents deleted successfully"
+		except Exception as e:
+			print(e)
+			return False
 
 		
 

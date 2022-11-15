@@ -124,7 +124,6 @@ class posp_dao:
 		posp_sm_address = posp_factory_contract.functions.getTokenSmartContractAddress(lab_address).call({
 			'nonce': self.w3.eth.getTransactionCount(self.account.address)
 		})
-		print("\nposp_sm_address\n", posp_sm_address[3],"\n\n")
 		return posp_sm_address[3]
 
 

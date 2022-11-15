@@ -151,7 +151,6 @@ class test_permittee_dao:
   def get_serial_from_address(self, address):
     try:
       collection = self.db.permittees
-      print(address)
       cur = collection.find_one({"owner": re.compile(address, re.IGNORECASE)})
       if not cur:
         return []
