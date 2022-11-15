@@ -124,20 +124,17 @@ class AppUnoServer(object):
 	def save_genotype(self, data, file):
 		try:
 			valid_file = self.genotype_service.validate_file(file)
-			if valid_file:
-				try:
-					data = json.loads(data)
-				except:
-					raise Exception("'data' is not a json object")
-				if "extension" not in data:
-					raise Exception("This file does not have extension")
-				self.genotype_service.validate_extension(data["extension"])
-				self.genotype_service.validate_consents_metadata(data)
-				created = self.genotype_service.create(data, file)
-				minted_posp = self.posp_service.mint_posp_auto(data["labAddress"], data["userAddress"])
-				if minted_posp:
-					self.posp_service.save_posp_hash(minted_posp)
-				return created
+			print("\n\n", valid_file, "\n\n")
+			data = json.loads(data)
+			if "extension" not in data:
+				raise Exception("This file does not have extension")
+			self.genotype_service.validate_extension(data["extension"])
+			self.genotype_service.validate_consents_metadata(data)
+			created = self.genotype_service.create(data, file)
+			minted_posp = self.posp_service.mint_posp_auto(data["labAddress"], data["userAddress"])
+			if minted_posp:
+				self.posp_service.save_posp_hash(minted_posp)
+			return created
 		except Exception as e:
 			msg = ""
 			if 'message' in e.args[0]:
@@ -482,9 +479,9 @@ class AppUnoServer(object):
 
 	@cherrypy.expose
 	@cherrypy.tools.allow(methods=['GET'])
-	def list_bucket_files(self, permittee):
+	def list_bucket_files(self, permittee, file=None):
 		try:
-			return self.genotype_service.list_bucket_files(permittee)
+			return self.genotype_service.list_bucket_files(permittee, file)
 		except Exception as e:
 			print(e)
 

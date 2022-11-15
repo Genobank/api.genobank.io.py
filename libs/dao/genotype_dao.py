@@ -33,6 +33,7 @@ class genotype_dao:
 		self.db = self.client[os.getenv('TEST_DB_NAME')]
 		self.table = self.db.genotypes
 		self.buckets_table = self.db.buckets
+		self.ancestry_table = self.db.ancestry
 
 	def load_smart_contract(self,path):
 				solcOutput = {}
@@ -82,6 +83,20 @@ class genotype_dao:
 		except:
 			raise
 
+	def find_ancestry_db(self, filename, owner, laboratory):
+		cur = self.table.find_one({"filename":filename, "owner": re.compile(owner, re.IGNORECASE), "laboratory": re.compile(laboratory, re.IGNORECASE)})
+		if not cur:
+			return False
+		return cur["results"]
+
+	
+	def save_ancestry_db(self, genotype_info, data):
+		print("\n",genotype_info, data)
+
+
+
+
+
 	def save_file(self, file, data):
 		try:
 			file.file.seek(0)
@@ -116,18 +131,26 @@ class genotype_dao:
 			print(e)
 			return False
 
-	def upload_file_to_bucket(self, dataset_file, bucket, file_name):
-		# if object_name is None:
-			# object_name = os.path.basename("storage/genotypes/"+file_name)
+	def upload_file_to_bucket(self, dataset_file, file_name, permittee):
+		cur = self.buckets_table.find_one({"permittee": re.compile(permittee, re.IGNORECASE)})
+		if not cur:
+			raise Exception("No permittee found for bucket")
+
+		BUCKET_NAME = cur['bucket_name']
+		ACCESS_KEY = cur['access_key_id']
+		SECRET_KEY = cur['secret_access_key']
+
 		dataset_file.file.seek(0)
 		upload_file = dataset_file.file.read()
-		print(type(upload_file))
+
 		s3_client = boto3.client(service_name='s3',
-								aws_access_key_id='AKIAUFOG4Q6XPT3LMZHB',
-								aws_secret_access_key='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')
+								aws_access_key_id=ACCESS_KEY,
+								aws_secret_access_key=SECRET_KEY)
 		try:
+			print("Uploading...")
 			file_name = str(file_name)
-			response = s3_client.upload_fileobj(io.BytesIO(upload_file), bucket, file_name)
+			response = s3_client.upload_fileobj(io.BytesIO(upload_file), BUCKET_NAME, file_name)
+			print("Bucket response",response)
 			# response = s3_client.upload_file("storage/genotypes/"+file_name, bucket, object_name)
 			# return response
 		except ClientError as e:
@@ -136,7 +159,56 @@ class genotype_dao:
 			return False
 		return True
 
-	def list_bucket_files(self, permittee):
+	def download_file_from_bucket(self, permittee, file_name):
+		cur = self.buckets_table.find_one({"permittee": re.compile(permittee, re.IGNORECASE)})
+		if not cur:
+			raise Exception("No permittee found for bucket")
+
+
+		BUCKET_NAME = cur['bucket_name']
+		ACCESS_KEY = cur['access_key_id']
+		SECRET_KEY = cur['secret_access_key']
+
+		s3 = boto3.resource(service_name='s3',
+								aws_access_key_id=ACCESS_KEY,
+								aws_secret_access_key=SECRET_KEY)
+
+		s3_client = boto3.client(service_name='s3',
+								aws_access_key_id=ACCESS_KEY,
+								aws_secret_access_key=SECRET_KEY)
+
+		my_bucket = s3.Bucket(BUCKET_NAME)
+		file_key = 'results-test/json/'+file_name+'.json'
+		print(file_name)
+
+
+		response = s3_client.get_object(Bucket=BUCKET_NAME, Key=file_key)
+		data = response['Body'].read()
+		print(response)
+		print(data)
+
+
+
+		# with open('filename', 'wb') as test_result:
+		# 	s3_client.download_fileobj(BUCKET_NAME, "results-test/json/"+file_name+".json", test_result)
+		# 	print(test_result)
+		# 	return test_result
+
+		# print(file_bucket_path)
+
+		# # to download fileobj
+		# with open(file_name, 'wb') as data:
+		# 	s3_client.download_fileobj(BUCKET_NAME, file_bucket_path, data)
+		# 	print("DATA\n",data)
+
+		# s3_client.download_file(BUCKET_NAME, file_bucket_path, 'suarchivo.txt')
+		# print("\n",open('my_localfile.txt').read(),"\n")
+
+		
+
+
+
+	def list_bucket_files(self, permittee, file_name):
 		cur = self.buckets_table.find_one({"permittee": re.compile(permittee, re.IGNORECASE)})
 		if not cur:
 			raise Exception("No permittee found for bucket")
@@ -150,27 +222,24 @@ class genotype_dao:
 								aws_secret_access_key=SECRET_KEY)
 		
 		s3_client = boto3.client(service_name='s3',
-								aws_access_key_id='AKIAUFOG4Q6XPT3LMZHB',
-								aws_secret_access_key='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')
+								aws_access_key_id=ACCESS_KEY,
+								aws_secret_access_key=SECRET_KEY)
+
 		my_bucket = s3.Bucket(BUCKET_NAME)
-		# to see all
-		for my_bucket_object in my_bucket.objects.all():
-			print(my_bucket_object.key)
-
-
-
-
-
-
-
+		if not file_name:
+			# to see all
+			for my_bucket_object in my_bucket.objects.all():
+				print(my_bucket_object.key)
+		else:
+			# to download file
+			s3_client.download_file(BUCKET_NAME, file_name, 'suarchivo.txt')
+			print("\n",open('my_localfile.txt').read(),"\n")
 		# # to see in a specific folder
 		# for my_bucket_object in my_bucket.objects.filter(Prefix="logs/"):
 		# 	print(my_bucket_object.key)
 		
 
-		# to download file
-		# s3_client.download_file('somos-genobank', 'genotypes/c09f3e8d-5b57-4f99-90e4-c2e9aeb2bb89.txt', 'my_localfile.txt')
-		# print("\n",open('my_localfile.txt').read(),"\n")
+		
 
 		# to download fileobj
 		# with open('filename', 'wb')as data:
@@ -321,6 +390,8 @@ class genotype_dao:
 			source = 6
 		elif "PLINK" in line:
 			source = 7
+		else:
+			source = -1
 		return source
 
 	def Is_zip(self, bytes_data):
