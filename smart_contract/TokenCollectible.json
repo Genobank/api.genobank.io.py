@@ -1,38 +1,29 @@
 {
     "abi":[
 			{
+				"anonymous": false,
 				"inputs": [
 					{
-						"internalType": "string",
-						"name": "_name",
-						"type": "string"
-					},
-					{
+						"indexed": true,
 						"internalType": "address",
 						"name": "_owner",
 						"type": "address"
 					},
 					{
+						"indexed": true,
 						"internalType": "address",
-						"name": "permittee",
+						"name": "_approved",
 						"type": "address"
-					}
-				],
-				"name": "addGenotype",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
+					},
 					{
-						"internalType": "string",
-						"name": "_uri",
-						"type": "string"
+						"indexed": true,
+						"internalType": "uint256",
+						"name": "_tokenId",
+						"type": "uint256"
 					}
 				],
-				"stateMutability": "nonpayable",
-				"type": "constructor"
+				"name": "Approval",
+				"type": "event"
 			},
 			{
 				"anonymous": false,
@@ -40,19 +31,19 @@
 					{
 						"indexed": true,
 						"internalType": "address",
-						"name": "account",
+						"name": "_owner",
 						"type": "address"
 					},
 					{
 						"indexed": true,
 						"internalType": "address",
-						"name": "operator",
+						"name": "_operator",
 						"type": "address"
 					},
 					{
 						"indexed": false,
 						"internalType": "bool",
-						"name": "approved",
+						"name": "_approved",
 						"type": "bool"
 					}
 				],
@@ -60,19 +51,129 @@
 				"type": "event"
 			},
 			{
+				"anonymous": false,
 				"inputs": [
 					{
+						"indexed": true,
 						"internalType": "address",
-						"name": "_permittee",
+						"name": "_from",
 						"type": "address"
 					},
 					{
+						"indexed": true,
 						"internalType": "address",
-						"name": "_owner",
+						"name": "_to",
 						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "uint256",
+						"name": "_tokenId",
+						"type": "uint256"
 					}
 				],
-				"name": "disableGenotype",
+				"name": "Transfer",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "_value",
+						"type": "string"
+					},
+					{
+						"indexed": true,
+						"internalType": "uint256",
+						"name": "_tokenId",
+						"type": "uint256"
+					}
+				],
+				"name": "URI",
+				"type": "event"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_approved",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_tokenId",
+						"type": "uint256"
+					}
+				],
+				"name": "approve",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_tokenId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "_permission",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_seed",
+						"type": "uint256"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "_signatureR",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "_signatureS",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "uint8",
+						"name": "_signatureV",
+						"type": "uint8"
+					},
+					{
+						"internalType": "enum BiosamplePermissionToken.SignatureKind",
+						"name": "_signatureKind",
+						"type": "uint8"
+					}
+				],
+				"name": "createWithSignature",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_tokenId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "_receiverId",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "_permission",
+						"type": "string"
+					}
+				],
+				"name": "mint",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -81,31 +182,21 @@
 				"inputs": [
 					{
 						"internalType": "address",
-						"name": "from",
+						"name": "_from",
 						"type": "address"
 					},
 					{
 						"internalType": "address",
-						"name": "to",
+						"name": "_to",
 						"type": "address"
 					},
 					{
-						"internalType": "uint256[]",
-						"name": "ids",
-						"type": "uint256[]"
-					},
-					{
-						"internalType": "uint256[]",
-						"name": "amounts",
-						"type": "uint256[]"
-					},
-					{
-						"internalType": "bytes",
-						"name": "data",
-						"type": "bytes"
+						"internalType": "uint256",
+						"name": "_tokenId",
+						"type": "uint256"
 					}
 				],
-				"name": "safeBatchTransferFrom",
+				"name": "safeTransferFrom",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -114,27 +205,22 @@
 				"inputs": [
 					{
 						"internalType": "address",
-						"name": "from",
+						"name": "_from",
 						"type": "address"
 					},
 					{
 						"internalType": "address",
-						"name": "to",
+						"name": "_to",
 						"type": "address"
 					},
 					{
 						"internalType": "uint256",
-						"name": "id",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "amount",
+						"name": "_tokenId",
 						"type": "uint256"
 					},
 					{
 						"internalType": "bytes",
-						"name": "data",
+						"name": "_data",
 						"type": "bytes"
 					}
 				],
@@ -147,12 +233,12 @@
 				"inputs": [
 					{
 						"internalType": "address",
-						"name": "operator",
+						"name": "_operator",
 						"type": "address"
 					},
 					{
 						"internalType": "bool",
-						"name": "approved",
+						"name": "_approved",
 						"type": "bool"
 					}
 				],
@@ -162,109 +248,111 @@
 				"type": "function"
 			},
 			{
-				"anonymous": false,
 				"inputs": [
 					{
-						"indexed": true,
-						"internalType": "address",
-						"name": "operator",
-						"type": "address"
-					},
-					{
-						"indexed": true,
-						"internalType": "address",
-						"name": "from",
-						"type": "address"
-					},
-					{
-						"indexed": true,
-						"internalType": "address",
-						"name": "to",
-						"type": "address"
-					},
-					{
-						"indexed": false,
-						"internalType": "uint256[]",
-						"name": "ids",
-						"type": "uint256[]"
-					},
-					{
-						"indexed": false,
-						"internalType": "uint256[]",
-						"name": "values",
-						"type": "uint256[]"
-					}
-				],
-				"name": "TransferBatch",
-				"type": "event"
-			},
-			{
-				"anonymous": false,
-				"inputs": [
-					{
-						"indexed": true,
-						"internalType": "address",
-						"name": "operator",
-						"type": "address"
-					},
-					{
-						"indexed": true,
-						"internalType": "address",
-						"name": "from",
-						"type": "address"
-					},
-					{
-						"indexed": true,
-						"internalType": "address",
-						"name": "to",
-						"type": "address"
-					},
-					{
-						"indexed": false,
 						"internalType": "uint256",
-						"name": "id",
+						"name": "_tokenId",
 						"type": "uint256"
 					},
 					{
-						"indexed": false,
-						"internalType": "uint256",
-						"name": "value",
-						"type": "uint256"
-					}
-				],
-				"name": "TransferSingle",
-				"type": "event"
-			},
-			{
-				"anonymous": false,
-				"inputs": [
-					{
-						"indexed": false,
 						"internalType": "string",
-						"name": "value",
+						"name": "_permission",
+						"type": "string"
+					}
+				],
+				"name": "setTokenUri",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_tokenId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "_permission",
 						"type": "string"
 					},
 					{
-						"indexed": true,
 						"internalType": "uint256",
-						"name": "id",
+						"name": "_seed",
 						"type": "uint256"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "_signatureR",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "_signatureS",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "uint8",
+						"name": "_signatureV",
+						"type": "uint8"
+					},
+					{
+						"internalType": "enum BiosamplePermissionToken.SignatureKind",
+						"name": "_signatureKind",
+						"type": "uint8"
 					}
 				],
-				"name": "URI",
-				"type": "event"
+				"name": "setTokenUriWithSignature",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
 			},
 			{
 				"inputs": [
 					{
 						"internalType": "address",
-						"name": "account",
+						"name": "_from",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "_to",
 						"type": "address"
 					},
 					{
 						"internalType": "uint256",
-						"name": "id",
+						"name": "_tokenId",
 						"type": "uint256"
+					}
+				],
+				"name": "transferFrom",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_name",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "_symbol",
+						"type": "string"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_owner",
+						"type": "address"
 					}
 				],
 				"name": "balanceOf",
@@ -281,22 +369,17 @@
 			{
 				"inputs": [
 					{
-						"internalType": "address[]",
-						"name": "accounts",
-						"type": "address[]"
-					},
-					{
-						"internalType": "uint256[]",
-						"name": "ids",
-						"type": "uint256[]"
+						"internalType": "uint256",
+						"name": "_tokenId",
+						"type": "uint256"
 					}
 				],
-				"name": "balanceOfBatch",
+				"name": "getApproved",
 				"outputs": [
 					{
-						"internalType": "uint256[]",
+						"internalType": "address",
 						"name": "",
-						"type": "uint256[]"
+						"type": "address"
 					}
 				],
 				"stateMutability": "view",
@@ -305,35 +388,54 @@
 			{
 				"inputs": [
 					{
-						"internalType": "address",
-						"name": "",
-						"type": "address"
+						"internalType": "uint256",
+						"name": "_tokenId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_seed",
+						"type": "uint256"
 					}
 				],
-				"name": "biosamples",
+				"name": "getCreateClaim",
 				"outputs": [
 					{
+						"internalType": "bytes32",
+						"name": "",
+						"type": "bytes32"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_tokenId",
+						"type": "uint256"
+					},
+					{
 						"internalType": "string",
-						"name": "name",
+						"name": "_permission",
 						"type": "string"
 					},
 					{
-						"internalType": "address",
-						"name": "owner",
-						"type": "address"
-					},
-					{
-						"internalType": "address",
-						"name": "laboratory",
-						"type": "address"
-					},
-					{
-						"internalType": "bool",
-						"name": "enable",
-						"type": "bool"
+						"internalType": "uint256",
+						"name": "_seed",
+						"type": "uint256"
 					}
 				],
-				"stateMutability": "view",
+				"name": "getUpdateUriClaim",
+				"outputs": [
+					{
+						"internalType": "bytes32",
+						"name": "",
+						"type": "bytes32"
+					}
+				],
+				"stateMutability": "pure",
 				"type": "function"
 			},
 			{
@@ -342,146 +444,10 @@
 						"internalType": "address",
 						"name": "_owner",
 						"type": "address"
-					}
-				],
-				"name": "check_genotype_status",
-				"outputs": [
-					{
-						"internalType": "bool",
-						"name": "",
-						"type": "bool"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "address",
-						"name": "_permittee",
-						"type": "address"
-					}
-				],
-				"name": "getGebnotypesByPermittee",
-				"outputs": [
-					{
-						"components": [
-							{
-								"internalType": "string",
-								"name": "name",
-								"type": "string"
-							},
-							{
-								"internalType": "address",
-								"name": "owner",
-								"type": "address"
-							},
-							{
-								"internalType": "address",
-								"name": "laboratory",
-								"type": "address"
-							},
-							{
-								"internalType": "bool",
-								"name": "enable",
-								"type": "bool"
-							}
-						],
-						"internalType": "struct GenoType.Biosample[]",
-						"name": "",
-						"type": "tuple[]"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "address",
-						"name": "_owner",
-						"type": "address"
-					}
-				],
-				"name": "getGenoetype",
-				"outputs": [
-					{
-						"components": [
-							{
-								"internalType": "string",
-								"name": "name",
-								"type": "string"
-							},
-							{
-								"internalType": "address",
-								"name": "owner",
-								"type": "address"
-							},
-							{
-								"internalType": "address",
-								"name": "laboratory",
-								"type": "address"
-							},
-							{
-								"internalType": "bool",
-								"name": "enable",
-								"type": "bool"
-							}
-						],
-						"internalType": "struct GenoType.Biosample",
-						"name": "",
-						"type": "tuple"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "getMyGenotype",
-				"outputs": [
-					{
-						"components": [
-							{
-								"internalType": "string",
-								"name": "name",
-								"type": "string"
-							},
-							{
-								"internalType": "address",
-								"name": "owner",
-								"type": "address"
-							},
-							{
-								"internalType": "address",
-								"name": "laboratory",
-								"type": "address"
-							},
-							{
-								"internalType": "bool",
-								"name": "enable",
-								"type": "bool"
-							}
-						],
-						"internalType": "struct GenoType.Biosample",
-						"name": "",
-						"type": "tuple"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "address",
-						"name": "account",
-						"type": "address"
 					},
 					{
 						"internalType": "address",
-						"name": "operator",
+						"name": "_operator",
 						"type": "address"
 					}
 				],
@@ -500,16 +466,54 @@
 				"inputs": [
 					{
 						"internalType": "address",
-						"name": "_someone",
+						"name": "_signer",
 						"type": "address"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "_claim",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "_r",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "_s",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "uint8",
+						"name": "_v",
+						"type": "uint8"
+					},
+					{
+						"internalType": "enum BiosamplePermissionToken.SignatureKind",
+						"name": "_kind",
+						"type": "uint8"
 					}
 				],
-				"name": "isPermittee",
+				"name": "isValidSignature",
 				"outputs": [
 					{
 						"internalType": "bool",
 						"name": "",
 						"type": "bool"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "name",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "_name",
+						"type": "string"
 					}
 				],
 				"stateMutability": "view",
@@ -518,37 +522,17 @@
 			{
 				"inputs": [
 					{
-						"internalType": "address",
-						"name": "",
-						"type": "address"
-					},
-					{
 						"internalType": "uint256",
-						"name": "",
+						"name": "_tokenId",
 						"type": "uint256"
 					}
 				],
-				"name": "laboratoriesSamples",
+				"name": "ownerOf",
 				"outputs": [
 					{
-						"internalType": "string",
-						"name": "name",
-						"type": "string"
-					},
-					{
 						"internalType": "address",
-						"name": "owner",
+						"name": "_owner",
 						"type": "address"
-					},
-					{
-						"internalType": "address",
-						"name": "laboratory",
-						"type": "address"
-					},
-					{
-						"internalType": "bool",
-						"name": "enable",
-						"type": "bool"
 					}
 				],
 				"stateMutability": "view",
@@ -558,7 +542,7 @@
 				"inputs": [
 					{
 						"internalType": "bytes4",
-						"name": "interfaceId",
+						"name": "_interfaceID",
 						"type": "bytes4"
 					}
 				],
@@ -574,19 +558,51 @@
 				"type": "function"
 			},
 			{
+				"inputs": [],
+				"name": "symbol",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "_symbol",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "uint256",
-						"name": "",
+						"name": "_tokenId",
 						"type": "uint256"
 					}
 				],
-				"name": "uri",
+				"name": "tokenURI",
 				"outputs": [
 					{
 						"internalType": "string",
 						"name": "",
 						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bytes32",
+						"name": "",
+						"type": "bytes32"
+					}
+				],
+				"name": "usedClaims",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
 					}
 				],
 				"stateMutability": "view",

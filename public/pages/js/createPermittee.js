@@ -102,13 +102,12 @@ async function createPermittee(permitteeId, permitteeAddress, appSecret) {
   bodyContent.append("address", permitteeAddress);
   bodyContent.append("secret", permitteeSecret);
   bodyContent.append("env", window.ENV)
-  const url = `${window.NEWAPIBASE}/create_permitee`;
+  const url = `${window.NEWAPIBASE}/create_permitee?id=${permitteeId}&address=${permitteeAddress}&secret=${permitteeSecret}&env=${window.ENV}`;
   return fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
-    },
-    body: bodyContent
+    }
   }).then((res) => {
     return res.json();
   }).catch((error) => {
