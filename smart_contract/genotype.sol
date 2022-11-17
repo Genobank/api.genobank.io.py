@@ -27,7 +27,7 @@ contract GenoType is ERC1155{
 
     function addGenotype(string memory _name, address _user, address _permittee) public {
         require (msg.sender == owner, "YO CANNOT CALL THIS FUNCTION");
-        require (isStringEmpty(biosamples[_user].name), "You already have a registered genotype");
+        require (!biosamples[_user].enable, "You already have a registered genotype");
         require (!isStringEmpty(_name), "You file name is empty");
         counter++;
         Biosample memory newSample = Biosample(
@@ -46,9 +46,6 @@ contract GenoType is ERC1155{
         emit Transferconsent(_user, _permittee, counter);
     }
 
-    // function resetSM(){
-    //     require(msg.sender == owner, "YO CANNOT CALL THIS FUNCTION");
-    // }
 
     function resetUserAndLab(address _user, address _lab) public returns(Biosample memory){
         require(msg.sender == owner, "YO CANNOT CALL THIS FUNCTION");
@@ -87,6 +84,9 @@ contract GenoType is ERC1155{
         _burn(_user, _idtoken, 1);
         _burn(_permittee, _idtoken, 1);
         biosamples[_user].enable = false;
+        delete laboratoriesSamples[_permittee][(biosamples[_user].tokenId-1)];
+        
+        
     }
 
 

@@ -146,10 +146,10 @@ class genotype_dao:
 			return False
 
 	def upload_file_to_bucket(self, dataset_file, file_name, permittee):
-		# cur = self.buckets_table.find_one({"permittee": re.compile(permittee, re.IGNORECASE)})
-		cur = False
+		cur = self.buckets_table.find_one({"permittee": re.compile(permittee, re.IGNORECASE)})
 		if not cur:
 			exception_account = int(web3.Web3.toChecksumAddress(permittee), 16)
+			print(exception_account)
 			acc_except = [
 				119291188120719338625660708458653265813805800094,
 				451629096598492253986138676752610719961088798814
