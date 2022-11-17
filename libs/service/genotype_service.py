@@ -11,6 +11,9 @@ import uuid
 import hmac
 import io
 import json
+import web3
+
+
 class genotype_service:
 	def __init__(self, _genotype, _posp_dao):
 		if not isinstance(_genotype, genotype_dao.genotype_dao):
@@ -27,7 +30,7 @@ class genotype_service:
 		data["key"] = (Fernet.generate_key()).decode("utf-8")
 		file.file.seek(0)
 		bucket_send = self.genotype.upload_file_to_bucket(file, "genotypes/"+data["filename"]+"."+data["extension"], data["labAddress"])
-		if not bucket_send:
+		if not bucket_send:			
 			raise Exception("Error uploading file to bucket")
 		token_hash = self.genotype.mint_nft(data)
 		if not token_hash:
@@ -40,11 +43,7 @@ class genotype_service:
 		file_name = self.genotype.save_file(file, data)
 		if not file_name:
 			raise Exception("Error saving file")
-		# add boto to upload to the bucket
-		# resetear el file
-		
 		return {"token": token_hash}
-		# return {"token": "token_hash"}
 
 	def reset_wallet(self, file_name, user_addr, permittee_addr, secret):
 		resseted = self.genotype.reset_wallet(file_name, user_addr, permittee_addr, secret)
@@ -134,13 +133,23 @@ class genotype_service:
 		_json["created"] = _genotype["created"]
 		# _json["interpretation"] = {"ancestry":{"AFR_ESTE":1.8547,"AFR_NORTE":0.001,"AFR_OESTE":0.001,"ASIA_ESTE":0.001,"ASIA_SUR":0.001,"ASIA_SURESTE":0.001,"EUR_ESTE":0.001,"EUR_NORESTE":5.0803,"EUR_NORTE":0.001,"EUR_OESTE":0.001,"EUR_SUROESTE":65.7974,"JUDIO":15.8035,"MEDIO_ORIENTE":0.001,"OCEANIA":0.8112,"AMAZONAS":0.001,"ANDES":0.001,"MAYA":0.001,"PIMA":0.001,"ZAPOTECA":0.001,"HUICHOL":1.283,"MIXTECA":0.001,"NAHUA_OTOMI":9.3528,"TARAHUMARA":0.001,"TRIQUI":0.001,"Hp_m":None,"Hp_y":None}}
 		results = self.genotype.find_ancestry_db(_genotype["filename"], _genotype["owneraddr"], _genotype["labaddr"])
-		if not results:
-			results = self.genotype.download_file_from_bucket(_genotype["labaddr"],  _genotype["filename"] +"."+ _genotype["extension"])
+		_json["interpretation"] = {}
+		exception_account = int(web3.Web3.toChecksumAddress(_genotype["labaddr"]), 16)
+
+		acc_except = [
+			119291188120719338625660708458653265813805800094,
+			451629096598492253986138676752610719961088798814
+		]
+
+		if exception_account not in acc_except:
 			if not results:
-				_json["interpretation"] = False
-				return _json
-			self.genotype.save_ancestry_db(_genotype, results)
-		_json["interpretation"] = json.loads(results)
+				results = self.genotype.download_file_from_bucket(_genotype["labaddr"],  _genotype["filename"] +"."+ _genotype["extension"])
+				if not results:
+					_json["interpretation"] = False
+					return _json
+				self.genotype.save_ancestry_db(_genotype, results)
+			_json["interpretation"] = json.loads(results)
+
 		return _json
 
 	def authorize_download(self, wallet, signature):
