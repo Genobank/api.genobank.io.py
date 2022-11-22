@@ -161,6 +161,7 @@ class test_permittee_dao:
 
   def validate_permittee(self, permittee):
     try:
+      print("\n\n", permittee,"\n\n")
       collection = self.db.permittees
       cur = collection.find_one({"owner": re.compile(permittee, re.IGNORECASE)})
       if not cur:
