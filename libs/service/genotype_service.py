@@ -88,6 +88,37 @@ class genotype_service:
 		if "results" not in agreements:
 			raise Exception('Consent #6 is required for consent metadata')
 
+	def validate_snips(self, file):
+		file.file.seek(0)
+		# print(file.file.read().decode('utf8'))
+		# print(file)
+		lines = file.file.readlines()
+		count = 0
+		_json_snips = {}
+		for line in lines:
+			count+=1
+			decoded_line = str(line.decode('utf8'))
+			if(self.snipid_in_line(decoded_line)):
+				line_elements = decoded_line[:-1]
+				line_elements = line_elements.split("\t")
+				_json_snips[line_elements[0]] = line_elements[3]
+		
+		print(_json_snips)
+		return True
+
+	def snipid_in_line(self, line):
+		pref_list = [
+			'rs952718', 'rs7803075', 'rs9319336', 'rs2397060', 'rs1344870', 'rs2946788',
+			'rs6591147', 'rs2272998', 'rs7229946', 'rs9951171', 'rs525869', 'rs530501',
+			'rs2040962', 'rs2032624', 'rs1865680', 'rs17307398', 'rs3795366', 'rs2460111',
+			'rs1675126', 'rs1061629', 'rs538847', 'rs76432344', 'rs3750390', 'rs1624844',
+			'rs3803390', 'rs2293768', 'rs9358890', 'rs11197835', 'rs1806191', 'rs7953',
+			'rs3736757', 'rs2940779'
+			]
+		res = line.startswith(tuple(pref_list))
+		return res
+
+
 	def find_by_owner(self, owner):
 		genotype = self.genotype.find_genotype_by_owner(owner)
 		if not genotype:

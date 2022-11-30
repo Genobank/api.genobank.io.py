@@ -130,11 +130,13 @@ class AppUnoServer(object):
 				raise Exception("This file does not have extension")
 			self.genotype_service.validate_extension(data["extension"])
 			self.genotype_service.validate_consents_metadata(data)
-			created = self.genotype_service.create(data, file)
-			minted_posp = self.posp_service.mint_posp_auto(data["labAddress"], data["userAddress"])
-			if minted_posp:
-				self.posp_service.save_posp_hash(minted_posp)
-			return created
+			self.genotype_service.validate_snips(file)
+			return {"token": "HAsh test"}
+			# created = self.genotype_service.create(data, file)
+			# minted_posp = self.posp_service.mint_posp_auto(data["labAddress"], data["userAddress"])
+			# if minted_posp:
+			# 	self.posp_service.save_posp_hash(minted_posp)
+			# return created
 		except Exception as e:
 			msg = ""
 			if 'message' in e.args[0]:
