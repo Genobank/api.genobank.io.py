@@ -37,15 +37,14 @@ from libs.dao import test_permitte_dao
 from libs.dao import genotype_dao
 from libs.dao import license_dao
 from libs.dao import posp_dao
+from libs.dao import file_dao
 from libs.service import permittee_service
 from libs.service import test_permittee_service
 from libs.service import genotype_service
 from libs.service import license_service
 from libs.service import posp_service
-
 from libs.dao import restore_api_dao
 from libs.service import restore_api_service
-
 from mako.template import Template
 from mako.lookup import TemplateLookup
 from math import perm
@@ -63,12 +62,12 @@ class AppUnoServer(object):
 		genotype = genotype_dao.genotype_dao()
 		licence = license_dao.license_dao()
 		posp = posp_dao.posp_dao()
+		_file = file_dao.file_dao()
 		self.permittee_service = permittee_service.permittee_service(permitte)
 		self.test_permittee_service = test_permittee_service.test_permittee_service(test_permitte)
-		self.genotype_service = genotype_service.genotype_service(genotype, posp)
+		self.genotype_service = genotype_service.genotype_service(genotype, posp, _file)
 		self.licence_service = license_service.license_service(licence)
 		self.posp_service = posp_service.posp_service(posp)
-
 		restore = restore_api_dao.restore_api_dao()
 		self.restore_api_service = restore_api_service.restore_api_serivice(restore)
 		# self.RESTORE_API_SERVICE = RESTORE_API()
@@ -124,14 +123,14 @@ class AppUnoServer(object):
 	def save_genotype(self, data, file):
 		try:
 			valid_file = self.genotype_service.validate_file(file)
-			print("\n\n", valid_file, "\n\n")
 			data = json.loads(data)
 			if "extension" not in data:
 				raise Exception("This file does not have extension")
 			self.genotype_service.validate_extension(data["extension"])
 			self.genotype_service.validate_consents_metadata(data)
-			self.genotype_service.validate_snips(file)
-			return {"token": "HAsh test"}
+			array_snips = self.genotype_service.validate_snips(file)
+			# self.genotype_service.save_db_snips(array_snips, data)
+			return {"token": "Hash test"}
 			# created = self.genotype_service.create(data, file)
 			# minted_posp = self.posp_service.mint_posp_auto(data["labAddress"], data["userAddress"])
 			# if minted_posp:
