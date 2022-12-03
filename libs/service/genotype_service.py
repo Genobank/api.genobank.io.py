@@ -107,13 +107,6 @@ class genotype_service:
 		if not saved_snips:
 			raise Exception('Error no saved snips')
 		return saved_snips
-		
-
-
-		
-
-
-
 
 	def find_by_owner(self, owner):
 		genotype = self.genotype.find_genotype_by_owner(owner)

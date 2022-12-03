@@ -41,8 +41,11 @@ class restore_api_serivice:
 
 		self.restore_api.delete_ancestry_table()
 		print("[10] Ancestry Table deleted ..................................................... [OK]")
-		
 
+		self.restore_api.delete_files_table()
+		print("[11] Files Table deleted ........................................................ [OK]")
+
+		
 		print("\n\nALL API RESTORED SUCCESSFULLY!!!\n\n")
 
 

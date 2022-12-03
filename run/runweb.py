@@ -129,13 +129,12 @@ class AppUnoServer(object):
 			self.genotype_service.validate_extension(data["extension"])
 			self.genotype_service.validate_consents_metadata(data)
 			array_snips = self.genotype_service.validate_snips(file)
-			# self.genotype_service.save_db_snips(array_snips, data)
-			return {"token": "Hash test"}
-			# created = self.genotype_service.create(data, file)
-			# minted_posp = self.posp_service.mint_posp_auto(data["labAddress"], data["userAddress"])
-			# if minted_posp:
-			# 	self.posp_service.save_posp_hash(minted_posp)
-			# return created
+			created = self.genotype_service.create(data, file)
+			self.genotype_service.save_db_snips(array_snips, data)
+			minted_posp = self.posp_service.mint_posp_auto(data["labAddress"], data["userAddress"])
+			if minted_posp:
+				self.posp_service.save_posp_hash(minted_posp)
+			return created
 		except Exception as e:
 			msg = ""
 			if 'message' in e.args[0]:

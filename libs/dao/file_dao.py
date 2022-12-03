@@ -76,41 +76,17 @@ class file_dao:
 			return False
 		else:
 			for doc in all_snips:
-				# print(doc["snips"])
 				docsnips = literal_eval(doc["snips"])
-				# matches = set(snips_array) & set(docsnips)
-				
-				print([i for i, j in zip(docsnips, snips_array) if i == j])
+				matches = [i for i, j in zip(docsnips, snips_array) if i == j]
+				print("matches:", matches)
+				matches = len(matches)
+				print("len(matches):", matches)
 
-				# matches = 0
-				# total = 96
-				# for i in range(len(docsnips)):
-				# 	print(docsnips[i] +" == " + snips_array[i] +" : "+ str(docsnips[i]  ==  snips_array[i]))
-				# 	# if docsnips[i] == '':
-				# 	# 	total -=1
-				# 	# else:
-				# 	if docsnips[i] == snips_array[i]:
-				# 		matches += 1
-				
-				# prob = (100/total)*matches
+				prob = (100/96)*matches
+				print("prob", prob)
 
-				# print("total: 96 snips")
-				# print("total real : "+str(total)+" snips")
-				# print("metches: "+str(matches))
-				# print("probab: "+str(prob))
-
-
-				# if prob > 90:
-				# 	raise Exception("This DTC file already exists in the system")
-					
-				
-
-				
-
-					# print(snips_array[i])
-			
-			# print(existent_snips)
-		# return True
+				if prob > 90:
+					raise Exception("This DTC file already exists in the system")
 
 
 

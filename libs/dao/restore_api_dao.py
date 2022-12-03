@@ -21,6 +21,7 @@ class restore_api_dao:
 		self.genotypes_table = self.db.genotypes
 		self.posp_table = self.db.posp
 		self.ancestry_table = self.db.ancestry
+		self.files_table = self.db.files
 		
 	def delete_genotypes_table(self):
 		try:
@@ -158,6 +159,16 @@ class restore_api_dao:
 		except Exception as e:
 			print(e)
 			return False
+
+
+	def delete_files_table(self):
+		try:
+			deleted = self.files_table.delete_many({})
+			return deleted.deleted_count+" documents deleted successfully"
+		except Exception as e:
+			print(e)
+			return False
+
 
 		
 
