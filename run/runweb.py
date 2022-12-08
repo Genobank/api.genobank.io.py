@@ -308,16 +308,15 @@ class AppUnoServer(object):
 		try:
 			_jsonmetadata =  json.loads(metadata)
 			return self.posp_service.create_sm_token(_jsonmetadata)
-		except:
-			raise
-		# except Exception as e:
-		# 	msg = ""
-		# 	if 'message' in e.args[0]:
-		# 		msg = str(e.args[0]['message'])
-		# 	else:
-		# 		msg = str(e)
-		# 	raise cherrypy.HTTPError("500 Internal Server Error", msg)
-
+		# except:
+		# 	raise
+		except Exception as e:
+			msg = ""
+			if 'message' in e.args[0]:
+				msg = str(e.args[0]['message'])
+			else:
+				msg = str(e)
+			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
