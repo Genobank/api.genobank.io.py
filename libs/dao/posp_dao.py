@@ -38,6 +38,8 @@ class posp_dao:
 		print(_metadata)
 		name = str(_metadata["name"])
 		symbol = _metadata["symbol"]
+		if len(symbol) > 11:
+			raise Exception("Error the symbol must not contain more than 11 characters")
 		laboratory = _metadata["laboratory"]
 		print("self.account.address",self.account.address)
 
