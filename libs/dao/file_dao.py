@@ -86,7 +86,7 @@ class file_dao:
 				print("prob", prob)
 
 				if prob > 90:
-					raise Exception("This DTC file already exists in the system")
+					raise Exception("Unique SNP Fingerprint Test Failed:  This raw data file already exists, please email support@genobank.io if you're the owner and can't login with your previous DNA Wallet (Previous 12 seed phrase lost).  A new DNA test Kit might be necessary to recover your account.")
 
 
 
