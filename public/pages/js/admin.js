@@ -1,5 +1,60 @@
 let isIdValid = false;
 let isAddressValid = false;
+
+$(document).ready(async function(){
+  $('#createBiosampleBiosampleId').on('blur', async function() {
+    const biosampleId = $('#createBiosampleBiosampleId').val();
+    const success = await checkCreateBiosampleBiosampleId(biosampleId) && await checkBiosampleActivations(biosampleId);
+    const cssClass = success ? 'text-success' : 'text-danger';
+    const icon = success ? 'fa-check' : 'fa-times';
+    const text = `Biosample ID #${biosampleId} ${success ? 'has NOT been activated by a customer yet.' : 'was already activated by a customer or activation was already generated.'}`;
+    if (success) {
+      $('#createBiosampleBiosampleId').addClass('is-valid');
+      $('#createBiosampleBiosampleId').removeClass('is-invalid');
+    } else {
+      $('#createBiosampleBiosampleId').addClass('is-invalid');
+      $('#createBiosampleBiosampleId').removeClass('is-valid');
+    }
+    $('#createBiosampleBiosampleIdValidation').html(`
+      <small class="form-text ${cssClass}">
+        <i class="fa ${icon}"></i> ${text}
+      </small>
+    `);
+    console.log(success)
+  });
+});
+
+
+
+$(document).ready(() => {
+
+
+
+  (() => {
+    var $el = $([
+      '#createBiosampleUrlBase', '#batchCreateBiosampleUrlBase'
+    ].join(','));
+    $el.empty(); // remove old options
+    for (let base of window.BIOSAMPLE_ACTIVATION_BASE) {
+      $el.append($("<option></option>").attr("value", base).text(base));
+    }
+  })();
+
+  // (async () => {
+  //   var $el = $([
+  //     '#registerPermitteePermitteeId', '#uploadPermitteePublicPermitteeId', 
+  //     '#storeProfilePermitteeId', '#createBiosamplePermitteeId',
+  //     '#activateBiosamplePermitteeId', '#createPermissionPermitteeId', 
+  //     '#updatePermissionPermitteeId', '#batchCreateBiosamplePermitteeId'
+  //   ].join(','));
+  //   $el.empty(); // remove old options
+  //   for (let entry of await getPermitteeOptions()) {
+  //     $el.append($("<option></option>").attr("value", entry[1]).text(entry[0]));
+  //   }
+  // })();
+
+  // loadEnvBasedText();
+});
 async function check_id(){
   const permitteeId = $('#registerPermitteePermitteeId').val()
   const uri = `${window.API_BASE}/permittees/${permitteeId}`
@@ -141,4 +196,43 @@ async function createPermitteeHMAC(permitteeId, permitteeAddress, appSecret) {
   );
   var b = new Uint8Array(hmac);
   return Array.prototype.map.call(b, x => ('00'+x.toString(16)).slice(-2)).join("");
+}
+
+
+async function checkCreateBiosampleBiosampleId(biosampleId) {
+  const url = `${window.API_BASE}/biosamples/${biosampleId}`;
+  return fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+  }).then(async (res) => {
+    const result = await res.json();
+    if (result.errors) {
+      return true;
+    }
+    return false;
+  }).catch((error) => {
+    console.log(error);
+    return true;
+  });
+}
+
+async function checkBiosampleActivations(biosampleId) {
+  const url = `${window.API_BASE}/biosample-activations?filterSerials[0]=${biosampleId}`;
+  return fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+  }).then(async (res) => {
+    const result = await res.json();
+    if (result.data?.length > 0) {
+      return false;
+    }
+    return true;
+  }).catch((error) => {
+    console.log(error);
+    return true;
+  });
 }

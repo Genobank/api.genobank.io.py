@@ -25,7 +25,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/web3/3.0.0-rc.5/web3.min.js" integrity="sha512-jRzb6jM5wynT5UHyMW2+SD+yLsYPEU5uftImpzOcVTdu1J7VsynVmiuFTsitsoL5PJVQi+OtWbrpWq/I+kkF4Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous"
+          referrerpolicy="no-referrer" />
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://getbootstrap.com/docs/5.2/assets/css/docs.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
@@ -38,30 +40,30 @@
 		<link rel = "icon" href = "./static/images/favicon-32x32.png" type = "image/x-icon">
 </head>
 <body onload="init()">
- <nav class="navbar navbar-expand-lg" id="navbar" >
-	<div class="container">
-		<a class="navbar-brand" href="#">
-			## <object data="./static/images/GenoBank.io_logo.svg" width="160" height="30"> </object><br>
-			<object data="./static/images/GenoBank.io_logo.svg" width="160" height="30"> </object><br>
-			<h6>Platform Administration</h6>
-		</a>
-		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-			<span class="navbar-toggler-icon"></span>
-		</button>
-		<div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-			<div class="navbar-nav">
-				<a class="nav-link active" id= "permette-href">Permittees</a>
-				<a class="nav-link disabled" id ="profiles-href">Profiles</a>
-				## <a class="nav-link disabled" href="#">Permission tokens (Disabled)</a>
-				## <a class="nav-link disabled">Files (Disabled)</a>
-				## <a class="nav-link disabled">Fulfillment (Disabled)</a>
+	<nav class="navbar navbar-expand-lg" id="navbar" >
+		<div class="container">
+			<a class="navbar-brand" href="#">
+				## <object data="./static/images/GenoBank.io_logo.svg" width="160" height="30"> </object><br>
+				<object data="./static/images/GenoBank.io_logo.svg" width="160" height="30"> </object><br>
+				<h6>Platform Administration</h6>
+			</a>
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+				<div class="navbar-nav">
+					<a class="nav-link active" id= "permette-href">Permittees</a>
+					<a class="nav-link disabled" id ="profiles-href">Profiles</a>
+					## <a class="nav-link disabled" href="#">Permission tokens (Disabled)</a>
+					## <a class="nav-link disabled">Files (Disabled)</a>
+					## <a class="nav-link disabled">Fulfillment (Disabled)</a>
+				</div>
 			</div>
 		</div>
-	</div>
-</nav>
+	</nav>
 
-<br>
-<div class="container" style="width: 100%;">
+	<br>
+	<div class="container" style="width: 100%;">
   ## ${section}
   
 	## <%

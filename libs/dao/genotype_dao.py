@@ -350,7 +350,7 @@ class genotype_dao:
 			# s3_client = boto3.client(service_name='s3',
 			# 													aws_access_key_id='AKIAUFOG4Q6XPT3LMZHB',
 			# 													aws_secret_access_key='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',
-			# 													region_name='us-east-1'
+			# # 													region_name='us-east-1'
 			# 												)
 			# s3_client.download_file(Bucket='somos-genobank', Key='GHAnDU0029.txt', Filename='GHAnDU0029.txt')
 		return (wallet == permittee)
