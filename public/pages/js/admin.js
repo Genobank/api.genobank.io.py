@@ -20,8 +20,23 @@ $(document).ready(async function(){
         <i class="fa ${icon}"></i> ${text}
       </small>
     `);
-    console.log(success)
+
   });
+
+  (async () => {
+    var $el = $([
+      '#registerPermitteePermitteeId', '#uploadPermitteePublicPermitteeId', 
+      '#storeProfilePermitteeId', '#createBiosamplePermitteeId',
+      '#activateBiosamplePermitteeId', '#createPermissionPermitteeId', 
+      '#updatePermissionPermitteeId', '#batchCreateBiosamplePermitteeId'
+    ].join(','));
+    $el.empty(); // remove old options
+    for (let entry of await getPermitteeOptions()) {
+      $el.append($("<option></option>").attr("value", entry[1]).text(entry[0]));
+    }
+  })();
+
+
 });
 
 
@@ -234,5 +249,66 @@ async function checkBiosampleActivations(biosampleId) {
   }).catch((error) => {
     console.log(error);
     return true;
+  });
+}
+
+
+
+async function getPermitteeOptions() {
+  let permittees = await getPermittees();
+  // get all profiles
+  // let permitteeSerials = permittees.map((p) => p.serial);
+  let profiles = await getProfiles([]); // [permitteeSerials]
+
+  return permittees.map((pe) => {
+    let item = [`${pe.serial} - Anonymous`, pe.serial];
+    let profile = profiles.find((pr) => pe.serial == pr.serial);
+    if (profile) {
+      try {
+        let data = JSON.parse(profile.text);
+        if (data.name) {
+          item[0] = `${pe.serial} - ${data.name}`;
+        }
+      } catch(e) {}
+    }
+    return item;
+  });
+}
+
+
+async function getPermittees() {
+  const url = `${window.API_BASE}/permittees`;
+  return fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+  }).then((res) => {
+    return res.json();
+  }).then((res) => {
+    return res.data;
+  }).catch((error) => {
+    console.error(error);
+    return { error: error.message };
+  });
+}
+
+async function getProfiles(serials) {
+  let url = `${window.API_BASE}/profiles`;
+  if (Array.isArray(serials) && serials.length > 0) {
+    url += '?' + serials.map((s) => `filterSerials[]=${s}`).join('&');
+  }
+  return fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+  }).then((res) => {
+    return res.json();
+  }).then((res) => {
+    return res.data;
+  }).catch((error) => {
+    console.error(error);
+    return { error: error.message };
   });
 }
