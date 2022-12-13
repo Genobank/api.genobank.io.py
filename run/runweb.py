@@ -116,6 +116,7 @@ class AppUnoServer(object):
 			t = self.mylookup.get_template("profiles.mako")
 			return t.render(plc = "Profiles", env=os.getenv('ENVIROMENT'))
 
+
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['POST', 'OPTIONS'])
@@ -587,6 +588,9 @@ class AppUno(object):
 			},'/js': {
 				'tools.staticdir.on': True,
 				'tools.staticdir.dir': abspath('./public/pages/js'),
+			},'/images': {
+				'tools.staticdir.on': True,
+				'tools.staticdir.dir': abspath('./public/images'),
 			},'/': {
 				'tools.sessions.on': True,
 				'tools.response_headers.on': True,

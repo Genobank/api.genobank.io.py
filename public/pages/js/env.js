@@ -11,6 +11,7 @@ window.BIOSAMPLE_ACTIVATION_BASE = test ? [
   `https://start.somosancestria.com`,
 ];
 
+window.favicon = test ? './../static/images/favicon-32x32.png':'./static/images/favicon-32x32.png';
 
 // window.NEWAPIBASE = 'http://localhost:8081'
 

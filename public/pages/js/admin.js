@@ -312,3 +312,67 @@ async function getProfiles(serials) {
     return { error: error.message };
   });
 }
+
+async function createBiosample() {
+  if(validateCreateBiosampleButton()) {
+    const domainId = $('#createBiosampleUrlBase').val();
+    const biosampleId = $('#createBiosampleBiosampleId').val();
+    const permitteeId = $('#createBiosamplePermitteeId').val();
+    const physicalId = $('#createBiosamplePhysicalId').val();
+    const appSecret = $('#createBiosampleApplicationSecret').val();
+    const permittee = await getPermittee(permitteeId);
+    const publicKey = await getPublicKey(permittee.data.owner);
+    let html = '';
+    if (!publicKey || !publicKey.data) {
+      html = `<small class="form-text text-warning"><i class="fa fa-warning"></i> Selected permittee does not have public key set. Activations will not be possible until public key is set!</small><br/>`
+    }
+    const biosampleActivation = await createBiosampleActivation(biosampleId, permitteeId, physicalId, appSecret);
+    if (biosampleActivation.errors) {
+      $('#createBiosampleResult').removeClass('bg-success');
+      $('#createBiosampleResult').addClass('bg-danger');
+      $('#createBiosampleResult').html(JSON.stringify(biosampleActivation.errors));
+    } else {
+      const url = await createActivationURL(domainId, biosampleId, permitteeId, physicalId, biosampleActivation.data.secret);
+      html = `${html}
+        <b>Activation URL:</b> ${url}<br/>
+      `;
+      $('#createBiosampleResult').addClass('bg-success');
+      $('#createBiosampleResult').removeClass('bg-danger');   
+      $('#createBiosampleResult').html(html);
+    }
+  } else {
+    $('#createBiosampleResult').removeClass('bg-success');
+    $('#createBiosampleResult').addClass('bg-danger');
+    $('#createBiosampleResult').html('Inputs invalid');
+  }
+}
+
+async function getPermittee(serial) {
+  return fetch(`${window.API_BASE}/permittees/${serial}`, {
+    method: 'GET',
+    headers: {
+      "Content-type": "application/json; charset=UTF-8"
+    },
+  }).then((res) => {
+    return res.json();
+  }).catch((e) => {
+    return { errors: [{message: e }]};
+  });
+}
+
+/**
+ * Gets public key based on address.
+ * @param address Address for which we want a public key.
+ */
+async function getPublicKey(address) {
+  return fetch(`${window.API_BASE}/public-key/${address}`, {
+		method: 'GET',
+		headers: {
+			"Content-type": "application/json; charset=UTF-8"
+		},
+	}).then((res) => {
+		return res.json();
+	}).catch((e) => {
+		return { errors: [{message: e }]};
+	});
+}

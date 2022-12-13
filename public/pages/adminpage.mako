@@ -1,4 +1,4 @@
-<%include file="components/detail.mako" args="section='Permittees'" />
+<%include file="components/detail.mako" args="section='Permittees', other='abcde'" />
 <html>
   <head>
     <meta charset="utf-8">
@@ -7,6 +7,7 @@
   </head>
   <body>
     <div class="container">
+
       <div class="header">
       </div>
       ## form

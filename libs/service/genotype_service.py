@@ -32,10 +32,10 @@ class genotype_service:
 	def create(self, data, file):
 		data["filename"] = str(uuid.uuid4())
 		data["key"] = (Fernet.generate_key()).decode("utf-8")
-		# file.file.seek(0)
-		# bucket_send = self.genotype.upload_file_to_bucket(file, "genotypes/"+data["filename"]+"."+data["extension"], data["labAddress"])
-		# if not bucket_send:			
-		# 	raise Exception("Error uploading file to bucket")
+		file.file.seek(0)
+		bucket_send = self.genotype.upload_file_to_bucket(file, "genotypes/"+data["filename"]+"."+data["extension"], data["labAddress"])
+		if not bucket_send:			
+			raise Exception("Error uploading file to bucket")
 		token_hash = self.genotype.mint_nft(data)
 		if not token_hash:
 			raise Exception("Error minting token")
