@@ -3,7 +3,10 @@
   <head>
     <meta charset="utf-8">
     <title>${plc}</title>
-    <script src="/js/admin.js"></script>
+    <script src="/js/qrcode.min.js"></script>
+    <script src="/js/admin-libs.js"></script>
+    <script src="/js/admin-forms.js"></script>
+    <script src="/js/admin-validators.js"></script>
   </head>
   <body>
     <div class="container">
@@ -131,6 +134,7 @@
                 <div class="form-group row">
                   <div class="col-md-3">
                     <button onclick="createBiosample()" type="button" class="btn btn-info">Generate URL</button>
+                    ## <button onclick="createQRURL()" type="button" class="btn btn-info">Generate URL</button>
                   </div>
                   <div class="col-sm-9">
                     This operation will be sent to the API server. You can only generate URL for a biosample ONCE so make sure to copy it!
@@ -138,6 +142,8 @@
                 </div>
               
                 <div id="createBiosampleResult" class="rounded p-3 text-wrap text-break"></div>
+                <div id="qrCode" class="col-md-12 d-flex justify-content-center align-items-center"></div>
+                ## <div id="imageDownloader"></div>
               </form>
             </div>
           </div>

@@ -1,27 +1,18 @@
 let isIdValid = false;
 let isAddressValid = false;
 
-$(document).ready(async function(){
-  $('#createBiosampleBiosampleId').on('blur', async function() {
-    const biosampleId = $('#createBiosampleBiosampleId').val();
-    const success = await checkCreateBiosampleBiosampleId(biosampleId) && await checkBiosampleActivations(biosampleId);
-    const cssClass = success ? 'text-success' : 'text-danger';
-    const icon = success ? 'fa-check' : 'fa-times';
-    const text = `Biosample ID #${biosampleId} ${success ? 'has NOT been activated by a customer yet.' : 'was already activated by a customer or activation was already generated.'}`;
-    if (success) {
-      $('#createBiosampleBiosampleId').addClass('is-valid');
-      $('#createBiosampleBiosampleId').removeClass('is-invalid');
-    } else {
-      $('#createBiosampleBiosampleId').addClass('is-invalid');
-      $('#createBiosampleBiosampleId').removeClass('is-valid');
-    }
-    $('#createBiosampleBiosampleIdValidation').html(`
-      <small class="form-text ${cssClass}">
-        <i class="fa ${icon}"></i> ${text}
-      </small>
-    `);
+$(document).ready(() => {
 
-  });
+  (() => {
+    var $el = $([
+      '#createBiosampleUrlBase', '#batchCreateBiosampleUrlBase'
+    ].join(','));
+    $el.empty(); // remove old options
+    for (let base of window.BIOSAMPLE_ACTIVATION_BASE) {
+      $el.append($("<option></option>").attr("value", base).text(base));
+    }
+  })();
+
 
   (async () => {
     var $el = $([
@@ -40,36 +31,6 @@ $(document).ready(async function(){
 });
 
 
-
-$(document).ready(() => {
-
-
-
-  (() => {
-    var $el = $([
-      '#createBiosampleUrlBase', '#batchCreateBiosampleUrlBase'
-    ].join(','));
-    $el.empty(); // remove old options
-    for (let base of window.BIOSAMPLE_ACTIVATION_BASE) {
-      $el.append($("<option></option>").attr("value", base).text(base));
-    }
-  })();
-
-  // (async () => {
-  //   var $el = $([
-  //     '#registerPermitteePermitteeId', '#uploadPermitteePublicPermitteeId', 
-  //     '#storeProfilePermitteeId', '#createBiosamplePermitteeId',
-  //     '#activateBiosamplePermitteeId', '#createPermissionPermitteeId', 
-  //     '#updatePermissionPermitteeId', '#batchCreateBiosamplePermitteeId'
-  //   ].join(','));
-  //   $el.empty(); // remove old options
-  //   for (let entry of await getPermitteeOptions()) {
-  //     $el.append($("<option></option>").attr("value", entry[1]).text(entry[0]));
-  //   }
-  // })();
-
-  // loadEnvBasedText();
-});
 async function check_id(){
   const permitteeId = $('#registerPermitteePermitteeId').val()
   const uri = `${window.API_BASE}/permittees/${permitteeId}`
@@ -214,104 +175,11 @@ async function createPermitteeHMAC(permitteeId, permitteeAddress, appSecret) {
 }
 
 
-async function checkCreateBiosampleBiosampleId(biosampleId) {
-  const url = `${window.API_BASE}/biosamples/${biosampleId}`;
-  return fetch(url, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-  }).then(async (res) => {
-    const result = await res.json();
-    if (result.errors) {
-      return true;
-    }
-    return false;
-  }).catch((error) => {
-    console.log(error);
-    return true;
-  });
-}
-
-async function checkBiosampleActivations(biosampleId) {
-  const url = `${window.API_BASE}/biosample-activations?filterSerials[0]=${biosampleId}`;
-  return fetch(url, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-  }).then(async (res) => {
-    const result = await res.json();
-    if (result.data?.length > 0) {
-      return false;
-    }
-    return true;
-  }).catch((error) => {
-    console.log(error);
-    return true;
-  });
-}
 
 
 
-async function getPermitteeOptions() {
-  let permittees = await getPermittees();
-  // get all profiles
-  // let permitteeSerials = permittees.map((p) => p.serial);
-  let profiles = await getProfiles([]); // [permitteeSerials]
-
-  return permittees.map((pe) => {
-    let item = [`${pe.serial} - Anonymous`, pe.serial];
-    let profile = profiles.find((pr) => pe.serial == pr.serial);
-    if (profile) {
-      try {
-        let data = JSON.parse(profile.text);
-        if (data.name) {
-          item[0] = `${pe.serial} - ${data.name}`;
-        }
-      } catch(e) {}
-    }
-    return item;
-  });
-}
 
 
-async function getPermittees() {
-  const url = `${window.API_BASE}/permittees`;
-  return fetch(url, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-  }).then((res) => {
-    return res.json();
-  }).then((res) => {
-    return res.data;
-  }).catch((error) => {
-    console.error(error);
-    return { error: error.message };
-  });
-}
-
-async function getProfiles(serials) {
-  let url = `${window.API_BASE}/profiles`;
-  if (Array.isArray(serials) && serials.length > 0) {
-    url += '?' + serials.map((s) => `filterSerials[]=${s}`).join('&');
-  }
-  return fetch(url, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-  }).then((res) => {
-    return res.json();
-  }).then((res) => {
-    return res.data;
-  }).catch((error) => {
-    console.error(error);
-    return { error: error.message };
-  });
-}
 
 async function createBiosample() {
   if(validateCreateBiosampleButton()) {
@@ -336,6 +204,7 @@ async function createBiosample() {
       html = `${html}
         <b>Activation URL:</b> ${url}<br/>
       `;
+      createQRURL(url)
       $('#createBiosampleResult').addClass('bg-success');
       $('#createBiosampleResult').removeClass('bg-danger');   
       $('#createBiosampleResult').html(html);
@@ -345,34 +214,4 @@ async function createBiosample() {
     $('#createBiosampleResult').addClass('bg-danger');
     $('#createBiosampleResult').html('Inputs invalid');
   }
-}
-
-async function getPermittee(serial) {
-  return fetch(`${window.API_BASE}/permittees/${serial}`, {
-    method: 'GET',
-    headers: {
-      "Content-type": "application/json; charset=UTF-8"
-    },
-  }).then((res) => {
-    return res.json();
-  }).catch((e) => {
-    return { errors: [{message: e }]};
-  });
-}
-
-/**
- * Gets public key based on address.
- * @param address Address for which we want a public key.
- */
-async function getPublicKey(address) {
-  return fetch(`${window.API_BASE}/public-key/${address}`, {
-		method: 'GET',
-		headers: {
-			"Content-type": "application/json; charset=UTF-8"
-		},
-	}).then((res) => {
-		return res.json();
-	}).catch((e) => {
-		return { errors: [{message: e }]};
-	});
 }
