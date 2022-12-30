@@ -174,13 +174,6 @@ async function createPermitteeHMAC(permitteeId, permitteeAddress, appSecret) {
   return Array.prototype.map.call(b, x => ('00'+x.toString(16)).slice(-2)).join("");
 }
 
-
-
-
-
-
-
-
 async function createBiosample() {
   if(validateCreateBiosampleButton()) {
     const domainId = $('#createBiosampleUrlBase').val();

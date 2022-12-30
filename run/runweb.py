@@ -38,11 +38,13 @@ from libs.dao import genotype_dao
 from libs.dao import license_dao
 from libs.dao import posp_dao
 from libs.dao import file_dao
+from libs.dao import biosample_dao
 from libs.service import permittee_service
 from libs.service import test_permittee_service
 from libs.service import genotype_service
 from libs.service import license_service
 from libs.service import posp_service
+from libs.service import biosample_service
 from libs.dao import restore_api_dao
 from libs.service import restore_api_service
 from mako.template import Template
@@ -55,6 +57,8 @@ import cherrypy
 import hmac
 import json
 import os
+
+
 class AppUnoServer(object):
 	def __init__(self):
 		permitte = permitte_dao.permittee_dao()
@@ -63,11 +67,13 @@ class AppUnoServer(object):
 		licence = license_dao.license_dao()
 		posp = posp_dao.posp_dao()
 		_file = file_dao.file_dao()
+		biosample = biosample_dao.biosample_dao()
 		self.permittee_service = permittee_service.permittee_service(permitte)
 		self.test_permittee_service = test_permittee_service.test_permittee_service(test_permitte)
 		self.genotype_service = genotype_service.genotype_service(genotype, posp, _file)
 		self.licence_service = license_service.license_service(licence)
 		self.posp_service = posp_service.posp_service(posp)
+		self.biosample_service = biosample_service.biosample_service(biosample)
 		restore = restore_api_dao.restore_api_dao()
 		self.restore_api_service = restore_api_service.restore_api_serivice(restore)
 		# self.RESTORE_API_SERVICE = RESTORE_API()
@@ -84,16 +90,18 @@ class AppUnoServer(object):
 
 	_cp_config = {"error_page.default": jsonify_error}
 
-	def CORS():
+	def cors():
+		print(cherrypy.request.method)
 		if cherrypy.request.method == 'OPTIONS':
-			cherrypy.response.headers['Access-Control-Allow-Methods'] = 'POST, GET, DELETE'
-			cherrypy.response.headers['Access-Control-Allow-Headers'] = 'content-type'
+			cherrypy.response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PATCH, PUT, DELETE, OPTIONS'
+			cherrypy.response.headers['Access-Control-Allow-Headers'] = 'Content-type'
 			cherrypy.response.headers['Access-Control-Allow-Origin'] = '*'
 			return True
 		else:
 			cherrypy.response.headers['Access-Control-Allow-Origin'] = '*'
-	
-	cherrypy.tools.CORS = cherrypy._cptools.HandlerTool(CORS)
+
+
+	cherrypy.tools.CORS = cherrypy._cptools.HandlerTool(cors)
 
 	#Methods -------------------------------------------------------------------
 	@cherrypy.expose
@@ -390,6 +398,32 @@ class AppUnoServer(object):
 				msg = str(e)
 			raise cherrypy.HTTPError("500 Internal Server Error", msg)
 
+
+	@cherrypy.expose
+	@cherrypy.tools.allow(methods=['POST', 'OPTIONS'])
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.json_out()
+	@cherrypy.tools.json_in()
+	def claim(self, token_id):
+		try:
+			# print(token_id)
+			data = cherrypy.request.json
+			print(data)
+			return self.biosample_service.claim(token_id, data)
+			# return self.biosample_service.checkBioSampleActivationSecret(token_id, data)
+		except:
+			raise
+		# except Exception as e:
+		# 	msg = ""
+		# 	if 'message' in e.args[0]:
+		# 		msg = str(e.args[0]['message'])
+		# 	else:
+		# 		msg = str(e)
+		# 	raise cherrypy.HTTPError("500 Internal Server Error", msg)
+
+		
+
+
 	@cherrypy.expose
 	@cherrypy.config(**{'tools.CORS.on': True})
 	@cherrypy.tools.allow(methods=['GET'])
@@ -572,7 +606,19 @@ class AppUnoServer(object):
 		except:
 			raise
 
-
+class AppDosServer(object):
+	def __init__(self):
+		return None
+	
+	@cherrypy.expose
+	@cherrypy.config(**{'tools.CORS.on': True})
+	@cherrypy.tools.allow(methods=['GET'])
+	@cherrypy.tools.json_out()
+	def users(self, username = None):
+		if username == None:
+			return "Welcome Unknown User"
+		else:
+			return "welcome "+str(username)+" user"
 
 
 
@@ -585,6 +631,7 @@ class AppUno(object):
 			'/static': {
 				'tools.staticdir.on': True,
 				'tools.staticdir.dir': abspath('./public'),
+				'tools.CORS.on': True,
 			},'/js': {
 				'tools.staticdir.on': True,
 				'tools.staticdir.dir': abspath('./public/pages/js'),
@@ -594,6 +641,7 @@ class AppUno(object):
 			},'/': {
 				'tools.sessions.on': True,
 				'tools.response_headers.on': True,
+				'tools.CORS.on': True,
 				# 'server.socket_port': os.path.abspath(os.getcwd()),
 				# 'response.timeout': False
 			},
@@ -607,5 +655,9 @@ class AppUno(object):
 		cherrypy.server.socket_host = '0.0.0.0'
 		cherrypy.server.socket_port = port
 		cherrypy.quickstart(AppUnoServer(), '/', CONF)
+		# cherrypy.quickstart(AppDosServer(), '/test', CONF)
+
+		# cherrypy.tree.mount(AppUnoServer(), '/', CONF)
+		# cherrypy.tree.mount(AppDosServer(), '/test', CONF)
 
 # Avocado Blockchain Services at Merida, Yucatan
