@@ -68,14 +68,11 @@ class biosample_dao:
 			"status": "ACTIVE",
 			"chainID":43113,
 			"tokenId": create_token_id_string,
-			"createdAt": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")[:-4]+"Z",
-			"updatedAt": None,
+			"createdAt": datetime.datetime.now(),
+			"updatedAt": datetime.datetime.now(),
 			"txHash":str(create_token_mint_hash).lower(),
 			"txStatus":1
 		}
-
-		pprint(biosample_object)
-
 
 		permission_object = {
 			"biosampleSerial":str(biosample_id),
@@ -85,13 +82,12 @@ class biosample_dao:
 			"tokenId":f"0x{token_id}",
 			"status":"ACTIVE",
 			"chainID":43113,
-			"createdAt": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")[:-4]+"Z",
-			"updatedAt": None,
+			"createdAt": datetime.datetime.now(),
+			"updatedAt": datetime.datetime.now(),
 			"txHash":str(create_token_permission_hash),
 			"txStatus":1
 		}
 
-		pprint(permission_object)
 
 		biosample_created = self.create_db_biosample(biosample_object)
 		if not biosample_created:

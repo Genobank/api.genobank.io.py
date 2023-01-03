@@ -293,13 +293,10 @@ class AppUnoServer(object):
 			_json_metadata["hash"] = self.posp_service.mint_posp_or_fail(_json_metadata)
 			self.posp_service.save_posp_hash(_json_metadata)
 			return {"posp_token_hash": _json_metadata["hash"]}
-
-
 			# print("\n\nVALIDATED SUCCESSFULLY \n\n")
 			# return {"Server_message":"Successfully"}
 		# except:
 		# 	raise
-
 		except Exception as e:
 			msg = ""
 			if 'message' in e.args[0]:
@@ -420,8 +417,6 @@ class AppUnoServer(object):
 		# 	else:
 		# 		msg = str(e)
 		# 	raise cherrypy.HTTPError("500 Internal Server Error", msg)
-
-		
 
 
 	@cherrypy.expose
