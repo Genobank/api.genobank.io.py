@@ -49,7 +49,7 @@ class biosample_dao:
 			if not self.check_biosample_secret(data, biosample_id):
 				raise Exception("Error: Invalid Signature")
 		
-		createTokenId, create_token_mint_hash, create_token_permission_hash = self.claim_sm_tokens(token_id, receiverAddress, signature, seed, signature_kind)
+		create_token_id_string, create_token_mint_hash, create_token_permission_hash = self.claim_sm_tokens(token_id, receiverAddress, signature, seed, signature_kind)
 		
 
 		now = datetime.datetime.now()
@@ -62,29 +62,45 @@ class biosample_dao:
 		data_hash = data_signed.messageHash.hex()
 
 		biosample_object = {
-			"txStatus":1,
-			"txHash":str(create_token_mint_hash).lower(),
 			"serial": biosample_id,
-			"status": "ACTIVE",
-			"owner":str(receiverAddress),
 			"actor":str(self.account.address),
-			"tokenId": createTokenId
+			"owner":str(receiverAddress),
+			"status": "ACTIVE",
+			"chainID":43113,
+			"tokenId": create_token_id_string,
+			"createdAt": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")[:-4]+"Z",
+			"updatedAt": None,
+			"txHash":str(create_token_mint_hash).lower(),
+			"txStatus":1
 		}
 
-		self.create_biosample_object(biosample_object)
+		pprint(biosample_object)
+
 
 		permission_object = {
-			"txStatus":1,
-			"txHash":str(create_token_permission_hash),
 			"biosampleSerial":str(biosample_id),
 			"permitteeSerial":activation["permitteeSerial"],
+			"actor":str(receiverAddress),
+			"owner":str(receiverAddress),
 			"tokenId":f"0x{token_id}",
 			"status":"ACTIVE",
-			"owner":str(receiverAddress),
-            "actor":str(receiverAddress),
+			"chainID":43113,
+			"createdAt": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")[:-4]+"Z",
+			"updatedAt": None,
+			"txHash":str(create_token_permission_hash),
+			"txStatus":1
 		}
 
-		self.create_permission_object(permission_object)
+		pprint(permission_object)
+
+		biosample_created = self.create_db_biosample(biosample_object)
+		if not biosample_created:
+			raise Exception("Error biosample not created")
+
+		permission_created = self.create_db_permission(permission_object)
+		if not permission_created:
+			raise Exception("Error permission not created")
+
 
 
 		return {
@@ -101,14 +117,13 @@ class biosample_dao:
 			}
 		} 
 	
-	def create_biosample_object(self, biosample_obj):
-		cur = self.biosamples_table
-		return True
+	def create_db_biosample(self, _biosample_fields):
+		inserted = self.biosamples_table.insert_one(_biosample_fields)
+		return inserted.inserted_id
 
-	def create_permission_object(self, permission_obj):
-		cur = self.permissions_table
-		return True
-
+	def create_db_permission(self, _permission_fields):
+		inserted = self.permissions_table.insert_one(_permission_fields)
+		return inserted.inserted_id
 
 
 	def check_biosample_activation_secret(self, data, biosample_id):
@@ -132,8 +147,8 @@ class biosample_dao:
 			raise e
 
 	def claim_sm_tokens(self, _tokenId, receiver_address, sign, seed, signature_kind):
-		createTokenId = f"0x{_tokenId[0:12]}000000000000{self.account.address[2:]}"
-		createTokenId = int(createTokenId,16)
+		createTokenId_aux = f"0x{_tokenId[0:12]}000000000000{self.account.address[2:]}"
+		createTokenId = int(createTokenId_aux,16)
 		contract = self.w3.eth.contract(address=os.getenv('TEST_BPT_CONTRACT'), abi=self.SM_BPT_JSONINTERFACE['abi'])
 		create_token_tx = contract.functions.mint(
 			createTokenId,
@@ -171,7 +186,7 @@ class biosample_dao:
 		signed_token_hash = tx_send_tx_hash.hex()
 		print("tx_send_tx_hash\n",tx_send_tx_hash.hex())
 
-		return createTokenId, mint_token_hash, signed_token_hash
+		return createTokenId_aux, mint_token_hash, signed_token_hash
 
 
 
